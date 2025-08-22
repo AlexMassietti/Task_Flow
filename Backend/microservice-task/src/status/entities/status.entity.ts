@@ -1,5 +1,7 @@
 import { Task } from 'src/task/entities/task.entity';
-import { Column, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+
+@Entity()
 export class Status {
   @PrimaryGeneratedColumn()
   id: number;
@@ -11,9 +13,8 @@ export class Status {
   description: string;
 
   @OneToMany(() => Task, (task) => task.status)
-  task: Task;
-  constructor(id: number, name: string, description: string) {
-    this.id = id;
+  task: Task[];
+  constructor(name: string, description: string) {
     this.name = name;
     this.description = description;
   }

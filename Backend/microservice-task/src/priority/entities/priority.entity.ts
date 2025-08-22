@@ -1,5 +1,7 @@
 import { Task } from 'src/task/entities/task.entity';
-import { Column, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+
+@Entity()
 export class Priority {
   @PrimaryGeneratedColumn()
   id: number;
@@ -8,14 +10,13 @@ export class Priority {
   name: string;
 
   @Column()
-  description: string;
+  descripcion: string;
 
   @OneToMany(() => Task, (task) => task.priority)
-  task: Task;
+  task: Task[];
 
-  constructor(id: number, name: string, descrption: string) {
-    this.id = id;
+  constructor(name: string, descripcion: string) {
     this.name = name;
-    this.description = this.description;
+    this.descripcion = descripcion;
   }
 }

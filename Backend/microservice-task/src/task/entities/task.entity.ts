@@ -10,6 +10,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 
+@Entity()
 export class Task {
   @PrimaryGeneratedColumn()
   id: number;
@@ -29,15 +30,16 @@ export class Task {
   @Column()
   finishDate: Date;
 
-  @ManyToOne(() => Status, (status) => status.id, { eager: true })
+  @ManyToOne(() => Status, (status) => status.task, { eager: true })
   @JoinColumn({ name: 'statusId' })
   status: Status;
 
-  @ManyToOne(() => Priority, (priority) => priority.id, { eager: true })
+  @ManyToOne(() => Priority, (priority) => priority.task, { eager: true })
   @JoinColumn({ name: 'priorityId' })
   priority: Priority;
 
-  @ManyToOne(() => Dashboard, (dash) => dash.name)
+  @ManyToOne(() => Dashboard, (dash) => dash.task)
+  @JoinColumn({ name: 'dashboardId' })
   dashboard: Dashboard;
 
   constructor(
@@ -47,8 +49,8 @@ export class Task {
     endDate: Date,
   ) {
     this.name = name;
-    (this.description = description),
-      (this.startDate = startDate),
-      (this.endDate = endDate);
+    this.description = description;
+    this.startDate = startDate;
+    this.endDate = endDate;
   }
 }
