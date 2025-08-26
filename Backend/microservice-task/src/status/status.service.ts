@@ -1,11 +1,19 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateStatusDto } from './dto/create-status.dto';
 import { UpdateStatusDto } from './dto/update-status.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Status } from './entities/status.entity';
 
 @Injectable()
 export class StatusService {
-  create(createStatusDto: CreateStatusDto) {
-    return 'This action adds a new status';
+  constructor(
+    @InjectRepository(Status)
+    private readonly statusRepository: Repository<Status>,
+  ) {}
+  async create(createStatusDto: CreateStatusDto): Promise<Status> {
+    const newStatus = this.statusRepository.create(createStatusDto);
+    return await this.statusRepository.save(newStatus);
   }
 
   findAll() {
@@ -17,10 +25,14 @@ export class StatusService {
   }
 
   update(id: number, updateStatusDto: UpdateStatusDto) {
-    return `This action updates a #${id} status`;
+    return this.findOne(id);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} status`;
+  async remove(id: number): Promise<void> {
+    const statusExist = await this.statusRepository.findOne({ where: { id } });
+    if (!statusExist) {
+      throw new NotFoundException(`Status ${id} not found`);
+    }
+    await this.statusRepository.delete(id);
   }
 }

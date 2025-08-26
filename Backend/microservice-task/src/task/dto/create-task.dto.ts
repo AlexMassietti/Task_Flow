@@ -1,14 +1,12 @@
 import {
-  IsDate,
+  IsDateString,
   IsNotEmpty,
-  IsObject,
+  IsNumber,
   IsOptional,
+  IsPositive,
   IsString,
   MinLength,
-  ValidateNested,
 } from 'class-validator';
-import { Priority } from 'src/priority/entities/priority.entity';
-import { Status } from 'src/status/entities/status.entity';
 
 export class CreateTaskDto {
   @IsString()
@@ -20,20 +18,17 @@ export class CreateTaskDto {
   @IsOptional()
   description?: string;
 
-  @IsDate()
-  @IsNotEmpty()
-  startDate: Date;
-
-  @IsDate()
-  @IsNotEmpty()
+  @IsOptional()
+  @IsDateString()
   endDate: Date;
 
-  @IsObject()
-  @ValidateNested()
-  @IsNotEmpty()
-  priority: Priority;
+  @IsNumber()
+  @IsOptional()
+  @IsPositive()
+  statusId: number;
 
-  @IsObject()
-  @IsNotEmpty()
-  status: Status;
+  @IsNumber()
+  @IsOptional()
+  @IsPositive()
+  priorityId: number;
 }

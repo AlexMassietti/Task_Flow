@@ -27,7 +27,7 @@ export class Task {
   @Column()
   endDate: Date;
 
-  @Column()
+  @Column({ nullable: true })
   finishDate: Date;
 
   @ManyToOne(() => Status, (status) => status.task, { eager: true })
@@ -41,16 +41,4 @@ export class Task {
   @ManyToOne(() => Dashboard, (dash) => dash.task)
   @JoinColumn({ name: 'dashboardId' })
   dashboard: Dashboard;
-
-  constructor(
-    name: string,
-    description: string,
-    startDate: Date,
-    endDate: Date,
-  ) {
-    this.name = name;
-    this.description = description;
-    this.startDate = startDate;
-    this.endDate = endDate;
-  }
 }
