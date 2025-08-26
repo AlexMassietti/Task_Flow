@@ -120,7 +120,7 @@ Tarea --> "\t\t1" PrioridadTarea :  prioridad
 entity Tarea{
     id: <<PK>> SERIAL
     titulo: VARCHAR
-    descripcion: VARCHAR
+    descripción: VARCHAR
     fechaInicio: DATE 
     fechaFin: DATE
     fechaEntrega: DATE
@@ -134,25 +134,25 @@ entity Tarea{
 entity Proyecto{
     id: <<PK>> SERIAL
     nombre: VARCHAR
-    descripcion: VARCHAR
+    descripción: VARCHAR
 }
 
 entity PrioridadTarea{
     id: <<PK>> SERIAL
     nombre: VARCHAR
-    descripcion: VARCHAR
+    descripción: VARCHAR
 }
 
 entity Usuario{
     id:<<PK>> SERIAL
     email: VARCHAR
     nombre: VARCHAR
-    password: VARCHAR
+    constraseña: VARCHAR
 }
 
 entity EstadoTarea{
     id: <<PK>> SERIAL
-    descripcion: VARCHAR
+    descripción: VARCHAR
    
 }
 
