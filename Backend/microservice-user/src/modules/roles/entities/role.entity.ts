@@ -5,7 +5,6 @@ import {
   Entity,
   JoinTable,
   ManyToMany,
-  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -29,6 +28,7 @@ export class Role {
   @JoinTable()
   permissions: Permission[];
 
-  @OneToMany(() => User, (user) => user.rol)
+  @ManyToMany(() => User, (user) => user.roles)
+  @JoinTable()
   users: User[];
 }

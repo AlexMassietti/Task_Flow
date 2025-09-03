@@ -5,14 +5,16 @@ import {
   ApiResponse,
   ApiBody,
   ApiParam,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserRole } from './dto/update-user-role.dto';
 import { LoginUserDto } from './dto/login-user.dto';
+import { UpdateUserRoles } from './dto/update-user-role.dto';
 
 @ApiTags('Users')
 @Controller('users')
+@ApiBearerAuth('Bearer')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
@@ -38,9 +40,9 @@ export class UsersController {
   @Post(':id/assignRol')
   @ApiOperation({ summary: 'Asignar o actualizar el rol de un usuario' })
   @ApiParam({ name: 'id', type: Number, description: 'ID del usuario' })
-  @ApiBody({ type: UpdateUserRole })
+  @ApiBody({ type: UpdateUserRoles })
   @ApiResponse({ status: 200, description: 'Rol actualizado correctamente' })
-  updateRol(@Param('id') id: string, @Body() updateUserRol: UpdateUserRole) {
+  updateRol(@Param('id') id: string, @Body() updateUserRol: UpdateUserRoles) {
     return this.usersService.updateRol(Number(id), updateUserRol);
   }
 

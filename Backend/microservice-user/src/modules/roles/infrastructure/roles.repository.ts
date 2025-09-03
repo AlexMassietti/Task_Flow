@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { DeleteResult, Repository, UpdateResult } from 'typeorm';
+import { DeleteResult, In, Repository, UpdateResult } from 'typeorm';
 import { Role } from '../entities/role.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 
@@ -36,5 +36,11 @@ export class RoleRepository {
 
   update(id: number, data: Partial<Role>): Promise<UpdateResult> {
     return this.repo.update(id, data);
+  }
+
+  findByCodes(codes: string[]): Promise<Role[]> {
+    return this.repo.findBy({
+      code: In(codes),
+    });
   }
 }

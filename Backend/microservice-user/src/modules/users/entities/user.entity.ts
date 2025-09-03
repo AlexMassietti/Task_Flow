@@ -3,7 +3,7 @@ import {
   Column,
   Entity,
   Index,
-  ManyToOne,
+  ManyToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -25,6 +25,6 @@ export class User {
   @Column()
   description: string;
 
-  @ManyToOne(() => Role, (role) => role.users)
-  rol: Role;
+  @ManyToMany(() => Role, (role) => role.users)
+  roles: Role[];
 }

@@ -3,14 +3,13 @@ import { Type } from 'class-transformer';
 import { ValidateNested } from 'class-validator';
 import { IdOnlyRolDto } from 'src/modules/roles/dto/id-only-role.dto';
 
-export class UpdateUserRole {
+export class UpdateUserRoles {
   @ApiProperty({
-    description: 'Código del rol a updatear',
-    example: {
-      code: 'User',
-    },
+    description: 'Lista de roles a actualizar',
+    type: [IdOnlyRolDto],
+    example: [{ code: 'User' }, { code: 'Admin' }],
   })
-  @ValidateNested()
+  @ValidateNested({ each: true })
   @Type(() => IdOnlyRolDto)
-  rol: IdOnlyRolDto;
+  roles: IdOnlyRolDto[];
 }

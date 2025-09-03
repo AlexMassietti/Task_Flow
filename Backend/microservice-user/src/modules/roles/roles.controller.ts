@@ -16,11 +16,13 @@ import {
   ApiResponse,
   ApiParam,
   ApiBody,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { UpdateRoleDto } from './dto/update-role.dto';
 
 @ApiTags('Roles')
 @Controller('roles')
+@ApiBearerAuth('Bearer')
 export class RolesController {
   constructor(private readonly rolesService: RolesService) {}
 

@@ -6,14 +6,23 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { PermissionsService } from './permissions.service';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
-import { ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import {
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { Permission } from './entities/permission.entity';
+import { AuthGuard } from '../middleware/auth.middleware';
+import { Permissions } from 'src/modules/middleware/decorator/permission.decorator';
 
 @Controller('permissions')
+@ApiBearerAuth('Bearer')
 export class PermissionsController {
   constructor(private readonly permissionsService: PermissionsService) {}
 
@@ -28,6 +37,7 @@ export class PermissionsController {
     return this.permissionsService.create(createPermissionDto);
   }
 
+  @UseGuards(AuthGuard)
   @Get()
   @ApiOperation({ summary: 'Obtener todos los permisos' })
   @ApiResponse({
@@ -35,6 +45,7 @@ export class PermissionsController {
     description: 'Lista de permisos',
     type: [Permission],
   })
+  @Permissions(['getPermission'])
   findAll() {
     return this.permissionsService.findAll();
   }

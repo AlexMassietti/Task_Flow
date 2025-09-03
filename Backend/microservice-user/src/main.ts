@@ -11,6 +11,17 @@ async function bootstrap() {
     .setTitle('Microservicio de Usuarios')
     .setDescription('La descripción para como utilizar la API.')
     .setVersion('0.1')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'Authorization',
+        in: 'header',
+        description: 'Ingresa el token JWT',
+      },
+      'Bearer',
+    )
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);
