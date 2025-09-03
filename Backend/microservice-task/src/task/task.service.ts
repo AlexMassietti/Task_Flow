@@ -20,7 +20,8 @@ export class TaskService {
     private readonly statusRepository: Repository<Status>,
   ) {}
   async create(createTaskDto: CreateTaskDto): Promise<Task> {
-    const { name, description, priorityId, endDate, statusId } = createTaskDto;
+    const { name, description, priorityId, endDate, statusId, dashboardId } =
+      createTaskDto;
 
     const defaultStatusId = 2;
 
@@ -29,18 +30,17 @@ export class TaskService {
     });
     if (!status) {
       throw new NotFoundException(
-        `Status con id ${statusId ?? defaultStatusId} no existe`,
+        `Status with id ${statusId ?? defaultStatusId} not found`,
       );
     }
-    let priority: Priority | undefined = undefined;
 
+    let priority: Priority | undefined = undefined;
     if (priorityId) {
       const foundPriority = await this.priorityRepository.findOneBy({
         id: priorityId,
       });
-
       if (!foundPriority) {
-        throw new NotFoundException(`Priority con id ${priorityId} no existe`);
+        throw new NotFoundException(`Priority with id ${priorityId} not found`);
       }
       priority = foundPriority;
     }
@@ -51,7 +51,8 @@ export class TaskService {
       endDate,
       startDate: new Date(),
       status,
-      priority: priority,
+      priority,
+      dashboard: dashboardId, // aquí guardamos solo el número
     });
 
     return await this.taskRepository.save(task);

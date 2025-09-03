@@ -1,4 +1,3 @@
-import { Dashboard } from 'src/dashboard/entities/dashboard.entity';
 import { Priority } from 'src/priority/entities/priority.entity';
 import { Status } from 'src/status/entities/status.entity';
 import {
@@ -37,7 +36,6 @@ export class Task {
   @JoinColumn({ name: 'priorityId' })
   priority: Priority | null;
 
-  @ManyToOne(() => Dashboard, (dash) => dash.task)
-  @JoinColumn({ name: 'dashboardId' })
-  dashboard: Dashboard;
+  @Column({ nullable: false })
+  dashboard: number;
 }

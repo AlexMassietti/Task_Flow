@@ -16,27 +16,13 @@ export class DashboardService {
     @InjectRepository(Dashboard)
     private readonly dashRepository: Repository<Dashboard>,
   ) {}
-  async create(createDashboardDto: CreateDashboardDto) {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { name, description, taskId } = createDashboardDto;
-
-    // eslint-disable-next-line prefer-const, @typescript-eslint/no-unused-vars
-    let task: Task | undefined = undefined;
-    if (taskId) {
-      const foundTask = await this.taskRepository.findOneBy({ id: taskId });
-      if (!foundTask) {
-        throw new NotFoundException(`Task with ${taskId} not found`);
-      }
-      task = foundTask;
-    }
+  async create(dto: CreateDashboardDto) {
     const dashboard = this.dashRepository.create({
-      name,
-      description,
-      task: task ? [task] : [],
+      name: dto.name,
+      description: dto.description,
     });
-    return await this.dashRepository.save(dashboard);
+    return this.dashRepository.save(dashboard);
   }
-
   async findAll() {
     return await this.dashRepository.find();
   }
@@ -74,7 +60,6 @@ export class DashboardService {
         `Task with ${assignTaskDto.taskId} not found`,
       );
     }
-    foundTask.dashboard = foundDashboard;
     return await this.taskRepository.save(foundTask);
   }
 }

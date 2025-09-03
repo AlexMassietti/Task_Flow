@@ -1,10 +1,4 @@
-import {
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  IsPositive,
-  IsString,
-} from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateDashboardDto {
@@ -23,13 +17,4 @@ export class CreateDashboardDto {
   @IsString()
   @IsOptional()
   description?: string;
-
-  @ApiPropertyOptional({
-    description: 'ID de una tarea que puede asociarse al dashboard',
-    example: 5,
-  })
-  @IsNumber()
-  @IsOptional()
-  @IsPositive()
-  taskId?: number;
 }
