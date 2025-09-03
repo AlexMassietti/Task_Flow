@@ -32,7 +32,7 @@ export class DashboardService {
     const dashboard = this.dashRepository.create({
       name,
       description,
-      task: task,
+      task: task ? [task] : [],
     });
     return await this.dashRepository.save(dashboard);
   }
@@ -42,7 +42,7 @@ export class DashboardService {
   }
 
   async findOne(id: number) {
-    return await this.taskRepository.findOne({ where: { id } });
+    return await this.dashRepository.findOne({ where: { id } });
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -1,11 +1,5 @@
 import { Task } from 'src/task/entities/task.entity';
-import {
-  Entity,
-  Column,
-  OneToMany,
-  PrimaryGeneratedColumn,
-  JoinColumn,
-} from 'typeorm';
+import { Entity, Column, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Dashboard {
@@ -19,6 +13,5 @@ export class Dashboard {
   description: string;
 
   @OneToMany(() => Task, (task) => task.dashboard, { eager: true })
-  @JoinColumn({ name: 'taskId' })
-  task: Task | null;
+  task: Task[];
 }
