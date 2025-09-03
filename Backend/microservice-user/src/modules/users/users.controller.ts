@@ -19,6 +19,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { UpdateUserRoles } from './dto/update-user-role.dto';
 import { AuthGuard } from '../middleware/auth.middleware';
+import { Permissions } from 'src/modules/middleware/decorator/permission.decorator';
 
 @ApiTags('Users')
 @Controller('users')
@@ -46,11 +47,12 @@ export class UsersController {
     return this.usersService.login(createUserDto);
   }
 
-  @Post(':id/assignRol')
+  @Post(':id/assignRole')
   @ApiOperation({ summary: 'Asignar o actualizar el rol de un usuario' })
   @ApiParam({ name: 'id', type: Number, description: 'ID del usuario' })
   @ApiBody({ type: UpdateUserRoles })
   @ApiResponse({ status: 200, description: 'Rol actualizado correctamente' })
+  @Permissions(['assignRole'])
   updateRol(@Param('id') id: string, @Body() updateUserRol: UpdateUserRoles) {
     return this.usersService.updateRol(Number(id), updateUserRol);
   }
