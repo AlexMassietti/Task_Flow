@@ -34,6 +34,7 @@ export class PermissionsController {
     description: 'Permiso creado',
     type: Permission,
   })
+  @Permissions(['createPermission'])
   create(@Body() createPermissionDto: CreatePermissionDto) {
     return this.permissionsService.create(createPermissionDto);
   }
@@ -45,7 +46,7 @@ export class PermissionsController {
     description: 'Lista de permisos',
     type: [Permission],
   })
-  @Permissions(['getPermission'])
+  @Permissions(['getAllPermissions'])
   findAll() {
     return this.permissionsService.findAll();
   }
@@ -58,6 +59,7 @@ export class PermissionsController {
     description: 'Permiso encontrado',
     type: Permission,
   })
+  @Permissions(['getOnePermission'])
   findOne(@Param('id') id: string) {
     return this.permissionsService.findOne(+id);
   }
@@ -66,6 +68,7 @@ export class PermissionsController {
   @ApiOperation({ summary: 'Actualizar un permiso' })
   @ApiParam({ name: 'id', type: Number })
   @ApiResponse({ status: 200, description: 'Permiso actualizado' })
+  @Permissions(['updatePermission'])
   update(
     @Param('id') id: string,
     @Body() updatePermissionDto: UpdatePermissionDto,
@@ -77,6 +80,7 @@ export class PermissionsController {
   @ApiOperation({ summary: 'Eliminar un permiso' })
   @ApiParam({ name: 'id', type: Number })
   @ApiResponse({ status: 200, description: 'Permiso eliminado' })
+  @Permissions(['deletePermission'])
   remove(@Param('id') id: string) {
     return this.permissionsService.remove(+id);
   }
