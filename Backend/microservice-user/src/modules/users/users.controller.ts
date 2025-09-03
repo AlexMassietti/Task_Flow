@@ -24,7 +24,6 @@ import { Permissions } from 'src/modules/middleware/decorator/permission.decorat
 @ApiTags('Users')
 @Controller('users')
 @ApiBearerAuth('Bearer')
-@UseGuards(AuthGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
@@ -47,6 +46,7 @@ export class UsersController {
     return this.usersService.login(createUserDto);
   }
 
+  @UseGuards(AuthGuard)
   @Post(':id/assignRole')
   @ApiOperation({ summary: 'Asignar o actualizar el rol de un usuario' })
   @ApiParam({ name: 'id', type: Number, description: 'ID del usuario' })
@@ -57,6 +57,7 @@ export class UsersController {
     return this.usersService.updateRol(Number(id), updateUserRol);
   }
 
+  @UseGuards(AuthGuard)
   @Delete(':id')
   @ApiOperation({ summary: 'Eliminar un usuario por ID' })
   @ApiParam({ name: 'id', type: Number, description: 'ID del usuario' })
