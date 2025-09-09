@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { SidebarService } from '../services/sidebar.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -9,10 +10,17 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule]
 })
 export class SidebarComponent {
-  @Input() isOpen: boolean = false;
-  @Output() closeSidebar = new EventEmitter<void>();
 
-  close() {
-    this.closeSidebar.emit();
-  }
+  constructor(private sidebarService: SidebarService) {}
+
+  @Input() isOpen: boolean = false;
+  
+  ngOnInit() {
+  this.sidebarService.isOpen$.subscribe(state => this.isOpen = state);
+}
+
+close() {
+  this.sidebarService.close();
+}
+
 }

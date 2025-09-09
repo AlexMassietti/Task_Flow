@@ -36,3 +36,12 @@
   background-color: #4b5a35; /* un poco más oscuro al pasar el mouse */
   color: rgb(0, 0, 0); /* contraste en hover */
 }
+
+.main-content {
+  margin-left: 0;
+  transition: margin-left 0.3s ease-in-out;
+}
+
+.main-content.shifted {
+  margin-left: 250px; /* se corre junto a la sidebar */
+}

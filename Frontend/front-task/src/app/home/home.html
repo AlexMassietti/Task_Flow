@@ -1,34 +1,45 @@
 <app-header></app-header>
-
-<div class="home-container">
-  <!-- Título -->
-  <h1>My dashboards</h1>
-
-  <!-- Contenedor principal -->
-  <div class="dashboards-section">
-    
-    <!-- Tarjetas de dashboards -->
-    <div class="dashboards-cards">
+<div class="main-container">
+  <div class="main-content" [ngClass]="{ 'shifted': isSidebarOpen }">
+    <!-- Bloque My dashboards -->
+    <h1 class="title">My dashboards</h1>
+    <div class="dashboard-container">
       <div class="dashboard-card">
-        <div class="dashboard-image"></div>
-        <div class="dashboard-name">Dashboard 1</div>
+        <div class="card-top"></div>
+        <div class="card-bottom">
+          <span class="card-name">Dashboard 1</span>
+          <i class="bi bi-three-dots-vertical card-icon"></i> 
+        </div>
       </div>
-      <div class="dashboard-card">
-        <div class="dashboard-image"></div>
-        <div class="dashboard-name">Dashboard 2</div>
-      </div>
-      <div class="dashboard-card">
-        <div class="dashboard-image"></div>
-        <div class="dashboard-name">Dashboard 3</div>
+
+      <!-- Botones -->
+      <div class="dashboard-actions">
+        <button class="action-btn">
+          <i class="bi bi-plus-circle"></i>
+        </button>
+        <button class="action-btn">
+          <i class="bi bi-eye"></i>
+        </button>
       </div>
     </div>
 
-    <!-- Botones al lado derecho -->
-    <div class="dashboard-buttons">
-      <button class="btn add-dashboard">+</button>
-      <button class="btn view-all">></button>
-    </div>
+    <!-- Bloque Shared with me -->
+    <h1 class="title">Shared with me</h1>
+    <div class="dashboard-container">
+      <div class="dashboard-card">
+        <div class="card-top"></div>
+        <div class="card-bottom">
+          <span class="card-name">Dashboard from James</span>
+          <i class="bi bi-three-dots-vertical card-icon"></i>
+        </div>
+      </div>
 
+      <!-- Botones -->
+      <div class="dashboard-actions">
+        <button class="action-btn">
+          <i class="bi bi-eye"></i>
+        </button>
+      </div>
+    </div>
   </div>
 </div>
-

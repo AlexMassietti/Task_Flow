@@ -1,11 +1,11 @@
-<app-sidebar [isOpen]="isMenuOpen" (closeSidebar)="toggleMenu()"></app-sidebar>
+<app-sidebar [isOpen]="isSidebarOpen" (closeSidebar)="toggleMenu()"></app-sidebar>
 <div class="topbar">
   <div class="topbar-content">
     <div class="left-section">
       <button class="btn menu-btn"
-              [class.shift]="isMenuOpen"
+              [class.shift]="isSidebarOpen"
               (click)="toggleMenu()">
-        <i class="bi" [ngClass]="isMenuOpen ? 'bi-x' : 'bi-list'"></i>
+        <i class='bi bi-list'></i>
       </button>
     </div>
 

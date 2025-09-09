@@ -3,6 +3,7 @@ import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
    import { CommonModule } from '@angular/common';
    import { isPlatformBrowser } from '@angular/common';
 import { SidebarComponent } from '../sidebar/sidebar.component';
+import { SidebarService } from '../services/sidebar.service';
 
    @Component({
      selector: 'app-header',
@@ -13,17 +14,20 @@ import { SidebarComponent } from '../sidebar/sidebar.component';
    })
    export class HeaderComponent implements OnInit {
      profileImage: string | null = null;
-     isMenuOpen = false;
+     isSidebarOpen = false;
 
      constructor(
        private router: Router,
-       @Inject(PLATFORM_ID) private platformId: Object
+       @Inject(PLATFORM_ID) private platformId: Object,private sidebarService: SidebarService
      ) {}
 
      ngOnInit(): void {
        if (isPlatformBrowser(this.platformId)) {
          this.profileImage = localStorage.getItem('profileImage');
        }
+        this.sidebarService.isOpen$.subscribe(state => {
+        this.isSidebarOpen = state;
+      });
      }
 
      goHome(): void {
@@ -42,9 +46,8 @@ import { SidebarComponent } from '../sidebar/sidebar.component';
      viewNotifications(): void {
        this.router.navigate(['/notifications']);
      }
-    
-
+  
     toggleMenu(): void {
-      this.isMenuOpen = !this.isMenuOpen;
+      this.sidebarService.toggle();
     }
    }
