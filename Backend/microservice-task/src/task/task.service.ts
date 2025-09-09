@@ -52,7 +52,7 @@ export class TaskService {
       startDate: new Date(),
       status,
       priority,
-      dashboard: dashboardId, // aquí guardamos solo el número
+      dashboard: dashboardId,
     });
 
     return await this.taskRepository.save(task);
