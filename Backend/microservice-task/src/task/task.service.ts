@@ -6,6 +6,8 @@ import { Task } from './entities/task.entity';
 import { Repository } from 'typeorm';
 import { Priority } from 'src/priority/entities/priority.entity';
 import { Status } from 'src/status/entities/status.entity';
+import { Dashboard } from 'src/dashboard/entities/dashboard.entity';
+import { TaskResponseDto } from './dto/response-task.dto';
 
 @Injectable()
 export class TaskService {
@@ -18,8 +20,11 @@ export class TaskService {
 
     @InjectRepository(Status)
     private readonly statusRepository: Repository<Status>,
+
+    @InjectRepository(Dashboard)
+    private readonly dashboardRepository: Repository<Dashboard>,
   ) {}
-  async create(createTaskDto: CreateTaskDto): Promise<Task> {
+  async create(createTaskDto: CreateTaskDto): Promise<TaskResponseDto> {
     const { name, description, priorityId, endDate, statusId, dashboardId } =
       createTaskDto;
 
@@ -44,6 +49,12 @@ export class TaskService {
       }
       priority = foundPriority;
     }
+    const dashboard = await this.dashboardRepository.findOneBy({
+      id: dashboardId,
+    });
+    if (!dashboard) {
+      throw new NotFoundException(`Dashboard with id ${dashboardId} not found`);
+    }
 
     const task = this.taskRepository.create({
       name,
@@ -52,18 +63,25 @@ export class TaskService {
       startDate: new Date(),
       status,
       priority,
-      dashboard: dashboardId,
+      dashboard,
     });
 
     return await this.taskRepository.save(task);
   }
 
-  findAll() {
-    return this.taskRepository.find();
+  findAll(): Promise<Task[]> {
+    // Aquí usamos 'select' para traer solo los campos que necesitas
+    return this.taskRepository.find({
+      relations: ['status', 'priority', 'dashboard'],
+    });
   }
 
-  findOne(id: number) {
-    return this.taskRepository.findOne({ where: { id } });
+  findOne(id: number): Promise<Task | null> {
+    // Usamos 'select' también para la búsqueda de un solo elemento
+    return this.taskRepository.findOne({
+      where: { id },
+      relations: ['status', 'priority', 'dashboard'],
+    });
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
