@@ -1,5 +1,4 @@
-.login-wrapper {
-  background-image: url('../../../../assets/images/delivery.webp'); /* usá el mismo nombre si es el mismo fondo */
+.login-wrapper { /* usá el mismo nombre si es el mismo fondo */
   background-size: cover;
   background-position: center;
   height: 100vh;

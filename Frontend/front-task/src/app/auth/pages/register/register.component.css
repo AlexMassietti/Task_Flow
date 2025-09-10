@@ -1,5 +1,4 @@
-.register-wrapper {
-  background-image: url('../../../../assets/images/delivery.webp'); /* misma imagen */
+.register-wrapper { /* misma imagen */
   background-size: cover;
   background-position: center;
   height: 100vh;
