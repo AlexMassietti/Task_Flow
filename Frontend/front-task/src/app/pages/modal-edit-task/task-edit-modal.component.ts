@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TaskModel } from '../../Models/Task/task.model';
 import { UserModel } from '../../Models/User/user.model';
+import { PriorityModel } from '../../Models/Priority/priority.model';
 
 @Component({
   selector: 'app-task-edit-modal',
@@ -15,6 +16,7 @@ import { UserModel } from '../../Models/User/user.model';
 export class TaskEditModalComponent {
   @Input() task!: TaskModel;
   @Input() users: UserModel[] = [];
+  @Input() priorities: PriorityModel[] = [];
 
   @Output() save = new EventEmitter<TaskModel>();
   @Output() cancel = new EventEmitter<void>();

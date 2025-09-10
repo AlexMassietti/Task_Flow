@@ -47,8 +47,8 @@
           <!-- Task header -->
           <div class="task-header">
             <h4 class="task-name">{{ task.name }}</h4>
-            <span class="priority-badge" [ngClass]="getPriorityClass(task.priority?.id || 1)">
-              {{ task.priority?.name || 'Low' }}
+            <span class="priority-badge" [ngClass]="getPriorityClass(task.priorityId || 1)">
+              {{ this.getPriorityName(task.priorityId) }}
             </span>
           </div>
           
@@ -86,9 +86,9 @@
               tabindex="0"
               aria-disabled="true"
             />
-            <!-- 
-            <div class="assign-tooltip" *ngIf="getUserEmail(task.userId)">
-              {{ getUserEmail(task.userId) }}
+            <!--
+            <div class="assign-tooltip" *ngIf="getUserEmail(task.user.id)">
+              {{ getUserEmail(task.user.id) }}
             </div> -->
           </div>
         </div>
@@ -111,6 +111,7 @@
   *ngIf="isEditModalOpen && selectedTask"
   [task]="selectedTask"
   [users]="users"
+  [priorities]="priorities"
   (save)="onModalSave($event)"
   (cancel)="onModalCancel()"
 >

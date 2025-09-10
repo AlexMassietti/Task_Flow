@@ -1,19 +1,20 @@
 import { StatusModel } from '../Status/status.model';
 import { PriorityModel } from '../Priority/priority.model';
+import { UserModel } from '../User/user.model';
 
 export interface TaskDTO {
   id: number;
-  dashboardId: number;
+  dashboard: {id: number};
   name: string;
-  startDate?: string | null;
-  endDate?: string | null;
-  finishDate?: string | null;
+  startDate?: Date | null;
+  endDate?: Date | null;
+  finishDate?: Date | null;
   statusId?: number | null;
   priorityId?: number | null;
-  status?: { id: number; name: string } | number | null;
-  priority?: { id: number; name: string } | number | null;
+  status?: { id: number | null } | number | null;
+  priority?: { id: number | null } | number | null;
   description?: string | null;
-  userId?: number | null;
+  user?: {id: number | null} | null;
 }
 
 export class TaskModel {
@@ -24,9 +25,9 @@ export class TaskModel {
   endDate: Date | null;
   finishDate: Date | null;
   status?: StatusModel | undefined;
-  priority?: PriorityModel | undefined;
+  priorityId: number | null;
   description?: string | undefined;
-  userId?: number | null;
+  userId: number | null;
 
   constructor(params: {
     id: number;
@@ -36,9 +37,9 @@ export class TaskModel {
     endDate?: Date | null;
     finishDate?: Date | null;
     status?: StatusModel | undefined;
-    priority?: PriorityModel | undefined;
+    priorityId: number | null;
     description?: string | undefined;
-    userId?: number | null;
+    userId: number | null;
   }) {
     this.id = params.id;
     this.dashboardId = params.dashboardId;
@@ -47,9 +48,9 @@ export class TaskModel {
     this.endDate = params.endDate ?? null;
     this.finishDate = params.finishDate ?? null;
     this.status = params.status;
-    this.priority = params.priority;
+    this.priorityId = params.priorityId;
     this.description = params.description;
-    this.userId = params.userId ?? null;
+    this.userId = params.userId;
   }
 
  static fromDTO(
@@ -87,35 +88,32 @@ export class TaskModel {
 
     return new TaskModel({
       id: Number(dto.id),
-      dashboardId: Number(dto.dashboardId),
+      dashboardId: Number(dto.dashboard.id),
       name: String(dto.name ?? ''),
       startDate: parseDate(dto.startDate),
       endDate: parseDate(dto.endDate),
       finishDate: parseDate(dto.finishDate),
       status,
-      priority,
+      priorityId: Number(dto.priorityId ?? priority?.id ?? null),
       description: dto.description ?? undefined,
-      userId: dto.userId != null ? Number(dto.userId) : null
+      userId: Number(dto.user?.id ?? null)
     });
   }
 
 
  toDTO(): TaskDTO {
 
-    const dateToIso = (d: Date | null | undefined) => (d ? d.toISOString() : null);
     return {
       id: this.id,
-      dashboardId: this.dashboardId,
+      dashboard: { id: this.dashboardId },
       name: this.name,
-      startDate: dateToIso(this.startDate),
-      endDate: dateToIso(this.endDate),
-      finishDate: dateToIso(this.finishDate),
-      statusId: this.status ? this.status.id : undefined,
-      priorityId: this.priority ? this.priority.id : undefined,
-      status: this.status ? { id: this.status.id, name: this.status.name } : null,
-      priority: this.priority ? { id: this.priority.id, name: this.priority.name } : null,
+      startDate: this.startDate,
+      endDate: this.endDate,
+      finishDate: this.finishDate,
+      status: this.status ? { id: this.status.id } : null,
+      priority: { id: this.priorityId },
       description: this.description ?? null,
-      userId: this.userId ?? null
+      user: { id: this.userId }
     };
 
 

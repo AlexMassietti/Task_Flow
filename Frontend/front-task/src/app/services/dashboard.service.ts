@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { PriorityModel } from '../Models/Priority/priority.model';
-import { StatusModel } from '../Models/Status/status.model';
+import { PriorityDTO, PriorityModel } from '../Models/Priority/priority.model';
+import { StatusDTO, StatusModel } from '../Models/Status/status.model';
 import { TaskDTO, TaskModel } from '../Models/Task/task.model';
 import { UserDTO,UserModel } from '../Models/User/user.model';
 import { delay, Observable, of } from 'rxjs';
@@ -15,104 +15,104 @@ export class DashBoardService {
   private apiBase = '/api';
 
 
-  private mockUsers: UserModel[] = [
-    new UserModel(1, 'Julian', 'Julian@example.com'),
-    new UserModel(2, 'Alex', 'alex@example.com'),
-    new UserModel(3, 'Dozer', 'dozer@example.com'),
-    new UserModel(4, 'Lichi', 'lichi@example.com')
+  private mockUsers: UserDTO[] = [
+    {id: 1, name: 'Julian', email: 'julian@example'},
+    {id: 2, name: 'Alex', email: 'alex@example'},
+    {id: 3, name: 'Dozer', email: 'dozer@example'},
+    {id: 4, name: 'Lichi', email: 'lichi@example'}
   ];
 
-  private mockPriorities: PriorityModel[] = [
-    new PriorityModel(1, 'Low'),
-    new PriorityModel(2, 'Medium'),
-    new PriorityModel(3, 'High'),
-    new PriorityModel(4, 'Urgent')
+  private mockPriorities: PriorityDTO[] = [
+    {id: 1, name: 'Low'},
+    {id: 2, name: 'Medium'},
+    {id: 3, name: 'High'},
+    {id: 4, name: 'Urgent'}
   ];
 
-  private mockStatuses: StatusModel[] = [
-    new StatusModel(1, 'To Do'),
-    new StatusModel(2, 'Doing'),
-    new StatusModel(3, 'In Review'),
-    new StatusModel(4, 'Done')
+  private mockStatuses: StatusDTO[] = [
+    {id: 1, name: 'To Do'},
+    {id: 2, name: 'Doing'},
+    {id: 3, name: 'In Review'},
+    {id: 4, name: 'Done'}
   ];
 
   private mockTasks: TaskDTO[] = [
     {
       id: 1,
-      dashboardId: 100,
+      dashboard: {id: 100},
       name: 'Design header',
-      startDate: '2025-08-01T09:00:00Z',
-      endDate: '2025-08-05T17:00:00Z',
+      startDate: new Date('2025-08-01T09:00:00Z'),
+      endDate: new Date('2025-08-05T17:00:00Z'),
       finishDate: null,
-      status: { id: 1, name: 'To Do' },
-      priority: { id: 2, name: 'Medium' },
+      status: { id: 1 },
+      priority: { id: 3 },
       description: 'Create responsive header',
-      userId: 1
+      user: {id: 1}
     },
     {
       id: 2,
-      dashboardId: 100,
+      dashboard: {id: 100},
       name: 'Implement auth',
-      startDate: '2025-08-02T10:00:00Z',
-      endDate: '2025-08-07T18:00:00Z',
+      startDate: new Date('2025-08-02T10:00:00Z'),
+      endDate: new Date('2025-08-07T18:00:00Z'),
       finishDate: null,
-      status: { id: 2, name: 'Doing' },
-      priority: { id: 2, name: 'Medium' },
+      status: { id: 2 },
+      priority: { id: 4 },
       description: 'Login, register endpoints + UI',
-      userId: 2
+      user: { id: 2 }
     },
     {
       id: 3,
-      dashboardId: 100,
+      dashboard: {id: 100},
       name: 'Write unit tests for service with a very long name to check ellipsis',
       startDate: null,
       endDate: null,
       finishDate: null,
-      status: { id: 3, name: 'In Review' },
-      priority: { id: 4, name: 'Urgent' },
+      status: { id: 3 },
+      priority: { id: 1 },
       description: 'Add coverage for critical paths',
-      userId: 3
+      user: { id: 3 }
     },
     {
       id: 17,
-      dashboardId: 100,
+      dashboard: {id: 100},
       name: 'wow',
       startDate: null,
       endDate: null,
       finishDate: null,
-      status: { id: 4, name: 'Done' },
-      priority: { id: 3, name: 'High' },
+      status: { id: 4 },
+      priority: { id: 3 },
       description: 'Add coverage for critical paths',
-      userId: 4
+      user: { id: 4 }
     },
     {
       id: 4,
-      dashboardId: 100,
+      dashboard: {id: 100},
       name: 'Onboard customer',
-      startDate: '2025-07-20T09:00:00Z',
-      endDate: '2025-07-25T17:00:00Z',
-      finishDate: '2025-07-24T15:00:00Z',
-      status: { id: 1, name: 'Done' },
-      priority: { id: 2, name: 'Medium' },
+      startDate: new Date('2025-07-20T09:00:00Z'),
+      endDate: new Date('2025-07-25T17:00:00Z'),
+      finishDate: new Date('2025-07-24T15:00:00Z'),
+      status: { id: 1 },
+      priority: { id: 2 },
       description: 'Onboarding tasks done',
-      userId: 2
+      user: { id: 1 }
     },
     {
       id: 5,
-      dashboardId: 100,
+      dashboard: {id: 200},
       name: 'wow',
-      startDate: '2025-07-20T09:00:00Z',
-      endDate: '2025-07-25T17:00:00Z',
-      finishDate: '2025-07-24T15:00:00Z',
-      status: { id: 2, name: 'Done' },
-      priority: { id: 3, name: 'High' },
+      startDate: new Date('2025-07-20T09:00:00Z'),
+      endDate: new Date('2025-07-25T17:00:00Z'),
+      finishDate: new Date('2025-07-24T15:00:00Z'),
+      status: { id: 2 },
+      priority: { id: 3 },
       description: 'wow',
-      userId: 1
+      user: { id: 1 }
     }
   ];
 
   getTasks(dashboardId: number): Observable<TaskModel[]> {
-      const dtos = this.mockTasks.filter(t => Number(t.dashboardId) === Number(dashboardId));
+      const dtos = this.mockTasks.filter(t => Number(t.dashboard.id) === Number(dashboardId));
       const models = dtos.map(dto => TaskModel.fromDTO(dto));
       return of(models);
   }
@@ -127,11 +127,16 @@ export class DashBoardService {
     return of(models);
   }
 
+  getPriorities(): Observable<PriorityModel[]> {
+    const models = this.mockPriorities.map(dto => PriorityModel.fromDTO(dto));
+    return of(models);
+  }
+
   updateTaskStatus(taskId: number, statusId: number): Observable<void> {
     if (this.useMock) {
       const task = this.mockTasks.find(t => t.id === taskId);
       if (task) {
-        task.status = { id: statusId, name: this.mockStatuses.find(s => s.id === statusId)?.name || '' };
+        task.status = { id: statusId };
         console.log(this.mockTasks);
       }
     }
@@ -143,6 +148,7 @@ export class DashBoardService {
       const index = this.mockTasks.findIndex(t => t.id === task.id);
       if (index !== -1) {
         this.mockTasks[index] = task.toDTO();
+        console.log(task.toDTO());
       }
     }
     return of(undefined);

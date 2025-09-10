@@ -10,6 +10,7 @@ import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from 
 import { StatusModel } from '../../Models/Status/status.model';
 import { U } from '@angular/cdk/keycodes';
 import { TaskEditModalComponent } from '../modal-edit-task/task-edit-modal.component';
+import { PriorityModel } from '../../Models/Priority/priority.model';
 
 
 @Component({
@@ -24,6 +25,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   tasks: TaskModel[] = [];
   statuses: StatusModel[] = [];
   users: UserModel[] = [];
+  priorities: PriorityModel[] = [];
   tasksByStatus: { [status: number]: TaskModel[] } = {};
   private destroy$ = new Subject<void>();
   loading = false;
@@ -57,19 +59,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
     combineLatest([
       this.dashBoardService.getStatuses(),
       this.dashBoardService.getTasks(this.dashboardId),
-      this.dashBoardService.getUsers(this.dashboardId)
+      this.dashBoardService.getUsers(this.dashboardId),
+      this.dashBoardService.getPriorities()
     ])
     .pipe(
       takeUntil(this.destroy$),
       finalize(() => (this.loading = false))
     )
     .subscribe({
-      next: ([statuses, tasks, users]) => {
+      next: ([statuses, tasks, users, priorities]) => {
         this.statuses = statuses;
         this.tasks = tasks;
         this.users = users;
+        this.priorities = priorities;
         this.tasksByStatus = this.loadTaskByStatus();
-        console.log('Dashboard data loaded', { statuses, tasks, users });
+        console.log('Dashboard data loaded', { statuses, tasks, users, priorities });
       },
       error: (err) => {
         console.error('Failed to load dashboard data', err);
@@ -101,7 +105,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       1: 'bg-low',
       2: 'bg-warning',
       3: 'bg-high',
-      4: 'bg-danger'
+      4: 'bg-urgent'
     };
     return priorityClasses[priorityId] || 'bg-secondary';
   }
@@ -118,14 +122,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return statusClasses[statusId] || 'bg-secondary';
   }
   
-  // Get connected drop lists for a status column
+
   getConnectedDropLists(currentStatusId: number): string[] {
     return this.statuses
       .filter(status => status.id !== currentStatusId)
       .map(status => `drop-list-${status.id}`);
   }
   
-  // Handle drag and drop event
   drop(event: CdkDragDrop<TaskModel[]>, targetStatusId: number): void {
     if (event.previousContainer === event.container) {
       // Moving within the same container
@@ -172,6 +175,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
       })
   }
 
+  getPriorityName(priorityId?: number | null): string {
+  if (!priorityId) return 'Unassigned';
+  const priority = this.priorities.find(p => p.id === priorityId);
+  if (!priority) return 'Unassigned';
+  return priority.name || `Unknown`;
+}
+
   getUserName(userId?: number | null): string {
   if (!userId) return 'Unassigned';
   const user = this.users.find(u => u.id === userId);
@@ -179,11 +189,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
   return user.name || `Unknown`;
 }
 
-getUserEmail(userId?: number | null): string {
-  if (!userId) return '';
-  const user = this.users.find(u => u.id === userId);
-  return user?.email || 'Unknown';
-}
+  getUserEmail(userId?: number | null): string {
+    if (!userId) return '';
+    const user = this.users.find(u => u.id === userId);
+    return user?.email || 'Unknown';
+  }
   
   assignTask(task: TaskModel) {
     console.log('assigned', task);
@@ -206,10 +216,7 @@ getUserEmail(userId?: number | null): string {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          console.log('Task updated successfully');
-          console.log({ updatedTask });
           this.refreshData();
-          console.log(this.tasks);
         },
         error: (err) => {
           console.error('Failed to update task', err);
