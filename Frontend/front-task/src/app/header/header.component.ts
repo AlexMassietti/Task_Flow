@@ -1,7 +1,7 @@
 import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
-   import { Router } from '@angular/router';
-   import { CommonModule } from '@angular/common';
-   import { isPlatformBrowser } from '@angular/common';
+import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { isPlatformBrowser } from '@angular/common';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { SidebarService } from '../services/sidebar.service';
 
@@ -18,7 +18,8 @@ import { SidebarService } from '../services/sidebar.service';
 
      constructor(
        private router: Router,
-       @Inject(PLATFORM_ID) private platformId: Object,private sidebarService: SidebarService
+       @Inject(PLATFORM_ID) private platformId: Object,
+       private sidebarService: SidebarService
      ) {}
 
      ngOnInit(): void {
@@ -30,13 +31,10 @@ import { SidebarService } from '../services/sidebar.service';
       });
      }
 
-     goHome(): void {
-       this.router.navigate(['/home']);
-     }
 
 
-     goToPerfil(): void {
-       this.router.navigate(['/perfil']);
+     goToProfile(): void {
+       this.router.navigate(['/profile']);
      }
 
      logout(): void {
@@ -44,7 +42,7 @@ import { SidebarService } from '../services/sidebar.service';
      }
 
      viewNotifications(): void {
-       this.router.navigate(['/notifications']);
+       console.log('PATATAAAAAAAA');
      }
   
     toggleMenu(): void {

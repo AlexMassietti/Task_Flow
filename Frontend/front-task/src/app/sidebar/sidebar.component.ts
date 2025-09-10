@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SidebarService } from '../services/sidebar.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-sidebar',
@@ -11,7 +12,7 @@ import { SidebarService } from '../services/sidebar.service';
 })
 export class SidebarComponent {
 
-  constructor(private sidebarService: SidebarService) {}
+  constructor(private sidebarService: SidebarService,private router: Router) {}
 
   @Input() isOpen: boolean = false;
   
@@ -19,8 +20,20 @@ export class SidebarComponent {
   this.sidebarService.isOpen$.subscribe(state => this.isOpen = state);
 }
 
+goToCompletedTasks() {
+  this.sidebarService.close();
+  this.router.navigate(['/completed-tasks']);
+}
+
+goToGroups() {
+  this.sidebarService.close();
+  this.router.navigate(['/groups']);
+}
 close() {
   this.sidebarService.close();
 }
-
+goHome() {
+  this.sidebarService.close();
+  this.router.navigate(['/home']);
+}
 }
