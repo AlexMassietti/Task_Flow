@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { AuthService } from '../../../services/auth.service';
+import { AuthService } from '../../auth.service';
 
 @Component({
   selector: 'app-register',
@@ -13,8 +13,8 @@ import { AuthService } from '../../../services/auth.service';
 })
 export class RegisterComponent {
   registerForm: FormGroup;
-  errorMessage = '';
-  successMessage = '';
+  errorMessage: string | null = null;
+  successMessage: string | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -22,6 +22,7 @@ export class RegisterComponent {
     private authService: AuthService
   ) {
     this.registerForm = this.fb.group({
+      name: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', [Validators.required]],
@@ -37,25 +38,29 @@ export class RegisterComponent {
 
   // Manejamos el submit
   onSubmit(): void {
-    if (this.registerForm.valid && this.passwordsMatch()) {
-      const { email, password } = this.registerForm.value;
+    this.successMessage = null; // Reset success message
+    this.errorMessage = null; // Reset error message
 
-      this.authService.register({ email, password }).subscribe({
+    if (this.registerForm.valid && this.passwordsMatch()) {
+      const { name, email, password } = this.registerForm.value;
+
+      this.authService.register({ name, email, password }).subscribe({
         next: () => {
-          this.successMessage = 'Registro exitoso. Redirigiendo al login...';
-          this.errorMessage = '';
-          setTimeout(() => this.router.navigate(['/auth/login']), 2000);
+          this.successMessage = 'Usuario registrado correctamente';
+          setTimeout(() => this.router.navigate(['/auth/login']), 1000);
         },
         error: (err) => {
           console.error(err);
-          this.errorMessage = 'Ocurrió un error al registrar el usuario.';
-          this.successMessage = '';
+          this.errorMessage = 'Algo salió mal. Por favor, intentá nuevamente.';
         },
       });
     } else {
       this.errorMessage = 'Verificá los campos e intentá nuevamente.';
-      this.successMessage = '';
     }
+  }
+
+  get name() {
+    return this.registerForm.get('name');
   }
 
   get email() {
