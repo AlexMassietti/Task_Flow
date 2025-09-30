@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { RouterModule, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../auth.service';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-register',
@@ -19,7 +20,8 @@ export class RegisterComponent {
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private cd: ChangeDetectorRef
   ) {
     this.registerForm = this.fb.group({
       name: ['', [Validators.required]],
@@ -47,11 +49,12 @@ export class RegisterComponent {
       this.authService.register({ name, email, password }).subscribe({
         next: () => {
           this.successMessage = 'Usuario registrado correctamente';
-          setTimeout(() => this.router.navigate(['/auth/login']), 1000);
+          setTimeout(() => this.router.navigate(['/auth/login']));
         },
         error: (err) => {
-          console.error(err);
           this.errorMessage = 'Algo salió mal. Por favor, intentá nuevamente.';
+          console.error(err);
+          this.cd.detectChanges();
         },
       });
     } else {

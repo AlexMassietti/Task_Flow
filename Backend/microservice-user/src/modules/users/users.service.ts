@@ -40,7 +40,7 @@ export class UsersService {
       await this.userRepo.save(user);
       return { status: 'User successfully created' };
     } catch (error) {
-      console.error('Error saving user:', error);
+      console.error('Error creating user:', error);
       throw new HttpException('Error creating user', 500);
     }
   }
