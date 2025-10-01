@@ -7,7 +7,7 @@ import {
   UrlTree,
 } from '@angular/router';
 import { Observable } from 'rxjs';
-import { AuthService } from '../services/auth.service'; // Asegúrate de que la ruta a tu AuthService sea correcta
+import { AuthService } from '../auth/auth.service'; // Asegúrate de que la ruta a tu AuthService sea correcta
 
 @Injectable({
   providedIn: 'root', // Esto hace que el guardia esté disponible en toda la aplicación

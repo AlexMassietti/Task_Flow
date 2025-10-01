@@ -40,15 +40,19 @@ export class UsersService {
       await this.userRepo.save(user);
       return { status: 'User successfully created' };
     } catch (error) {
-      console.error('Error saving user:', error);
+      console.error('Error creating user:', error);
       throw new HttpException('Error creating user', 500);
     }
   }
 
   async login(loginUserDto: LoginUserDto) {
-    const user = await this.userRepo.findByEmail(loginUserDto.email, ['roles']);
+    let user = await this.userRepo.findByEmail(loginUserDto.identifierName, ['roles']);
 
-    if (user == null) {
+    if (!user) {
+      user = await this.userRepo.findByName(loginUserDto.identifierName, ['roles']);
+    }
+
+    if (!user) {
       throw new UnauthorizedException('User or password wrong.');
     }
 
@@ -77,7 +81,8 @@ export class UsersService {
       accessToken: this.jwtService.generateToken(payload, 'JWT_AUTH'),
       refreshToken: this.jwtService.generateToken(payload, 'JWT_REFRESH'),
     };
-  }
+}
+
 
   async updateRol(id: number, updateUserRol: UpdateUserRoles): Promise<string> {
     const { roles } = updateUserRol;
@@ -116,5 +121,19 @@ export class UsersService {
       throw new Error(`User with no roles`);
     }
     return user;
+  }
+  async updatePassword(id: number, newPassword: string): Promise<void> {
+    // Buscar el usuario por ID
+    const user = await this.userRepo.findOneBy(id);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Hashear la nueva contraseña
+    const hashedPassword = await hash(newPassword, 10); // 10 es el número de rondas de hash
+
+    // Actualizar la contraseña en la base de datos
+    await this.userRepo.update(id, { password: hashedPassword });
   }
 }

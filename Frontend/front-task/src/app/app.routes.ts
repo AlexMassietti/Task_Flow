@@ -10,8 +10,8 @@ import { RouterModule } from '@angular/router';
 
 export const routes: Routes = [
   {path: 'auth', loadChildren: () => import('./auth/auth.routes').then((m) => m.AUTH_ROUTES),}, 
+  {path: '',redirectTo: 'auth', pathMatch: 'full',},
   {path: 'home', component: HomeComponent,},
-  {path: '', component: HomeComponent,},
   {path: 'dashboard/:id', component: DashboardComponent,},
   {path: 'dashboard', component: DashboardComponent,},
   { path: 'profile', component: ProfileComponent },

@@ -7,6 +7,19 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe());
 
+  app.enableCors({
+    origin: "http://localhost:4200",
+  });
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
+
+
   const config = new DocumentBuilder()
     .setTitle('Microservicio de Usuarios')
     .setDescription('La descripción para como utilizar la API.')

@@ -8,8 +8,16 @@ export class PermissionsService {
   constructor(private readonly permissionRepo: PermissionRepository) {}
 
   async create(permissionDto: CreatePermissionDto): Promise<Permission> {
-    const permission = this.permissionRepo.create(permissionDto);
-    return this.permissionRepo.save(permission);
+    if (!permissionDto.name || !permissionDto.description) {
+      throw new Error('Name and description are required');
+    }
+
+    try {
+      const permission = this.permissionRepo.create(permissionDto);
+      return this.permissionRepo.save(permission);
+    } catch (error) {
+      throw new Error('Error creating permission');
+    }
   }
 
   async findAll(): Promise<Permission[]> {
@@ -23,11 +31,17 @@ export class PermissionsService {
   }
 
   async update(id: number, data: Partial<Permission>): Promise<void> {
+    if (!data.name || !data.description) {
+      throw new Error('Name and description are required');
+    }
     await this.findOne(id);
     await this.permissionRepo.update(id, data);
   }
 
   async remove(id: number): Promise<void> {
+    if (!id) {
+      throw new Error('ID is required');
+    }
     await this.findOne(id);
     await this.permissionRepo.delete(id);
   }
