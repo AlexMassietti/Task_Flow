@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { hash } from 'bcrypt';
 import { User } from './entities/user.entity';
 import { UserRepository } from './infrastructure/users.repository';
@@ -71,6 +75,14 @@ export class UsersService {
   }
 
   async updatePassword(id: number, newPassword: string): Promise<void> {
+    if (!newPassword || newPassword.trim() === '') {
+      throw new BadRequestException('New password must be provided');
+    }
+    if (newPassword.length < 8) {
+      throw new BadRequestException(
+        'New password must be at least 8 characters long',
+      );
+    }
     const user = await this.userRepo.findOneBy(id);
     if (!user) {
       throw new NotFoundException('User not found');

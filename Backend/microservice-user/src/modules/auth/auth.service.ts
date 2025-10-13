@@ -4,6 +4,7 @@ import {
   NotFoundException,
   HttpException,
   BadRequestException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { LoginUserDto } from '../users/dto/login-user.dto';
@@ -13,6 +14,7 @@ import { RoleRepository } from '../roles/infrastructure/roles.repository';
 import { JwtService } from '../jwt/jwt.service';
 import { compareSync, hash } from 'bcrypt';
 import { User } from '../users/entities/user.entity';
+import { Payload } from '../jwt/interfaces/payload.interface';
 
 @Injectable()
 export class AuthService {
@@ -129,5 +131,50 @@ export class AuthService {
     await this.usersService.updatePassword(user.id, password);
 
     return { message: 'Password updated successfully' };
+  }
+
+  async validateTokenAndPermissions(
+    authorization: string,
+    requiredPermissions: string[],
+  ): Promise<boolean> {
+    const token = authorization?.split(' ')[1];
+    if (!token) {
+      throw new UnauthorizedException('Token no proporcionado o formato incorrecto.');
+    }
+    let payload: Payload;
+    try {
+      // ✅ Solución al error TS2339: Property 'verify' no existe en JwtService.
+      // Usamos tu método existente getPayload que internamente usa verify.
+      // Le pasamos 'JWT_AUTH' como tipo para que use el secreto correcto.
+      payload = this.jwtService.getPayload(token, 'JWT_AUTH');
+    } catch (e) {
+      // El getPayload lanza errores en caso de fallo de verificación/expiración
+      throw new UnauthorizedException('Token inválido o expirado.');
+    }
+
+    const userEmail = payload.email;
+
+    const user = await this.usersService.findOneByEmailWithRolesAndPermissions(userEmail); 
+
+    if (!user) {
+      throw new UnauthorizedException('Usuario no encontrado.');
+    }
+
+    // 3. Extraer y Validar Permisos
+    // Mapear los roles del usuario para obtener una lista plana de todos sus permisos.
+    const userPermissions: string[] = user.roles.flatMap(role =>
+      role.permissions.map(p => p.name), // Asumiendo que el permiso tiene una propiedad 'name'
+    );
+
+    // Comprueba si el usuario tiene TODOS los permisos requeridos
+    const hasAllPermissions = requiredPermissions.every(requiredPerm =>
+      userPermissions.includes(requiredPerm),
+    );
+
+    if (!hasAllPermissions) {
+      throw new ForbiddenException('No tienes los permisos requeridos.'); 
+    }
+
+    return true; 
   }
 }
