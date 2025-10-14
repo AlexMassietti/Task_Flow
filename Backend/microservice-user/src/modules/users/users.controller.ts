@@ -6,6 +6,9 @@ import {
   Delete,
   UseGuards,
   Headers,
+  Get,
+  Query,
+  NotFoundException,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -82,10 +85,15 @@ export class UsersController {
     );
   }
 
-  @Post('getIdbyEmail')
+  @Get('getIdbyEmail')
   @ApiOperation({ summary: 'Obtener el ID de usuario por email' })
-  @ApiBody({ schema: { properties: { email: { type: 'string' } } } })
-  async getIdByEmail(@Body('email') email: string) {
-    return await this.usersService.getIdbyEmail(email);
+  async getIdByEmail(@Query('email') email: string): Promise<{ id: number }> {
+    const id = await this.usersService.getIdbyEmail(email);
+
+    if (!id) {
+      throw new NotFoundException(`Usuario con email ${email} no encontrado`);
+    }
+
+    return { id };
   }
 }

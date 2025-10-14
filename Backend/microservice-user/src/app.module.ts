@@ -33,7 +33,7 @@ import { AuthModule } from './modules/auth/auth.module';
     PermissionsModule,
     MiddlewareModule,
     UsersModule,
-    AuthModule
+    AuthModule,
   ],
   controllers: [],
   providers: [],

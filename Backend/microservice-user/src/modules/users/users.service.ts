@@ -46,10 +46,14 @@ export class UsersService {
   }
 
   async login(loginUserDto: LoginUserDto) {
-    let user = await this.userRepo.findByEmail(loginUserDto.identifierName, ['roles']);
+    let user = await this.userRepo.findByEmail(loginUserDto.identifierName, [
+      'roles',
+    ]);
 
     if (!user) {
-      user = await this.userRepo.findByName(loginUserDto.identifierName, ['roles']);
+      user = await this.userRepo.findByName(loginUserDto.identifierName, [
+        'roles',
+      ]);
     }
 
     if (!user) {
