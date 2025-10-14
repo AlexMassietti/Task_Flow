@@ -5,6 +5,7 @@ import { Status } from 'src/status/entities/status.entity';
 import { Priority } from 'src/priority/entities/priority.entity';
 import { Task } from 'src/task/entities/task.entity';
 import { Dashboard } from 'src/dashboard/entities/dashboard.entity';
+import { ParticipantType } from 'src/participant-type/entities/participant-type.entity';
 
 @Injectable()
 export class SeedService {
@@ -20,6 +21,9 @@ export class SeedService {
 
     @InjectRepository(Dashboard)
     private readonly dashboardRepository: Repository<Dashboard>,
+
+    @InjectRepository(ParticipantType)
+    private readonly participantRepository: Repository<ParticipantType>,
   ) {}
 
   async seed() {
@@ -27,6 +31,7 @@ export class SeedService {
     await this.seedPriority();
     await this.seedDashboard();
     await this.seedTask();
+    await this.seedParticipantType();
     return 'Seed executed';
   }
 
@@ -62,6 +67,16 @@ export class SeedService {
         { name: 'Dashboard 2', description: 'Secundario' },
       ]);
       console.log('Dashboards cargados');
+    }
+  }
+  private async seedParticipantType() {
+    const count = await this.participantRepository.count();
+    if (count == 0) {
+      await this.participantRepository.save([
+        { name: 'Admin' },
+        { name: 'User' },
+        { name: 'Support' },
+      ]);
     }
   }
 

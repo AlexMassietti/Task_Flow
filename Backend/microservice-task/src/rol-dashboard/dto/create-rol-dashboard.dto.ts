@@ -19,7 +19,7 @@ export class CreateRolDashboardDto {
   @ApiProperty({
     description:
       'Email del usuario a asignar (usado para obtener su ID en el microservicio externo).',
-    example: 'usuario.nuevo@universidad.edu',
+    example: 'admin@sistema.com',
   })
   @IsEmail()
   @IsString()
