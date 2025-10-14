@@ -1,7 +1,7 @@
 services:
   db:
     image: postgres:alpine
-    env_file: 
+    env_file:
       - .env.db
     container_name: microservice-users-db
     restart: always
