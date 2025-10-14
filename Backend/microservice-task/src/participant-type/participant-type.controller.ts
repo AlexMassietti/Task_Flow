@@ -13,7 +13,9 @@ import { CreateParticipantTypeDto } from './dto/create-participant-type.dto';
 import { UpdateParticipantTypeDto } from './dto/update-participant-type.dto';
 import { AuthMiddleware } from 'src/middleware/auth.middleware';
 import { Permissions } from 'src/middleware/decorators/permissions.decorator';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('ParticipantType')
 @Controller('participant-type')
 @UseGuards(AuthMiddleware)
 export class ParticipantTypeController {

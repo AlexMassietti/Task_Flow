@@ -13,7 +13,9 @@ import { CreateRolDashboardDto } from './dto/create-rol-dashboard.dto';
 import { UpdateRolDashboardDto } from './dto/update-rol-dashboard.dto';
 import { AuthMiddleware } from 'src/middleware/auth.middleware';
 import { Permissions } from 'src/middleware/decorators/permissions.decorator';
+import { ApiTags } from '@nestjs/swagger'; // Importación de Swagger
 
+@ApiTags('RolDashboard') // Etiqueta para agrupar endpoints en Swagger
 @Controller('rol-dashboard')
 @UseGuards(AuthMiddleware)
 export class RolDashboardController {

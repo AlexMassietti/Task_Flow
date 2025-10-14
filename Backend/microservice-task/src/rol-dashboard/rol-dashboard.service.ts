@@ -1,35 +1,50 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { HttpService } from '@nestjs/axios';
+import { firstValueFrom } from 'rxjs';
 import { RolDashboard } from './entities/rol-dashboard.entity';
 import { Dashboard } from 'src/dashboard/entities/dashboard.entity';
 import { ParticipantType } from 'src/participant-type/entities/participant-type.entity';
 import { CreateRolDashboardDto } from './dto/create-rol-dashboard.dto';
 import { UpdateRolDashboardDto } from './dto/update-rol-dashboard.dto';
 
+// Tipado explícito de la respuesta esperada del microservicio de usuarios
+interface UserIdResponse {
+  id: number;
+}
+
 @Injectable()
 export class RolDashboardService {
-  // URL base de tu microservicio de usuarios (para futura implementación)
-  private readonly userMicroserviceUrl = 'http://localhost:3001/usuarios';
+  private readonly userMicroserviceUrl =
+    'http://localhost:3001/users/getIdbyEmail';
 
   constructor(
     @InjectRepository(RolDashboard)
     private readonly rolDashboardRepository: Repository<RolDashboard>,
+
     @InjectRepository(Dashboard)
     private readonly dashboardRepository: Repository<Dashboard>,
+
     @InjectRepository(ParticipantType)
     private readonly participantTypeRepository: Repository<ParticipantType>,
 
-    // Servicio HTTP para la comunicación con el microservicio de usuarios
     private readonly httpService: HttpService,
   ) {}
 
+  /**
+   * Crear una nueva relación entre rol y dashboard, asociada a un usuario (por email)
+   */
   async create(
-    createRolDashboardDto: CreateRolDashboardDto,
+    createRolDashboardDto: CreateRolDashboardDto & { email: string },
   ): Promise<RolDashboard> {
-    const { idDashboard, idRol, idUser } = createRolDashboardDto;
+    const { idDashboard, idRol, email } = createRolDashboardDto;
 
+    // Validar existencia del dashboard
     const dashboardExists = await this.dashboardRepository.findOneBy({
       id: idDashboard,
     });
@@ -39,6 +54,7 @@ export class RolDashboardService {
       );
     }
 
+    // Validar existencia del rol (ParticipantType)
     const rolExists = await this.participantTypeRepository.findOneBy({
       id: idRol,
     });
@@ -48,16 +64,57 @@ export class RolDashboardService {
       );
     }
 
+    // Obtener ID de usuario desde el microservicio de usuarios
+    let finalUserId: number;
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const response = await firstValueFrom(
+        this.httpService.get<UserIdResponse>(this.userMicroserviceUrl, {
+          params: { email },
+        }),
+      );
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      if (!response.data || typeof response.data.id !== 'number') {
+        throw new NotFoundException(
+          `El microservicio no devolvió un ID válido para el email ${email}`,
+        );
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+      finalUserId = response.data.id;
+    } catch (error) {
+      console.error(
+        'Error al comunicarse con el microservicio de usuarios:',
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        error.message,
+      );
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      if (error.response?.status === 404) {
+        throw new NotFoundException(
+          `El usuario con email ${email} no existe en el microservicio externo`,
+        );
+      }
+
+      throw new InternalServerErrorException(
+        'Error al validar el usuario externo',
+      );
+    }
+
+    // Crear la nueva relación RolDashboard
     const newRolDashboard = this.rolDashboardRepository.create({
-      // Se pasa el ID a la propiedad de relación como objeto parcial
       dashboardId: { id: idDashboard } as Dashboard,
       participantTypeId: { id: idRol } as ParticipantType,
-      idUser,
+      idUser: finalUserId,
     });
 
     return this.rolDashboardRepository.save(newRolDashboard);
   }
 
+  /**
+   * Obtener todas las relaciones RolDashboard
+   */
   async findAll(): Promise<RolDashboard[]> {
     return this.rolDashboardRepository.find({
       relations: ['dashboardId', 'participantTypeId'],
@@ -75,9 +132,13 @@ export class RolDashboardService {
         `Relación RolDashboard con ID ${id} no encontrada`,
       );
     }
+
     return rolDashboard;
   }
 
+  /**
+   * Actualizar una relación RolDashboard
+   */
   async update(
     id: number,
     updateRolDashboardDto: UpdateRolDashboardDto,
@@ -91,7 +152,7 @@ export class RolDashboardService {
       );
     }
 
-    const updateObject: any = {};
+    const updateObject: Partial<RolDashboard> = {};
     let shouldUpdate = false;
 
     if (updateRolDashboardDto.idDashboard) {
@@ -103,7 +164,6 @@ export class RolDashboardService {
           `Dashboard con ID ${updateRolDashboardDto.idDashboard} no encontrado`,
         );
       }
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       updateObject.dashboardId = {
         id: updateRolDashboardDto.idDashboard,
       } as Dashboard;
@@ -119,7 +179,6 @@ export class RolDashboardService {
           `ParticipantType (Rol) con ID ${updateRolDashboardDto.idRol} no encontrado`,
         );
       }
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       updateObject.participantTypeId = {
         id: updateRolDashboardDto.idRol,
       } as ParticipantType;
@@ -127,7 +186,6 @@ export class RolDashboardService {
     }
 
     if (updateRolDashboardDto.idUser) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       updateObject.idUser = updateRolDashboardDto.idUser;
       shouldUpdate = true;
     }
@@ -138,11 +196,14 @@ export class RolDashboardService {
 
     const updatedRolDashboard = this.rolDashboardRepository.merge(
       existingRolDashboard,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       updateObject,
     );
     return this.rolDashboardRepository.save(updatedRolDashboard);
   }
+
+  /**
+   * Eliminar una relación RolDashboard
+   */
   async remove(id: number): Promise<{ message: string }> {
     const result = await this.rolDashboardRepository.delete(id);
 
