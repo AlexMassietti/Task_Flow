@@ -12,7 +12,7 @@
       </div>
       <div class="dashboard-actions">
         <button class="action-btn">
-          <i class="bi bi-plus-circle"></i>
+          <i class="bi bi-plus-circle" (click)="openCreateModal()"></i>
         </button>
       </div>
     </div>
@@ -30,9 +30,9 @@
   </div>
 </div>
 
-<app-edit-dashboard-modal
-  *ngIf="showModal"
+<app-dashboard-edit-modal
+  *ngIf="showEditModal && dashboardToEdit"
   [dashboard]="dashboardToEdit"
-  (onSave)="updateDashboard($event)"
-  (onClose)="closeModal()">
-</app-edit-dashboard-modal>
+  (save)="updateDashboard($event)"
+  (cancel)="closeEditModal()">
+</app-dashboard-edit-modal>

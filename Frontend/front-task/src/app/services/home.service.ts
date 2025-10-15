@@ -26,13 +26,12 @@ export class HomeService {
     ];
 
   mockDashboards = [
-    { id: 200, name: 'Dashboard 1', image: 'https://via.placeholder.com/150' },
-    { id: 900, name: 'Dashboard 2', image: 'https://via.placeholder.com/150' },
-    { id: 300, name: 'Dashboard 3', image: 'https://via.placeholder.com/150' },
-    { id: 100, name: "Jame's Dashboard", image: 'https://via.placeholder.com/150' },
-    { id: 500, name: "Anna's Dashboard", image: 'https://via.placeholder.com/150' },
-    { id: 600, name: "Mark's Dashboard", image: 'https://via.placeholder.com/150' }
-  
+    { id: 200, name: 'Dashboard 1' },
+    { id: 900, name: 'Dashboard 2' },
+    { id: 300, name: 'Dashboard 3' },
+    { id: 100, name: "Jame's Dashboard" },
+    { id: 500, name: "Anna's Dashboard" },
+    { id: 600, name: "Mark's Dashboard" }
   ];
 
   getUserIDByToken(token: string): Observable<number> {
@@ -73,4 +72,28 @@ export class HomeService {
     return of(models);
   }
 
+  updateDashboard(updatedDashboard: DashboardModel): Observable<DashboardModel> {
+    console.log('Updating dashboard:', updatedDashboard);
+    if (!this.useMock) {
+      return this.http.put<DashboardDTO>(`${this.baseUrl}/dashboards/${updatedDashboard.id}`, updatedDashboard.toDTO()).pipe(
+        map(dto => DashboardModel.fromDTO(dto))
+      );
+    }
+    const index = this.mockDashboards.findIndex(d => d.id === updatedDashboard.id);
+    if (index !== -1) {
+      this.mockDashboards[index] = updatedDashboard.toDTO();
+      console.log('Mock dashboard updated:', this.mockDashboards[index]);
+    }
+    return of(updatedDashboard);
+  }
+
+  newDashboard(newDashboard: DashboardModel): Observable<DashboardModel> {
+  if (!this.useMock) {
+    return this.http.post<DashboardDTO>(`${this.baseUrl}/dashboards`, newDashboard.toDTO()).pipe(
+      map(dto => DashboardModel.fromDTO(dto))
+    );
+  }
+  this.mockDashboards.push(newDashboard.toDTO());
+  return of(newDashboard);  
+  }
 }

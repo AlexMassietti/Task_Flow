@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { HeaderComponent } from '../header/header.component';
 import { CommonModule } from '@angular/common';
 import { SidebarService } from '../services/sidebar.service';
-import { EditDashboardModalComponent } from './modal/edit-dashboard-modal.component'; // 1. Import the modal
+import { DashboardEditModalComponent } from './EditModal/dashboard-edit-modal.component'; // 1. Import the modal
 import { Router } from '@angular/router';
 import { DashboardModel, DashboardDTO } from '../Models/Dashboard/dashboard.model';
 import { HomeService } from "../services/home.service";
@@ -12,7 +12,7 @@ import { finalize, pipe, Subject, takeUntil } from 'rxjs';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [HeaderComponent, CommonModule, EditDashboardModalComponent], // 2. Add it to imports
+  imports: [HeaderComponent, CommonModule, DashboardEditModalComponent], // 2. Add it to imports
   templateUrl: './home.html',
   styleUrls: ['./home.css']
 })
@@ -21,8 +21,9 @@ export class HomeComponent {
   
   private destroy$ = new Subject<void>();
   isSidebarOpen = false;
-  showModal = false;
-  dashboardToEdit: any = null;
+  showEditModal = false;
+  showCreateModal = false;
+  dashboardToEdit: DashboardModel | null = null;
   loading= false
   useMock = true
   userId: number | null = null; // Store the user ID here
@@ -77,25 +78,43 @@ export class HomeComponent {
   this.router.navigateByUrl(`/dashboard/${dashboardId}`);
 }
 
-  // Correctly open the modal and set the dashboard to edit
-  openEditModal(dashboard: any) {
+  openEditModal(dashboard: DashboardModel) {
     this.dashboardToEdit = dashboard;
-    this.showModal = true;
+    this.showEditModal = true;
   }
 
-  closeModal() {
-    this.showModal = false;
+  closeEditModal() {
+    this.showEditModal = false;
     this.dashboardToEdit = null;
   }
 
+  openCreateModal() {
+    this.showCreateModal = true;
+    console.log('Abriendo modal de creación de dashboard');
+  }
 
-  // The event payload is correctly typed now
-  updateDashboard(updatedData: { name: string; image: string }) {
-    console.log('Dashboard actualizado:', updatedData);
-    if (this.dashboardToEdit) {
-      this.dashboardToEdit.name = updatedData.name;
-      this.dashboardToEdit.image = updatedData.image;
-    }
-    this.closeModal(); // Close the modal after saving
+  closeCreateModal() {
+    this.showCreateModal = false;
+  }
+
+  newDashboard(newModel: DashboardModel) {
+    console.log('Nuevo Dashboard creado:', newModel);
+    this.HomeService.newDashboard(newModel)
+  
+  }
+
+  updateDashboard(updatedModel: DashboardModel) {
+    this.showEditModal = false;
+    if (!updatedModel) return;
+    this.HomeService.updateDashboard(updatedModel)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.loadDashboardData();
+        },
+        error: (err) => {
+          console.error('Failed to update dashboard', err);
+        }
+      });
   }
 }
