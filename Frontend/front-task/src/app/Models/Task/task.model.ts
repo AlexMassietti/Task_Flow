@@ -66,7 +66,6 @@ export class TaskModel {
       return isNaN(d.getTime()) ? null : d;
     };
 
-    // Resolve status
     let status: StatusModel | undefined;
     if (dto.status && typeof dto.status === 'object') {
       status = StatusModel.fromDTO(dto.status);
@@ -76,7 +75,6 @@ export class TaskModel {
       status = options?.statusLookup?.(Number(dto.status));
     }
 
-    // Resolve priority
     let priority: PriorityModel | undefined;
     if (dto.priority && typeof dto.priority === 'object') {
       priority = PriorityModel.fromDTO(dto.priority);

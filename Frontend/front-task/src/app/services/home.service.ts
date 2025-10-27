@@ -26,13 +26,12 @@ export class HomeService {
     ];
 
   mockDashboards = [
-    { id: 200, name: 'Dashboard 1', image: 'https://via.placeholder.com/150' },
-    { id: 900, name: 'Dashboard 2', image: 'https://via.placeholder.com/150' },
-    { id: 300, name: 'Dashboard 3', image: 'https://via.placeholder.com/150' },
-    { id: 100, name: "Jame's Dashboard", image: 'https://via.placeholder.com/150' },
-    { id: 500, name: "Anna's Dashboard", image: 'https://via.placeholder.com/150' },
-    { id: 600, name: "Mark's Dashboard", image: 'https://via.placeholder.com/150' }
-  
+    { id: 200, name: 'Dashboard 1' },
+    { id: 900, name: 'Dashboard 2' },
+    { id: 300, name: 'Dashboard 3' },
+    { id: 100, name: "Jame's Dashboard" },
+    { id: 500, name: "Anna's Dashboard" },
+    { id: 600, name: "Mark's Dashboard" }
   ];
 
   getUserIDByToken(token: string): Observable<number> {
@@ -73,4 +72,38 @@ export class HomeService {
     return of(models);
   }
 
+  updateDashboard(updatedDashboard: DashboardModel): Observable<DashboardModel> {
+    console.log('Updating dashboard:', updatedDashboard);
+    if (!this.useMock) {
+      return this.http.put<DashboardDTO>(`${this.baseUrl}/dashboards/${updatedDashboard.id}`, updatedDashboard.toDTO()).pipe(
+        map(dto => DashboardModel.fromDTO(dto))
+      );
+    }
+    const index = this.mockDashboards.findIndex(d => d.id === updatedDashboard.id);
+    if (index !== -1) {
+      this.mockDashboards[index] = updatedDashboard.toDTO();
+      console.log('Mock dashboard updated:', this.mockDashboards[index]);
+    }
+    return of(updatedDashboard);
+  }
+
+  newDashboard(newDashboardName: string, newDashboardDescription: string): Observable<DashboardModel> {
+  if (!this.useMock) {
+    return this.http.post<DashboardDTO>(`${this.baseUrl}/dashboards`, { name: newDashboardName, description: newDashboardDescription }).pipe(
+      map(dto => DashboardModel.fromDTO(dto))
+    );
+  }
+  const newDashboard = new DashboardModel(0, newDashboardName, newDashboardDescription);
+  newDashboard.id = this.mockDashboards.length > 0 ? Math.max(...this.mockDashboards.map(d => d.id)) + 1 : 1;
+  this.mockDashboards.push(newDashboard.toDTO());
+  const newContract: ContractsDTO = {
+    id: this.mockContracts.length > 0 ? Math.max(...this.mockContracts.map(c => c.id)) + 1 : 1,
+    user: { id: 1 },
+    dashboard: { id: newDashboard.id },
+    role: { id: 1 }
+  };
+  this.mockContracts.push(newContract);
+  console.log('Mock new dashboard created:', newDashboard);
+  return of(newDashboard);
+  }
 }

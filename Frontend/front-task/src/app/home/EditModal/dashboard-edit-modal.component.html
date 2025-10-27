@@ -1,0 +1,16 @@
+<div class="modal-backdrop">
+  <div class="modal">
+    <h2>Edit Dashboard</h2>
+
+    <label>Name:</label>
+    <input type="text" [(ngModel)]="editedDashboard.name" />
+
+    <label>Description:</label>
+    <input type="text" [(ngModel)]="editedDashboard.description" />
+
+    <div class="modal-actions">
+      <button (click)="Save()">Save</button>
+      <button (click)="Cancel()">Close</button>
+    </div>
+  </div>
+</div>
