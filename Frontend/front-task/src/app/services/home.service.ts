@@ -87,13 +87,23 @@ export class HomeService {
     return of(updatedDashboard);
   }
 
-  newDashboard(newDashboard: DashboardModel): Observable<DashboardModel> {
+  newDashboard(newDashboardName: string, newDashboardDescription: string): Observable<DashboardModel> {
   if (!this.useMock) {
-    return this.http.post<DashboardDTO>(`${this.baseUrl}/dashboards`, newDashboard.toDTO()).pipe(
+    return this.http.post<DashboardDTO>(`${this.baseUrl}/dashboards`, { name: newDashboardName, description: newDashboardDescription }).pipe(
       map(dto => DashboardModel.fromDTO(dto))
     );
   }
+  const newDashboard = new DashboardModel(0, newDashboardName, newDashboardDescription);
+  newDashboard.id = this.mockDashboards.length > 0 ? Math.max(...this.mockDashboards.map(d => d.id)) + 1 : 1;
   this.mockDashboards.push(newDashboard.toDTO());
-  return of(newDashboard);  
+  const newContract: ContractsDTO = {
+    id: this.mockContracts.length > 0 ? Math.max(...this.mockContracts.map(c => c.id)) + 1 : 1,
+    user: { id: 1 },
+    dashboard: { id: newDashboard.id },
+    role: { id: 1 }
+  };
+  this.mockContracts.push(newContract);
+  console.log('Mock new dashboard created:', newDashboard);
+  return of(newDashboard);
   }
 }

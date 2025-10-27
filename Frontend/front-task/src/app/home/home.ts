@@ -8,11 +8,12 @@ import { DashboardModel, DashboardDTO } from '../Models/Dashboard/dashboard.mode
 import { HomeService } from "../services/home.service";
 import { combineLatest } from 'rxjs/internal/observable/combineLatest';
 import { finalize, pipe, Subject, takeUntil } from 'rxjs';
+import { DashboardCreateModalComponent } from './CreateModal/dashboard-create-modal.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [HeaderComponent, CommonModule, DashboardEditModalComponent], // 2. Add it to imports
+  imports: [HeaderComponent, CommonModule, DashboardEditModalComponent, DashboardCreateModalComponent], // 2. Add it to imports
   templateUrl: './home.html',
   styleUrls: ['./home.css']
 })
@@ -97,10 +98,19 @@ export class HomeComponent {
     this.showCreateModal = false;
   }
 
-  newDashboard(newModel: DashboardModel) {
-    console.log('Nuevo Dashboard creado:', newModel);
-    this.HomeService.newDashboard(newModel)
-  
+  newDashboard(name: string, description: string) {
+    console.log('Nuevo Dashboard creado:', { name, description });
+    this.HomeService.newDashboard(name, description)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.loadDashboardData();
+        },
+        error: (err) => {
+          console.error('Failed to create new dashboard', err);
+        }
+      });
+  this.closeCreateModal();
   }
 
   updateDashboard(updatedModel: DashboardModel) {

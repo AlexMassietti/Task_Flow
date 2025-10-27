@@ -30,6 +30,12 @@
   </div>
 </div>
 
+<app-dashboard-create-modal
+  *ngIf="showCreateModal"
+  (save)="newDashboard($event.name, $event.description)"
+  (cancel)="closeCreateModal()">
+</app-dashboard-create-modal>
+
 <app-dashboard-edit-modal
   *ngIf="showEditModal && dashboardToEdit"
   [dashboard]="dashboardToEdit"
