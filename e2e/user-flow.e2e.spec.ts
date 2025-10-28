@@ -28,7 +28,7 @@ describe("Flujo E2E - Usuario crea proyecto y tarea (API-driven)", () => {
     expect(201).toBe(res.status);
     if (res.body) {
       if (res.body.message) {
-        expect(res.body.message).toMatch(/created|success/i);
+        expect(res.body.message).toMatch(/created/i);
       }
     }
   });
@@ -46,8 +46,7 @@ describe("Flujo E2E - Usuario crea proyecto y tarea (API-driven)", () => {
           .send(body)
           .set("Accept", "application/json");
         if (r.status === 201 && r.body) {
-          const token =
-            r.body.accessToken || r.body.token || r.body.data?.accessToken;
+          const token = r.body.accessToken;
           if (token && typeof token === "string") return token;
         }
       } catch (e) {}
@@ -78,8 +77,7 @@ describe("Flujo E2E - Usuario crea proyecto y tarea (API-driven)", () => {
       })
       .set("Accept", "application/json");
 
-    expect([200, 201]).toContain(res.status);
-    // aceptar tanto id numérico como string que pueda parsearse
+    expect(201).toBe(res.status);
     expect(res.body).toHaveProperty("id");
     dashboardId = Number(res.body.id);
     expect(Number.isFinite(dashboardId)).toBe(true);
@@ -101,7 +99,7 @@ describe("Flujo E2E - Usuario crea proyecto y tarea (API-driven)", () => {
       })
       .set("Accept", "application/json");
 
-    expect([200, 201]).toContain(res.status);
+    expect(201).toBe(res.status);
     expect(res.body).toHaveProperty("id");
     taskId = Number(res.body.id);
     expect(Number.isFinite(taskId)).toBe(true);
@@ -122,20 +120,11 @@ describe("Flujo E2E - Usuario crea proyecto y tarea (API-driven)", () => {
       })
       .set("Accept", "application/json");
 
-    // algunos endpoints devuelven 201 con json, otros 200 con mensaje; acepto ambos
-    expect([200, 201]).toContain(res.status);
+    expect(201).toBe(res.status);
 
-    // Validaciones flexibles según la respuesta esperada
     if (res.body) {
-      // puede devolver el objeto task o un mensaje
       if (res.body.id) {
         expect(Number(res.body.id)).toBe(taskId);
-      } else if (res.body.message) {
-        expect(res.body.message).toMatch(/exitosamente|success|assigned/i);
-      } else {
-        // si viene texto plano
-        const text = (res.text || "").toLowerCase();
-        expect(text).toMatch(/exitosamente|success|assigned|asignad/i);
       }
     }
   });
