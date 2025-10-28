@@ -4,9 +4,11 @@ import { DashboardController } from './dashboard.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Dashboard } from './entities/dashboard.entity';
 import { Task } from 'src/task/entities/task.entity';
+import { Status } from 'src/status/entities/status.entity';
+import { Priority } from 'src/priority/entities/priority.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Dashboard, Task])],
+  imports: [TypeOrmModule.forFeature([Dashboard, Task, Status, Priority])],
   controllers: [DashboardController],
   providers: [DashboardService],
 })

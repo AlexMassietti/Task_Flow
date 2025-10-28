@@ -17,6 +17,7 @@ import { AssignTaskDto } from './dto/assign-task.dto';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AuthMiddleware } from 'src/middleware/auth.middleware';
 import { Permissions } from 'src/middleware/decorators/permissions.decorator';
+import { CreateTaskDto } from 'src/task/dto/create-task.dto';
 
 @ApiTags('Dashboards')
 @Controller('dashboard')
@@ -90,5 +91,29 @@ export class DashboardController {
       throw new NotFoundException(`Task is not assign`);
     }
     return taskResult;
+  }
+  @Post(':id/new-task')
+  @Permissions(['createTask'])
+  @ApiOperation({
+    summary: 'Crear una nueva tarea y asignarla al dashboard especificado',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Tarea creada y asignada exitosamente al dashboard.',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Dashboard o entidad relacionada no encontrada.',
+  })
+  async createAndAssignTask(
+    @Param('id', ParseIntPipe) dashboardId: number,
+    @Body() createTaskDto: CreateTaskDto,
+  ) {
+    const task = await this.dashboardService.createAndAssignTask({
+      ...createTaskDto,
+      dashboardId,
+    });
+
+    return task;
   }
 }

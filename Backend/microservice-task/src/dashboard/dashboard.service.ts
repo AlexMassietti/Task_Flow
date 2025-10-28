@@ -6,6 +6,9 @@ import { Repository } from 'typeorm';
 import { Task } from 'src/task/entities/task.entity';
 import { Dashboard } from './entities/dashboard.entity';
 import { AssignTaskDto } from './dto/assign-task.dto';
+import { CreateTaskDto } from 'src/task/dto/create-task.dto';
+import { Priority } from 'src/priority/entities/priority.entity';
+import { Status } from 'src/status/entities/status.entity';
 
 @Injectable()
 export class DashboardService {
@@ -15,6 +18,12 @@ export class DashboardService {
 
     @InjectRepository(Dashboard)
     private readonly dashRepository: Repository<Dashboard>,
+
+    @InjectRepository(Priority)
+    private readonly priorityRepository: Repository<Priority>,
+
+    @InjectRepository(Status)
+    private readonly statusRepository: Repository<Status>,
   ) {}
   async create(dto: CreateDashboardDto) {
     const dashboard = this.dashRepository.create({
@@ -61,5 +70,69 @@ export class DashboardService {
       );
     }
     return await this.taskRepository.save(foundTask);
+  }
+
+  async createAndAssignTask(createTaskDto: CreateTaskDto): Promise<Task> {
+    const { dashboardId, name, description, priorityId, endDate, statusId } =
+      createTaskDto;
+
+    const dashboard: Dashboard | null = await this.dashRepository.findOne({
+      where: { id: dashboardId },
+    });
+    if (!dashboard) {
+      throw new NotFoundException(`Dashboard with id ${dashboardId} not found`);
+    }
+
+    const defaultStatusId = 2 as const;
+    const resolvedStatusId: number = statusId ?? defaultStatusId;
+
+    const status: Status | null = await this.statusRepository.findOne({
+      where: { id: resolvedStatusId },
+    });
+    if (!status) {
+      throw new NotFoundException(
+        `Status with id ${resolvedStatusId} not found`,
+      );
+    }
+
+    let priority: Priority | null = null;
+    if (priorityId) {
+      const foundPriority: Priority | null =
+        await this.priorityRepository.findOne({
+          where: { id: priorityId },
+        });
+      if (!foundPriority) {
+        throw new NotFoundException(`Priority with id ${priorityId} not found`);
+      }
+      priority = foundPriority;
+    }
+
+    const task: Task = this.taskRepository.create({
+      name,
+      description,
+      endDate,
+      startDate: new Date(),
+      status,
+      priority: priority ?? undefined,
+      dashboard,
+    });
+
+    const savedTask: Task = await this.taskRepository.save(task);
+
+    return {
+      id: savedTask.id,
+      name: savedTask.name,
+      description: savedTask.description,
+      startDate: savedTask.startDate,
+      endDate: savedTask.endDate,
+      finishDate: savedTask.finishDate,
+      status: savedTask.status,
+      priority: savedTask.priority,
+      dashboard: {
+        id: dashboard.id,
+        name: dashboard.name,
+        description: dashboard.description,
+      },
+    } as Task;
   }
 }
