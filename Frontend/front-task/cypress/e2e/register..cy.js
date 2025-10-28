@@ -37,4 +37,8 @@ describe('register page', () => {
     // Confirmar redirección al login
     cy.url().should('include', '/auth/login')
   })
+  it('should navigate to log in', () => {
+        cy.get('[data-cy="signin-link"]').click()
+        cy.url().should('include', '/auth/login')
+    })
 })
