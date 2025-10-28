@@ -69,6 +69,7 @@ export class DashboardService {
         `Task with ${assignTaskDto.taskId} not found`,
       );
     }
+    foundTask.dashboardId = assignTaskDto.dashboardId;
     return await this.taskRepository.save(foundTask);
   }
 

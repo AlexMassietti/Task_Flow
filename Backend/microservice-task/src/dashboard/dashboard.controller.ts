@@ -92,6 +92,7 @@ export class DashboardController {
     }
     return taskResult;
   }
+
   @Post(':id/new-task')
   @Permissions(['createTask'])
   @ApiOperation({
