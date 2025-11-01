@@ -47,6 +47,7 @@ export class Task {
   dashboardId: number;
 
   @ManyToOne(() => Dashboard, (dashboard) => dashboard.task, {
+    onDelete: 'CASCADE',
     nullable: false,
   })
   @JoinColumn({ name: 'dashboardId' })

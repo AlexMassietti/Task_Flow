@@ -1,14 +1,12 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
-import { InjectRepository } from '@nestjs/typeorm';
 import { Task } from './entities/task.entity';
-import { Repository } from 'typeorm';
-import { Dashboard } from 'src/dashboard/entities/dashboard.entity';
 import { TaskResponseDto } from './dto/response-task.dto';
 import { ITaskRepository } from './infraestructure/task.interface';
 import { IStatusRepository } from 'src/status/infraestructure/status.interface';
 import { IPriorityRepository } from 'src/priority/infraestructure/priority.interface';
+import { IDashboardRepository } from 'src/dashboard/infraestructure/dashboard.interface';
 
 @Injectable()
 export class TaskService {
@@ -22,8 +20,8 @@ export class TaskService {
     @Inject('IStatusRepository')
     private readonly statusRepository: IStatusRepository,
 
-    @InjectRepository(Dashboard)
-    private readonly dashboardRepository: Repository<Dashboard>,
+    @Inject('IDashboardRepository')
+    private readonly dashboardRepository: IDashboardRepository,
   ) {}
   async create(createTaskDto: CreateTaskDto): Promise<TaskResponseDto> {
     const { name, description, priorityId, endDate, statusId, dashboardId } =
@@ -47,9 +45,7 @@ export class TaskService {
       }
     }
 
-    const dashboard = await this.dashboardRepository.findOneBy({
-      id: dashboardId,
-    });
+    const dashboard = await this.dashboardRepository.findOne(dashboardId);
     if (!dashboard) {
       throw new NotFoundException(`Dashboard with id ${dashboardId} not found`);
     }

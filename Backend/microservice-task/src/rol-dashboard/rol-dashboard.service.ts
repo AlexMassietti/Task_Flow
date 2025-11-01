@@ -1,4 +1,5 @@
 import {
+  Inject,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -12,6 +13,7 @@ import { Dashboard } from 'src/dashboard/entities/dashboard.entity';
 import { ParticipantType } from 'src/participant-type/entities/participant-type.entity';
 import { CreateRolDashboardDto } from './dto/create-rol-dashboard.dto';
 import { UpdateRolDashboardDto } from './dto/update-rol-dashboard.dto';
+import { IDashboardRepository } from 'src/dashboard/infraestructure/dashboard.interface';
 
 // Tipado explícito de la respuesta esperada del microservicio de usuarios
 interface UserIdResponse {
@@ -27,8 +29,8 @@ export class RolDashboardService {
     @InjectRepository(RolDashboard)
     private readonly rolDashboardRepository: Repository<RolDashboard>,
 
-    @InjectRepository(Dashboard)
-    private readonly dashboardRepository: Repository<Dashboard>,
+    @Inject('IDashboardRepository')
+    private readonly dashboardRepository: IDashboardRepository,
 
     @InjectRepository(ParticipantType)
     private readonly participantTypeRepository: Repository<ParticipantType>,
@@ -45,9 +47,7 @@ export class RolDashboardService {
     const { idDashboard, idRol, email } = createRolDashboardDto;
 
     // Validar existencia del dashboard
-    const dashboardExists = await this.dashboardRepository.findOneBy({
-      id: idDashboard,
-    });
+    const dashboardExists = await this.dashboardRepository.findOne(idDashboard);
     if (!dashboardExists) {
       throw new NotFoundException(
         `Dashboard con ID ${idDashboard} no encontrado`,
@@ -156,9 +156,9 @@ export class RolDashboardService {
     let shouldUpdate = false;
 
     if (updateRolDashboardDto.idDashboard) {
-      const dashboardExists = await this.dashboardRepository.findOneBy({
-        id: updateRolDashboardDto.idDashboard,
-      });
+      const dashboardExists = await this.dashboardRepository.findOne(
+        updateRolDashboardDto.idDashboard,
+      );
       if (!dashboardExists) {
         throw new NotFoundException(
           `Dashboard con ID ${updateRolDashboardDto.idDashboard} no encontrado`,

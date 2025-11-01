@@ -3,16 +3,17 @@ import { TaskService } from './task.service';
 import { TaskController } from './task.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Task } from './entities/task.entity';
-import { Dashboard } from 'src/dashboard/entities/dashboard.entity';
 import { TaskRepository } from './infraestructure/task.repository';
 import { StatusModule } from 'src/status/status.module';
 import { PriorityModule } from 'src/priority/priority.module';
+import { DashboardModule } from 'src/dashboard/dashboard.module';
 
 @Module({
   imports: [
     forwardRef(() => StatusModule),
     forwardRef(() => PriorityModule),
-    TypeOrmModule.forFeature([Task, Dashboard]),
+    forwardRef(() => DashboardModule),
+    TypeOrmModule.forFeature([Task]),
   ],
   controllers: [TaskController],
   providers: [
