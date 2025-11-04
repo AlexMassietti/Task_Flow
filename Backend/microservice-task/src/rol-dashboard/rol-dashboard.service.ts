@@ -1,6 +1,4 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { RolDashboard } from './entities/rol-dashboard.entity';
 import { Dashboard } from 'src/dashboard/entities/dashboard.entity';
 import { ParticipantType } from 'src/participant-type/entities/participant-type.entity';
@@ -9,6 +7,7 @@ import { UpdateRolDashboardDto } from './dto/update-rol-dashboard.dto';
 import { IDashboardRepository } from 'src/dashboard/infraestructure/dashboard.interface';
 import { IRolDashboardRepository } from './infraestructure/rol-dashboard.interface';
 import { DeleteDashboardDto } from 'src/dashboard/dto/delete-dashboard.dto';
+import { IParticipantTypeRepository } from 'src/participant-type/infraestructure/participant-type.interface';
 
 @Injectable()
 export class RolDashboardService {
@@ -19,8 +18,8 @@ export class RolDashboardService {
     @Inject('IDashboardRepository')
     private readonly dashboardRepository: IDashboardRepository,
 
-    @InjectRepository(ParticipantType)
-    private readonly participantTypeRepository: Repository<ParticipantType>,
+    @Inject('IParticipantTypeRepository')
+    private readonly participantTypeRepository: IParticipantTypeRepository,
   ) {}
 
   async create(
@@ -35,9 +34,9 @@ export class RolDashboardService {
       );
     }
 
-    const roleExists = await this.participantTypeRepository.findOneBy({
-      id: createRolDashboardDto.idRol,
-    });
+    const roleExists = await this.participantTypeRepository.findOne(
+      createRolDashboardDto.idRol,
+    );
     if (!roleExists) {
       throw new NotFoundException(
         `ParticipantType (Role) with ID ${createRolDashboardDto.idRol} was not found.`,
@@ -91,9 +90,9 @@ export class RolDashboardService {
     }
 
     if (updateRolDashboardDto.idRol) {
-      const roleExists = await this.participantTypeRepository.findOneBy({
-        id: updateRolDashboardDto.idRol,
-      });
+      const roleExists = await this.participantTypeRepository.findOne(
+        updateRolDashboardDto.idRol,
+      );
       if (!roleExists) {
         throw new NotFoundException(
           `ParticipantType (Role) with ID ${updateRolDashboardDto.idRol} was not found.`,
