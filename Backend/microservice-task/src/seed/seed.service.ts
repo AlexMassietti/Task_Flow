@@ -1,128 +1,171 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Status } from 'src/status/entities/status.entity';
-import { Priority } from 'src/priority/entities/priority.entity';
-import { Task } from 'src/task/entities/task.entity';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import { IStatusRepository } from 'src/status/infraestructure/status.interface';
+import { IPriorityRepository } from 'src/priority/infraestructure/priority.interface';
+import { ITaskRepository } from 'src/task/infraestructure/task.interface';
+import { IDashboardRepository } from 'src/dashboard/infraestructure/dashboard.interface';
+import { IParticipantTypeRepository } from 'src/participant-type/infraestructure/participant-type.interface';
+import { faker } from '@faker-js/faker';
+import { IRolDashboardRepository } from 'src/rol-dashboard/infraestructure/rol-dashboard.interface';
 import { Dashboard } from 'src/dashboard/entities/dashboard.entity';
 import { ParticipantType } from 'src/participant-type/entities/participant-type.entity';
 
 @Injectable()
 export class SeedService {
   constructor(
-    @InjectRepository(Status)
-    private readonly statusRepository: Repository<Status>,
+    @Inject('IStatusRepository')
+    private readonly statusRepository: IStatusRepository,
 
-    @InjectRepository(Priority)
-    private readonly priorityRepository: Repository<Priority>,
+    @Inject('IPriorityRepository')
+    private readonly priorityRepository: IPriorityRepository,
 
-    @InjectRepository(Task)
-    private readonly taskRepository: Repository<Task>,
+    @Inject('ITaskRepository')
+    private readonly taskRepository: ITaskRepository,
 
-    @InjectRepository(Dashboard)
-    private readonly dashboardRepository: Repository<Dashboard>,
+    @Inject('IDashboardRepository')
+    private readonly dashboardRepository: IDashboardRepository,
 
-    @InjectRepository(ParticipantType)
-    private readonly participantRepository: Repository<ParticipantType>,
+    @Inject('IParticipantTypeRepository')
+    private readonly participantRepository: IParticipantTypeRepository,
+
+    @Inject('IRolDashboardRepository')
+    private readonly rolDashboardRepository: IRolDashboardRepository,
   ) {}
+
+  private readonly logger = new Logger(SeedService.name);
 
   async seed() {
     await this.seedStatus();
     await this.seedPriority();
     await this.seedDashboard();
-    await this.seedTask();
     await this.seedParticipantType();
-    return 'Seed executed';
+    await this.seedTask();
+    await this.seedRolDashboard();
+    return this.logger.log('Seed ejecutada');
   }
 
   private async seedStatus() {
     const count = await this.statusRepository.count();
     if (count === 0) {
-      await this.statusRepository.save([
-        { name: 'Pendiente' },
-        { name: 'En progreso' },
-        { name: 'Realizada' },
-        { name: 'Undefined' },
+      await this.statusRepository.saveArray([
+        { name: 'Pendiente', description: faker.lorem.words(10) },
+        { name: 'En progreso', description: faker.lorem.words(10) },
+        { name: 'Realizada', description: faker.lorem.words(10) },
+        { name: 'Undefined', description: faker.lorem.words(10) },
       ]);
-      console.log('Status cargado');
-    }
+      this.logger.log('Estados cargados');
+    } else this.logger.log('Los estados ya estaban cargados');
   }
 
   private async seedPriority() {
     const count = await this.priorityRepository.count();
     if (count === 0) {
-      await this.priorityRepository.save([
-        { name: 'Alta' },
-        { name: 'Media' },
-        { name: 'Baja' },
-        { name: 'Undefined' },
+      await this.priorityRepository.saveArray([
+        { name: 'Alta', description: faker.lorem.words(7) },
+        { name: 'Media', description: faker.lorem.words(7) },
+        { name: 'Baja', description: faker.lorem.words(7) },
+        { name: 'Undefined', description: faker.lorem.words(7) },
       ]);
-      console.log('Priority cargada');
-    }
+      this.logger.log('Prioridades cargadas');
+    } else this.logger.log('Las prioridades ya estaban cargadas');
   }
 
   private async seedDashboard() {
     const count = await this.dashboardRepository.count();
     if (count === 0) {
-      await this.dashboardRepository.save([
-        { name: 'Dashboard 1', description: 'Principal' },
-        { name: 'Dashboard 2', description: 'Secundario' },
-      ]);
-      console.log('Dashboards cargados');
+      const dashboards = Array.from({ length: 10 }).map(() => ({
+        name: `${faker.company.catchPhraseAdjective()} ${faker.word.noun()} dashboard`,
+        description: faker.lorem.sentence(),
+      }));
+
+      await this.dashboardRepository.saveArray(dashboards);
+      this.logger.log('Dashboards cargados');
+    } else {
+      this.logger.log('Los dashboards ya estaban cargados');
     }
   }
+
   private async seedParticipantType() {
     const count = await this.participantRepository.count();
     if (count == 0) {
-      await this.participantRepository.save([
-        { name: 'Admin' },
-        { name: 'User' },
-        { name: 'Support' },
+      await this.participantRepository.saveArray([
         { name: 'Owner' },
+        { name: 'Admin' },
+        { name: 'Editor' },
+        { name: 'Viewer' },
       ]);
-    }
+      this.logger.log('Roles en dashboard cargados');
+    } else this.logger.log('Los roles en dashboard ya estaban cargados');
   }
 
   private async seedTask() {
     const count = await this.taskRepository.count();
     if (count === 0) {
       // Traemos dashboards y status para asegurarnos que existan
-      const dashboards = await this.dashboardRepository.find();
-      const statuses = await this.statusRepository.find();
-      const priorities = await this.priorityRepository.find();
+      const dashboards = await this.dashboardRepository.findAll();
+      const statuses = (await this.statusRepository.findAll()).filter(
+        (s) => s.name !== 'Undefined',
+      );
+      const priorities = (await this.priorityRepository.findAll()).filter(
+        (p) => p.name !== 'Undefined',
+      );
 
-      if (!dashboards.length || !statuses.length) return;
+      if (
+        dashboards.length === 0 ||
+        statuses.length < 3 ||
+        priorities.length < 3
+      )
+        return;
 
-      await this.taskRepository.save([
-        {
-          name: 'Configurar entorno',
-          description: 'Instalar dependencias y configurar variables',
-          startDate: new Date(),
-          endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-          status: statuses[0],
-          priority: priorities[0],
-          dashboard: dashboards[0],
-        },
-        {
-          name: 'Diseñar base de datos',
-          description: 'Modelar entidades y relaciones',
-          startDate: new Date(),
-          endDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
-          status: statuses[1],
-          priority: priorities[1],
-          dashboard: dashboards[0],
-        },
-        {
-          name: 'Ejemplo sin endDate',
-          description: 'Task sin fecha de finalización',
-          startDate: new Date(),
-          status: statuses[2],
-          priority: priorities[1],
-          dashboard: dashboards[1],
-        },
-      ]);
+      const tasks = Array.from({ length: 40 }).map(() => ({
+        name: `${faker.hacker.ingverb()} ${faker.hacker.noun()}`,
+        description: faker.lorem.sentence(),
+        startDate: faker.date.between({ from: 30, to: Date.now() }),
+        endDate:
+          Math.random() < 0.7
+            ? faker.date.between({ from: 20, to: Date.now() })
+            : null,
+        status: statuses[Math.floor(Math.random() * statuses.length)],
+        priority: priorities[Math.floor(Math.random() * priorities.length)],
+        dashboard: dashboards[Math.floor(Math.random() * dashboards.length)],
+      }));
 
-      console.log('Tasks cargadas');
-    }
+      await this.taskRepository.saveArray(tasks);
+
+      this.logger.log('Tareas cargadas');
+    } else this.logger.log('Las tareas ya estaban cargadas');
+  }
+
+  private async seedRolDashboard() {
+    const count = await this.rolDashboardRepository.count();
+    if (count === 0) {
+      const participantTypes = await this.participantRepository.findAll();
+      const dashboards = await this.dashboardRepository.findAll();
+
+      if (!participantTypes.length || !dashboards.length) {
+        this.logger.warn('No hay datos para crear roles en dashboard');
+      }
+
+      const entries = 40;
+      const entriesPerDashboard = 4;
+      const rolDashboardArray: {
+        dashboardId: Dashboard;
+        participantTypeId: ParticipantType;
+        idUser: number;
+      }[] = [];
+      for (let i = 1; i <= entries; i++) {
+        const dashboardIndex =
+          Math.floor(i / entriesPerDashboard) % dashboards.length;
+        const participantIndex = i % participantTypes.length;
+
+        rolDashboardArray.push({
+          dashboardId: dashboards[dashboardIndex],
+          participantTypeId: participantTypes[participantIndex],
+          idUser: i,
+        });
+      }
+
+      await this.rolDashboardRepository.saveArray(rolDashboardArray);
+      this.logger.log('Roles en los dashboards cargados');
+    } else this.logger.log('Los roles en los dashboards ya estaban cargados');
   }
 }

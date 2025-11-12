@@ -12,6 +12,13 @@ export class PriorityRepository implements IPriorityRepository {
     @InjectRepository(Priority)
     private readonly priorityRepository: Repository<Priority>,
   ) {}
+  saveArray(priority: { name: string }[]): Promise<Priority[]> {
+    return this.priorityRepository.save(priority);
+  }
+
+  count(): Promise<number> {
+    return this.priorityRepository.count();
+  }
 
   create(createPriorityDto: CreatePriorityDto): Promise<Priority> {
     const priority = this.priorityRepository.create(createPriorityDto);

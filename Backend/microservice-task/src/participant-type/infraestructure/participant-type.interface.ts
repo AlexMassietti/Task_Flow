@@ -21,4 +21,8 @@ export interface IParticipantTypeRepository {
   remove(id: number): Promise<void>;
 
   save(participantType: ParticipantType): Promise<ParticipantType>;
+
+  count(): Promise<number>;
+
+  saveArray(participantType: { name: string }[]): Promise<ParticipantType[]>;
 }

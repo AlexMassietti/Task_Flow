@@ -6,6 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UpdateDashboardDto } from 'src/dashboard/dto/update-dashboard.dto';
 import { ParticipantType } from 'src/participant-type/entities/participant-type.entity';
+import { Dashboard } from 'src/dashboard/entities/dashboard.entity';
 
 @Injectable()
 export class RolDashboardRepository implements IRolDashboardRepository {
@@ -13,6 +14,19 @@ export class RolDashboardRepository implements IRolDashboardRepository {
     @InjectRepository(RolDashboard)
     private readonly rolDashboardRepository: Repository<RolDashboard>,
   ) {}
+  saveArray(
+    rolDashboard: {
+      dashboardId: Dashboard;
+      participantTypeId: ParticipantType;
+      idUser: number;
+    }[],
+  ): Promise<RolDashboard[]> {
+    return this.rolDashboardRepository.save(rolDashboard);
+  }
+
+  count(): Promise<number> {
+    return this.rolDashboardRepository.count();
+  }
 
   merge(
     existingRolDashboard: RolDashboard,

@@ -16,4 +16,8 @@ export interface IStatusRepository {
   delete(id: number): Promise<void>;
 
   save(status: Status): Promise<Status>;
+
+  saveArray(status: { name: string; description: string }[]): Promise<Status[]>;
+
+  count(): Promise<number>;
 }

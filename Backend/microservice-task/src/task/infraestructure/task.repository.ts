@@ -6,6 +6,9 @@ import { ITaskRepository } from './task.interface';
 import { CreateTaskDto } from '../dto/create-task.dto';
 import { UpdateTaskDto } from '../dto/update-task.dto';
 import { TaskResponseDto } from '../dto/response-task.dto';
+import { Dashboard } from 'src/dashboard/entities/dashboard.entity';
+import { Priority } from 'src/priority/entities/priority.entity';
+import { Status } from 'src/status/entities/status.entity';
 
 @Injectable()
 export class TaskRepository implements ITaskRepository {
@@ -13,6 +16,24 @@ export class TaskRepository implements ITaskRepository {
     @InjectRepository(Task)
     private readonly taskRepository: Repository<Task>,
   ) {}
+
+  count(): Promise<number> {
+    return this.taskRepository.count();
+  }
+
+  saveArray(
+    task: {
+      name: string;
+      description: string;
+      startDate: Date;
+      endDate: Date;
+      status: Status;
+      priority: Priority;
+      dashboard: Dashboard;
+    }[],
+  ): Promise<Task[]> {
+    return this.taskRepository.save(task);
+  }
 
   create(createTaskDto: CreateTaskDto): Promise<Task> {
     const task = this.taskRepository.create(createTaskDto);
