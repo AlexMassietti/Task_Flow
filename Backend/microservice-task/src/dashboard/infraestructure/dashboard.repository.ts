@@ -12,6 +12,16 @@ export class DashboardRepository implements IDashboardRepository {
     @InjectRepository(Dashboard)
     private readonly dashboardRepository: Repository<Dashboard>,
   ) {}
+  count(): Promise<number> {
+    return this.dashboardRepository.count();
+  }
+
+  saveArray(
+    dashboard: { name: string; description: string }[],
+  ): Promise<Dashboard[]> {
+    return this.dashboardRepository.save(dashboard);
+  }
+
   async findOwnedById(idDashboardsOwned: RolDashboard[]): Promise<Dashboard[]> {
     return await this.dashboardRepository.find({
       where: { id: In(idDashboardsOwned.map((r) => r.dashboardId.id)) },

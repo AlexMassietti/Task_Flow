@@ -11,6 +11,14 @@ export class StatusRepository implements IStatusRepository {
     @InjectRepository(Status)
     private readonly statusRepository: Repository<Status>,
   ) {}
+
+  saveArray(status: { name: string }[]): Promise<Status[]> {
+    return this.statusRepository.save(status);
+  }
+
+  async count(): Promise<number> {
+    return await this.statusRepository.count();
+  }
   create(createStatusDto: CreateStatusDto): Promise<Status> {
     const status = this.statusRepository.create(createStatusDto);
     return this.statusRepository.save(status);

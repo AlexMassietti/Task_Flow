@@ -20,4 +20,10 @@ export interface IDashboardRepository {
   remove(id: number): Promise<void>;
 
   findOwnedById(idDashboardsOwned: RolDashboard[]): Promise<Dashboard[]>;
+
+  count(): Promise<number>;
+
+  saveArray(
+    dashboard: { name: string; description: string }[],
+  ): Promise<Dashboard[]>;
 }

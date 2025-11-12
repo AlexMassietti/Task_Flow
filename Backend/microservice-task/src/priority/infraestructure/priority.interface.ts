@@ -19,4 +19,10 @@ export interface IPriorityRepository {
   ): Promise<Priority | null>;
 
   remove(id: number): Promise<void>;
+
+  count(): Promise<number>;
+
+  saveArray(
+    priority: { name: string; description: string }[],
+  ): Promise<Priority[]>;
 }

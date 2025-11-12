@@ -1,24 +1,33 @@
 import { Module } from '@nestjs/common';
 import { SeedService } from './seed.service';
-import { SeedController } from './seed.controller';
+import { TaskModule } from 'src/task/task.module';
+import { StatusModule } from 'src/status/status.module';
+import { PriorityModule } from 'src/priority/priority.module';
+import { DashboardModule } from 'src/dashboard/dashboard.module';
+import { ParticipantTypeModule } from 'src/participant-type/participant-type.module';
+import { RolDashboardModule } from 'src/rol-dashboard/rol-dashboard.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Status } from 'src/status/entities/status.entity';
-import { Priority } from 'src/priority/entities/priority.entity';
-import { Task } from 'src/task/entities/task.entity';
-import { Dashboard } from 'src/dashboard/entities/dashboard.entity';
-import { ParticipantType } from 'src/participant-type/entities/participant-type.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      Status,
-      Priority,
-      Task,
-      Dashboard,
-      ParticipantType,
-    ]),
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: 'localhost',
+      port: 5431,
+      username: 'postgres',
+      password: 'taskDatabase',
+      database: 'task',
+      autoLoadEntities: true,
+      synchronize: true,
+    }),
+    TaskModule,
+    StatusModule,
+    PriorityModule,
+    DashboardModule,
+    ParticipantTypeModule,
+    RolDashboardModule,
   ],
-  controllers: [SeedController],
+  controllers: [],
   providers: [SeedService],
 })
 export class SeedModule {}
