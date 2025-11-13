@@ -27,7 +27,11 @@ import { Role } from '../roles/entities/role.entity';
     JwtService,
     UsersService,
     RoleRepository,
+    {
+      provide: 'IPermissionRepository',
+      useClass: PermissionRepository,
+    },
   ],
-  exports: [PermissionRepository],
+  exports: ['IPermissionRepository'],
 })
 export class PermissionsModule {}

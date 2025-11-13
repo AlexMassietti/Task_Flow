@@ -107,5 +107,4 @@ export class UsersService {
     const hashedPassword = await hash(newPassword, 10);
     await this.userRepo.update(id, { password: hashedPassword });
   }
-  
 }

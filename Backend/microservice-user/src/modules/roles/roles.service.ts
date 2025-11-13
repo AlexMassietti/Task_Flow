@@ -1,17 +1,23 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { RoleRepository } from './infrastructure/roles.repository';
-import { PermissionRepository } from '../permissions/infrastructure/permission.repository';
 import { Role } from './entities/role.entity';
 import { DeleteResult } from 'typeorm';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { isNull, isUndefined } from 'util';
+import { IPermissionRepository } from '../permissions/infrastructure/permission.interface';
 
 @Injectable()
 export class RolesService {
   constructor(
     private readonly rolRepo: RoleRepository,
-    private readonly permissionRepo: PermissionRepository,
+    @Inject('IPermissionRepository')
+    private readonly permissionRepository: IPermissionRepository,
   ) {}
 
   async create(createRoleDto: CreateRoleDto): Promise<Role> {
@@ -26,7 +32,8 @@ export class RolesService {
       throw new NotFoundException('Permissions not found');
     }
 
-    const foundPermissions = await this.permissionRepo.findBy(permissionIds);
+    const foundPermissions =
+      await this.permissionRepository.findBy(permissionIds);
 
     if (foundPermissions.length !== permissionIds.length) {
       throw new NotFoundException('Some permissions do not exist');
@@ -57,7 +64,7 @@ export class RolesService {
   }
 
   async findOne(id: number): Promise<Role> {
-    if (!id ||  isNull(id) || isUndefined(id)) {
+    if (!id || isNull(id) || isUndefined(id)) {
       throw new NotFoundException(`ID is required`);
     }
     const role = await this.rolRepo.findOne(id);
@@ -75,11 +82,13 @@ export class RolesService {
       (!rest.description || rest.description.trim() === '') &&
       (permissions === undefined || permissions.length === 0)
     ) {
-      throw new BadRequestException('Code, name, description or permissions are required');
+      throw new BadRequestException(
+        'Code, name, description or permissions are required',
+      );
     }
 
     const role = await this.rolRepo.findOne(id, ['permissions']);
-    
+
     if (!role) {
       throw new NotFoundException(`Role with ID ${id} not found`);
     }
@@ -87,7 +96,8 @@ export class RolesService {
     if (permissions != undefined && permissions.length > 0) {
       const permissionIds = permissions.map((p) => p.id);
 
-      const foundPermissions = await this.permissionRepo.findBy(permissionIds);
+      const foundPermissions =
+        await this.permissionRepository.findBy(permissionIds);
 
       if (foundPermissions === null) {
         throw new NotFoundException(`Permissions not found`);

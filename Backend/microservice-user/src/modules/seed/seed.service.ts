@@ -1,17 +1,17 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In } from 'typeorm';
-import { Permission } from '../permissions/entities/permission.entity';
+import { Repository } from 'typeorm';
 import { Role } from '../roles/entities/role.entity';
 import { User } from '../users/entities/user.entity';
 import { hash } from 'bcrypt';
 import { fakerES } from '@faker-js/faker';
+import { IPermissionRepository } from '../permissions/infrastructure/permission.interface';
 
 @Injectable()
 export class SeedService {
   constructor(
-    @InjectRepository(Permission)
-    private readonly permissionRepository: Repository<Permission>,
+    @Inject('IPermissionRepository')
+    private readonly permissionRepository: IPermissionRepository,
 
     @InjectRepository(Role)
     private readonly roleRepository: Repository<Role>,
@@ -21,7 +21,7 @@ export class SeedService {
   ) {}
 
   async run() {
-    const permissionData: Partial<Permission>[] = [
+    const permissionData = [
       { id: 1, name: 'createRole', description: 'Crear roles' },
       { id: 2, name: 'getRole', description: 'Visualizar roles' },
       { id: 3, name: 'updateRole', description: 'Actualizar roles' },
@@ -39,13 +39,9 @@ export class SeedService {
 
     // insert / upsert permisos (evita duplicados por name)
     for (const p of permissionData) {
-      const exists = await this.permissionRepository.findOne({
-        where: { name: p.name },
-      });
+      const exists = await this.permissionRepository.findOneByName(p.name);
       if (!exists) {
-        await this.permissionRepository.save(
-          this.permissionRepository.create(p),
-        );
+        await this.permissionRepository.create(p);
       }
     }
 
@@ -85,9 +81,8 @@ export class SeedService {
     }
 
     const idsToAssign = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-    const permissionsToAssign = await this.permissionRepository.find({
-      where: { id: In(idsToAssign) },
-    });
+    const permissionsToAssign =
+      await this.permissionRepository.findBy(idsToAssign);
 
     // asigna (sobrescribe) la lista de permisos del rol ADMIN
     adminRole.permissions = permissionsToAssign;
