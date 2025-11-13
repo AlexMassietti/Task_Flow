@@ -6,20 +6,21 @@ import {
 } from '@nestjs/common';
 import { hash } from 'bcrypt';
 import { User } from './entities/user.entity';
-import { UserRepository } from './infrastructure/users.repository';
 import { UpdateUserRoles } from './dto/update-user-role.dto';
 import { IRoleRepository } from '../roles/infrastructure/roles.interface';
+import { IUserRepository } from './infrastructure/users.interface';
 
 @Injectable()
 export class UsersService {
   constructor(
-    private readonly userRepo: UserRepository,
+    @Inject('IUserRepository')
+    private readonly userRepository: IUserRepository,
     @Inject('IRoleRepository')
     private readonly roleRepository: IRoleRepository,
   ) {}
 
   async saveUser(user: User): Promise<void> {
-    const existingUser = await this.userRepo.findByEmail(user.email);
+    const existingUser = await this.userRepository.findByEmail(user.email);
     if (existingUser) {
       throw new BadRequestException('Email already in use');
     }
@@ -32,19 +33,19 @@ export class UsersService {
         'Password must be provided and at least 8 characters long',
       );
     }
-    await this.userRepo.save(user);
+    await this.userRepository.save(user);
   }
 
   async findByEmail(email: string, relations?: string[]) {
-    return this.userRepo.findByEmail(email, relations);
+    return this.userRepository.findByEmail(email, relations);
   }
 
   async findByName(name: string, relations?: string[]) {
-    return this.userRepo.findByName(name, relations);
+    return this.userRepository.findByName(name, relations);
   }
 
   async getIdbyEmail(email: string): Promise<number> {
-    const userFound = await this.userRepo.findByEmail(email);
+    const userFound = await this.userRepository.findByEmail(email);
     if (!userFound) {
       throw new NotFoundException('No matching user found');
     }
@@ -54,7 +55,7 @@ export class UsersService {
   async updateRol(id: number, updateUserRol: UpdateUserRoles): Promise<string> {
     const { roles } = updateUserRol;
 
-    const userFound = await this.userRepo.findOneBy(id);
+    const userFound = await this.userRepository.findOneBy(id);
     if (!userFound) {
       throw new NotFoundException('No matching user found');
     }
@@ -68,22 +69,22 @@ export class UsersService {
     }
 
     userFound.roles = foundRoles;
-    await this.userRepo.save(userFound);
+    await this.userRepository.save(userFound);
 
     return 'Role updated successfully';
   }
 
   async remove(id: number) {
-    const userFound = await this.userRepo.findOneBy(id);
+    const userFound = await this.userRepository.findOneBy(id);
     if (!userFound) {
       throw new NotFoundException('No matching user found');
     }
-    await this.userRepo.delete(id);
+    await this.userRepository.delete(id);
     return `User deleted successfully`;
   }
 
   async findOneByEmailWithRolesAndPermissions(email: string): Promise<User> {
-    const user = await this.userRepo.findByEmail(email, [
+    const user = await this.userRepository.findByEmail(email, [
       'roles',
       'roles.permissions',
     ]);
@@ -102,11 +103,11 @@ export class UsersService {
         'New password must be at least 8 characters long',
       );
     }
-    const user = await this.userRepo.findOneBy(id);
+    const user = await this.userRepository.findOneBy(id);
     if (!user) {
       throw new NotFoundException('User not found');
     }
     const hashedPassword = await hash(newPassword, 10);
-    await this.userRepo.update(id, { password: hashedPassword });
+    await this.userRepository.update(id, { password: hashedPassword });
   }
 }

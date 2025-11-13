@@ -1,12 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { Role } from '../roles/entities/role.entity';
-import { User } from '../users/entities/user.entity';
 import { hash } from 'bcrypt';
 import { fakerES } from '@faker-js/faker';
 import { IPermissionRepository } from '../permissions/infrastructure/permission.interface';
 import { IRoleRepository } from '../roles/infrastructure/roles.interface';
+import { IUserRepository } from '../users/infrastructure/users.interface';
 
 @Injectable()
 export class SeedService {
@@ -17,8 +15,8 @@ export class SeedService {
     @Inject('IRoleRepository')
     private readonly roleRepository: IRoleRepository,
 
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    @Inject('IUserRepository')
+    private readonly userRepository: IUserRepository,
   ) {}
 
   async run() {
@@ -89,19 +87,19 @@ export class SeedService {
     const adminEmail = 'admin@sistema.com';
     const adminPasswordHash = await hash('admin123', 10);
 
-    let adminUser: User | User[] | null = await this.userRepository.findOne({
-      where: { email: adminEmail },
-      relations: ['roles'],
-    });
+    let adminUser = await this.userRepository.findByEmail(adminEmail, [
+      'roles',
+    ]);
 
     if (!adminUser) {
-      adminUser = this.userRepository.create({
+      adminUser = await this.userRepository.create({
         name: 'admin',
         email: adminEmail,
         password: adminPasswordHash,
-        roles: [adminRole],
         description: 'Este es el admin',
       });
+
+      adminUser.roles = [adminRole];
 
       await this.userRepository.save(adminUser);
 
@@ -128,7 +126,7 @@ export class SeedService {
         };
       });
 
-      await this.userRepository.save(users);
+      await this.userRepository.saveArray(users);
     } else {
       // asegurar que tenga el rol ADMIN
       const hasAdmin = adminUser.roles?.some((r: Role) => r.code === 'ADMIN');
