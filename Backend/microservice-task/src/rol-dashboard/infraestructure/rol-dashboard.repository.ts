@@ -3,7 +3,7 @@ import { CreateRolDashboardDto } from '../dto/create-rol-dashboard.dto';
 import { RolDashboard } from '../entities/rol-dashboard.entity';
 import { IRolDashboardRepository } from './rol-dashboard.interface';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { UpdateDashboardDto } from 'src/dashboard/dto/update-dashboard.dto';
 import { ParticipantType } from 'src/participant-type/entities/participant-type.entity';
 import { Dashboard } from 'src/dashboard/entities/dashboard.entity';
@@ -14,6 +14,7 @@ export class RolDashboardRepository implements IRolDashboardRepository {
     @InjectRepository(RolDashboard)
     private readonly rolDashboardRepository: Repository<RolDashboard>,
   ) {}
+
   saveArray(
     rolDashboard: {
       dashboardId: Dashboard;
@@ -97,5 +98,18 @@ export class RolDashboardRepository implements IRolDashboardRepository {
       (rolDashboard) =>
         rolDashboard.participantTypeId.id === participantType.id,
     );
+  }
+
+  findSharedByUserId(
+    userId: number,
+    participantTypes: number[],
+  ): Promise<RolDashboard[]> {
+    return this.rolDashboardRepository.find({
+      where: { idUser: userId, participantTypeId: In(participantTypes) },
+      relations: {
+        participantTypeId: true,
+        dashboardId: true,
+      },
+    });
   }
 }

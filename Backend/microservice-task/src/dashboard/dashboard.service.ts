@@ -150,6 +150,25 @@ export class DashboardService {
     const idDashboardsOwned =
       await this.rolDashboardRepository.findOwnedByUserId(userId, userRol);
 
-    return await this.dashboardRepository.findOwnedById(idDashboardsOwned);
+    return await this.dashboardRepository.findDashboardByRolDashboard(
+      idDashboardsOwned,
+    );
+  }
+
+  async findShared(userId: number): Promise<Dashboard[]> {
+    const userRoles = (await this.participantTypeRepository.findAll())
+      .filter((p) => p.name !== 'Owner')
+      .map((p) => p.id);
+    if (!userRoles) {
+      throw new NotFoundException(
+        `User Roles not found, please run npm run seed`,
+      );
+    }
+    const idDashboardsShared =
+      await this.rolDashboardRepository.findSharedByUserId(userId, userRoles);
+
+    return this.dashboardRepository.findDashboardByRolDashboard(
+      idDashboardsShared,
+    );
   }
 }

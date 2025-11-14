@@ -124,4 +124,9 @@ export class DashboardController {
   findOwned(data: { userId: number }): Promise<Dashboard[]> {
     return this.dashboardService.findOwned(data.userId);
   }
+
+  @MessagePattern({ cmd: 'get_shared_dashboards' })
+  findShared(data: { userId: number }): Promise<Dashboard[]> {
+    return this.dashboardService.findShared(data.userId);
+  }
 }

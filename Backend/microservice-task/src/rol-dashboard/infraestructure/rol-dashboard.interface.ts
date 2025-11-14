@@ -30,6 +30,11 @@ export interface IRolDashboardRepository {
     participantType: ParticipantType,
   ): Promise<RolDashboard[]>;
 
+  findSharedByUserId(
+    userId: number,
+    participantTypes: number[],
+  ): Promise<RolDashboard[]>;
+
   count(): Promise<number>;
 
   saveArray(

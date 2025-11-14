@@ -19,7 +19,9 @@ export interface IDashboardRepository {
 
   remove(id: number): Promise<void>;
 
-  findOwnedById(idDashboardsOwned: RolDashboard[]): Promise<Dashboard[]>;
+  findDashboardByRolDashboard(
+    idDashboards: RolDashboard[],
+  ): Promise<Dashboard[]>;
 
   count(): Promise<number>;
 

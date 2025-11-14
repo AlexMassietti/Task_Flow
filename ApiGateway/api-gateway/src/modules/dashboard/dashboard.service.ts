@@ -21,4 +21,16 @@ export class DashboardService {
 
     return dashboards;
   }
+
+  async getSharedDashboards(email: string) {
+    const userId: number = await firstValueFrom(
+      this.usersClient.send({ cmd: 'get_user_by_email' }, { email }),
+    );
+
+    const dashboards: Dashboard[] = await firstValueFrom(
+      this.dashboardClient.send({ cmd: 'get_shared_dashboards' }, { userId }),
+    );
+
+    return dashboards;
+  }
 }
