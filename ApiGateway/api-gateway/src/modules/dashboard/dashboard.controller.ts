@@ -9,4 +9,9 @@ export class DashboardController {
   async getOwnedDashboards(@Param('email') email: string) {
     return this.dashboardService.getOwnedDashboards(email);
   }
+
+  @Get(':email/get-shared-dashboards')
+  async getSharedDashboards(@Param('email') email: string) {
+    return this.dashboardService.getSharedDashboards(email);
+  }
 }

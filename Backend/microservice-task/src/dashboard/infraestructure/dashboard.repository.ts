@@ -22,9 +22,11 @@ export class DashboardRepository implements IDashboardRepository {
     return this.dashboardRepository.save(dashboard);
   }
 
-  async findOwnedById(idDashboardsOwned: RolDashboard[]): Promise<Dashboard[]> {
+  async findDashboardByRolDashboard(
+    idDashboards: RolDashboard[],
+  ): Promise<Dashboard[]> {
     return await this.dashboardRepository.find({
-      where: { id: In(idDashboardsOwned.map((r) => r.dashboardId.id)) },
+      where: { id: In(idDashboards.map((r) => r.dashboardId.id)) },
       relations: {
         task: false,
       },
