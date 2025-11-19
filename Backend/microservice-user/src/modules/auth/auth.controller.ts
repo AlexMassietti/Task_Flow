@@ -4,18 +4,19 @@ import { AuthService } from './auth.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { LoginUserDto } from '../users/dto/login-user.dto';
 import { RestorePasswordDto } from './dto/restore-password.dto';
+import { MessagePattern } from '@nestjs/microservices';
 
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post('register')
   @ApiOperation({ summary: 'Registrar un nuevo usuario' })
   @ApiResponse({ status: 201, description: 'Usuario creado correctamente' })
   @ApiBody({ type: CreateUserDto })
-  register(@Body() createUserDto: CreateUserDto) {
-    return this.authService.register(createUserDto);
+  @MessagePattern({ cmd: 'user_register' })
+  register(data: { createUserDto: CreateUserDto }) {
+    return this.authService.register(data.createUserDto);
   }
 
   @Post('login')

@@ -27,14 +27,11 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  /**
-   * Registro de usuario nuevo
-   */
-  async register(body: CreateUserDto): Promise<{ status: string }> {
+  async register(createUserDto: CreateUserDto): Promise<{ status: string }> {
     const user = new User();
-    Object.assign(user, body);
+    Object.assign(user, createUserDto);
     user.password = await hash(user.password, 10);
-    user.description = body.description ?? '';
+    user.description = createUserDto.description ?? '';
 
     const defaultRole = await this.roleRepo.findOneBy('USER');
     if (!defaultRole) {
