@@ -4,18 +4,19 @@ import { AuthService } from './auth.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { LoginUserDto } from '../users/dto/login-user.dto';
 import { RestorePasswordDto } from './dto/restore-password.dto';
+import { MessagePattern } from '@nestjs/microservices';
 
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post('register')
   @ApiOperation({ summary: 'Registrar un nuevo usuario' })
   @ApiResponse({ status: 201, description: 'Usuario creado correctamente' })
   @ApiBody({ type: CreateUserDto })
-  register(@Body() createUserDto: CreateUserDto) {
-    return this.authService.register(createUserDto);
+  @MessagePattern({ cmd: 'user_register' })
+  register(data: { createUserDto: CreateUserDto }) {
+    return this.authService.register(data.createUserDto);
   }
 
   @Post('login')
@@ -25,8 +26,9 @@ export class AuthController {
     description: 'Login exitoso o error de credenciales',
   })
   @ApiBody({ type: LoginUserDto })
-  login(@Body() loginUserDto: LoginUserDto) {
-    return this.authService.login(loginUserDto);
+  @MessagePattern({ cmd: 'user_login' })
+  login(data: { loginUserDto: LoginUserDto }) {
+    return this.authService.login(data.loginUserDto);
   }
   @Post('forgot-password')
   async forgotPassword(@Body('email') email: string) {
