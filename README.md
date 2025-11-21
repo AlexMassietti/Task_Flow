@@ -20,7 +20,7 @@ Clonar, instalar y levantar el back completo:
 
 ```bash
 git clone https://github.com/ciggyx/Sistema-gestion-de-Notas.git
-cd taskflow
+cd Sistema-gestion-de-Notas
 npm install
 npm run dev
 ```
