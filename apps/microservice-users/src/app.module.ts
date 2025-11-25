@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { RolesModule } from './modules/roles/roles.module';
-import { configuration } from 'config/configuration';
+import { configuration } from './config/configuration';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PermissionsModule } from './modules/permissions/permissions.module';
@@ -12,7 +12,7 @@ import { AuthModule } from './modules/auth/auth.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: `${process.cwd()}/apps/microservice-users/config/env/${process.env.NODE_ENV}.env`,
+      envFilePath: `${process.cwd()}/apps/microservice-users/src/config/env/${process.env.NODE_ENV}.env`,
       load: [configuration],
     }),
     TypeOrmModule.forRootAsync({
