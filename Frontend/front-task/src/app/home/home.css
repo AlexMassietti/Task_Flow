@@ -1,0 +1,125 @@
+/* Contenedor global que cubre toda la pantalla y elimina el blanco al final */
+.main-container {
+  background-color: #ebebeb; /* mismo fondo que antes */
+  min-height: 100vh; /* asegura que cubre toda la ventana */
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Ajustes de main-content */
+.main-content {
+  background-color: #ebebeb;
+  padding: 20px;
+  transition: margin-left 0.3s ease-in-out;
+  flex: 1; /* ocupa todo el espacio disponible */
+}
+
+.main-content.shifted {
+  margin-left: 250px; /* mismo ancho que la sidebar */
+}
+
+/* Títulos */
+.title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+  margin-top: 20px;
+}
+
+/* Mayor separación para el segundo bloque */
+.shared-title {
+  margin-top: 50px; /* aumenta la distancia entre bloques */
+}
+
+.dashboard-container {
+  display: flex;
+  flex-wrap: wrap; /* allow cards to go to the next row */
+  gap: 20px;
+  align-items: flex-start; /* keep cards top-aligned across rows */
+  justify-content: flex-start; /* change to center / space-between if you want different horizontal alignment */
+  /* optionally set a max-width so the container doesn't stretch too wide:
+     max-width: 1200px; */
+}
+
+/* prevent cards from shrinking or growing; keep fixed size */
+.dashboard-card {
+  background-color: #ba274a;
+  border-radius: 2px;
+  overflow: hidden;
+  width: 250px;
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  pointer-events: auto;
+
+  /* key rule to keep the size fixed inside a flex container */
+  flex: 0 0 250px; /* shorthand for: flex-grow:0; flex-shrink:0; flex-basis:250px; */
+}
+
+/* keep action button aligned to the top of the grid */
+.dashboard-actions {
+  align-self: center;
+}
+.card-top {
+  flex: 2;
+  background-color: #fafafa; /* placeholder para imagen */
+  pointer-events: auto;
+}
+
+.card-bottom {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 12px;
+  color: black;
+  font-weight: bold;
+  pointer-events: auto;
+}
+
+.card-icon {
+  cursor: pointer;
+  user-select: none;
+  z-index: 2;
+}
+
+/* Botones de acción centrados horizontalmente */
+.dashboard-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 15px;
+  justify-content: center;
+  align-items: center; /* centra verticalmente respecto a la tarjeta */
+}
+
+.action-btn {
+  background-color: #ba274a;
+  color: rgb(255, 255, 255);
+  border: none;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.dashboard-card:hover {
+  transform: translateY(-5px); /* se eleva un poquito */
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); /* sombra suave */
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+/* Efecto hover para botones */
+.action-btn:hover {
+  background-color: #ba274a; /* cambio de color más vivo */
+  transform: scale(1.1); /* agranda un poquito */
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease;
+}

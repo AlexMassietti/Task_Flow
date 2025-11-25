@@ -1,0 +1,109 @@
+@startuml ModeloDeDominio
+left to right direction
+hide <<Class>> circle
+class Usuario<<Class>>{
+    - email
+    - nombreUsuario
+    - contraseña
+    + crear()
+    + mostrar()
+    + tomarEmail()
+    + mostrarEmail()
+    + tomarNombreUsuario()
+    + mostrarNombreUsuario()
+    + tomarContraseña()
+    + mostrarContraseña()
+}
+
+class Proyecto<<Class>>{
+    - nombre
+    - descripcion
+    + crear()
+    + mostrar()
+    + tomarNombre()
+    + mostrarNombre()
+    + tomarDescripción()
+    + mostrarDescripción()
+   
+}
+
+class RolEnProyecto<<Class>>{
+    + crear()
+    + mostrar()
+}
+
+class Rol<<Class>>{
+    - ámbito
+    - nombre
+    - descripcion
+    + crear()
+    + mostrar()
+    + tomarNombre()
+    + mostrarNombre()
+    + tomarDescripción()
+    + mostrarDescripción()
+}
+class Permisos<<Class>>{
+    - ámbito
+    - nombre
+    - descripcion
+    + crear()
+    + mostrar()
+}
+
+class Tarea<<Class>>{
+    - nombre
+    - descripción
+    - fechaInicio
+    - fechaFin
+    - fechaEntrega
+    + registrar()
+    + mostrar()
+    + tomarNombre()
+    + mostrarNombre()
+    + tomarDescripción()
+    + mostrarDescripción()
+    + tomarFechaInicio()
+    + mostrarFechaInicio()
+    + tomarFechaFin()
+    + mostrarFechaFin()
+    + tomarFechaEntrega()
+    + mostrarFechaEntrega()
+    + archivar()
+    + finalizar()
+    + eliminar()
+    + revisar()
+    + ponerEnPendiente()
+    + hacer()
+}
+
+class EstadoTarea<<Class>>{
+    - nombre
+    - descripción
+    + crear()
+    + mostrar()
+    + tomarNombre()
+    + mostrarNombre()
+    + tomarDescripción()
+    + mostrarDescripción()
+}
+
+class PrioridadTarea<<Class>>{
+    - nombre
+    - descripción
+    + mostrar()
+    + tomarNombre()
+    + mostrarNombre()
+    + tomarDescripción()
+    + mostrarDescripción()
+}
+
+Usuario --> "1" Rol : rol
+Proyecto --> "0..*" Tarea: tareas
+Proyecto --> "1..*" RolEnProyecto: rolesEnProyecto
+RolEnProyecto --> "1" Usuario : usuario
+RolEnProyecto --> "1" Rol: rol
+Tarea --> "1" EstadoTarea : estado
+Tarea --> "\t\t1" PrioridadTarea :  prioridad
+Rol --> "1..*" Permisos
+@enduml
