@@ -48,7 +48,9 @@ nx serve frontend
   `npm run seed:tasks`  
 
 - **Levantar todo el backend**  
-  `npm run dev`
+  `npm run dev`  
+Este va mejor en windows por la naturaleza de su terminal  
+  `npm run dev:windows`
 
 - **Formatear**  
   `npm run format`
