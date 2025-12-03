@@ -8,8 +8,8 @@
     "noPropertyAccessFromIndexSignature": true,
     "composite": true
   },
-  "files": [],
-  "include": [],
+  "include": ["src/**/*.ts"],
+  "exclude": ["**/*.spec.ts"],
   "references": [
     { "path": "./tsconfig.lib.json" },
     { "path": "./tsconfig.spec.json" }
