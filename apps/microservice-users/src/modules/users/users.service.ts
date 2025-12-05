@@ -1,7 +1,6 @@
 import {
   BadRequestException,
-  ConflictException,
-  HttpException,
+  HttpStatus,
   Inject,
   Injectable,
   NotFoundException,
@@ -16,6 +15,7 @@ import { IRoleRepository } from '../core/ports/roles.port';
 import { ROLE_REPO, USER_REPO } from '../core/ports/tokens';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
+import { RpcException } from '@nestjs/microservices';
 
 @Injectable()
 export class UsersService {
@@ -121,7 +121,10 @@ export class UsersService {
 
     const defaultRole = await this.roleRepository.findOneBy('USER');
     if (!defaultRole) {
-      throw new NotFoundException('Default Role not found');
+      throw new RpcException({
+        status: HttpStatus.NOT_FOUND,
+        message: 'Default Role not found',
+      });
     }
 
     if (!user.roles) {
@@ -133,14 +136,23 @@ export class UsersService {
       await this.saveUser(user);
       return user;
     } catch (error) {
-      const isDuplicateError = error.code === '23505' || error.code === 'ER_DUP_ENTRY';
+      const isDuplicateError =
+        error.response.statusCode === 400 &&
+        error.status === 400 &&
+        error.response.message === 'Email already in use';
 
       if (isDuplicateError) {
-        throw new ConflictException('Email or Username already registered.');
+        throw new RpcException({
+          status: HttpStatus.CONFLICT,
+          message: 'Email already registered.',
+          details: { field: 'email_or_username' },
+        });
       }
 
-      console.error('Error creating user:', error);
-      throw new HttpException('Internal server error during registration.', 500);
+      throw new RpcException({
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Internal server error during registration.',
+      });
     }
   }
 

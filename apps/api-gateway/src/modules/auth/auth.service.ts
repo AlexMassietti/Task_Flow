@@ -2,8 +2,8 @@ import { Inject, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { RemoteError } from './error/remote-error';
 import { LoginUserDto } from './dto/login-user.dto';
+import { normalizeRemoteError } from './error/normalize-remote-error';
 
 @Injectable()
 export class AuthService {
@@ -20,17 +20,17 @@ export class AuthService {
         data: response,
       };
     } catch (err: unknown) {
-      const remoteError = err as RemoteError;
+      const payload = normalizeRemoteError(err);
 
-      const status = remoteError.status ?? 500;
-      const message = remoteError.message ?? 'Unexpected error during user registration';
+      const status = payload.status ?? 500;
+      const message = payload.message ?? 'Unexpected error during user registration';
 
       return {
         success: false,
         error: {
           statusCode: status,
           message,
-          details: remoteError.response ?? null,
+          details: payload.details ?? null,
         },
       };
     }
@@ -46,14 +46,14 @@ export class AuthService {
         data: response,
       };
     } catch (err: unknown) {
-      const remoteError = err as RemoteError;
+      const remoteError = err as RemotePayload;
 
       return {
         success: false,
         error: {
           statusCode: remoteError.status,
           message: remoteError.message,
-          details: remoteError.response,
+          details: remoteError.details,
         },
       };
     }
