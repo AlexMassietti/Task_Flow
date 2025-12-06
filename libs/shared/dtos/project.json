@@ -1,0 +1,19 @@
+{
+  "name": "dtos",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/dtos/src",
+  "projectType": "library",
+  "tags": [],
+  "// targets": "to see all targets run: nx show project dtos --web",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{workspaceRoot}/dist/libs/dtos"],
+      "options": {
+        "outputPath": "dist/libs/shared/dtos",
+        "main": "libs/shared/dtos/src/index.ts",
+        "tsConfig": "libs/shared/dtos/tsconfig.lib.json"
+      }
+    }
+  }
+}

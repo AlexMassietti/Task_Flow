@@ -1,5 +1,5 @@
-export interface RemoteError {
+type RemotePayload = {
   status?: number;
   message?: string;
-  response?: unknown;
-}
+  details?: any;
+};

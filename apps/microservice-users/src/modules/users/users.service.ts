@@ -1,7 +1,6 @@
 import {
   BadRequestException,
-  ConflictException,
-  HttpException,
+  HttpStatus,
   Inject,
   Injectable,
   NotFoundException,
@@ -16,6 +15,7 @@ import { IRoleRepository } from '../core/ports/roles.port';
 import { ROLE_REPO, USER_REPO } from '../core/ports/tokens';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
+import { RpcException } from '@nestjs/microservices';
 
 @Injectable()
 export class UsersService {
@@ -29,11 +29,24 @@ export class UsersService {
   async saveUser(user: User): Promise<void> {
     const existingUser = await this.userRepository.findByEmail(user.email);
     if (existingUser) {
-      throw new BadRequestException('Email already in use');
+      throw new RpcException({
+        status: HttpStatus.BAD_REQUEST,
+        message: 'Email already in use',
+        details: { field: 'email' },
+      });
     }
-    if (!user.password || user.password.trim() === '' || user.password.length < 8) {
-      throw new BadRequestException('Password must be provided and at least 8 characters long');
+
+    const invalidPassword =
+      !user.password || user.password.trim() === '' || user.password.length < 8;
+
+    if (invalidPassword) {
+      throw new RpcException({
+        status: HttpStatus.BAD_REQUEST,
+        message: 'Password must be at least 8 characters long',
+        details: { field: 'password' },
+      });
     }
+
     await this.userRepository.save(user);
   }
 
@@ -121,7 +134,10 @@ export class UsersService {
 
     const defaultRole = await this.roleRepository.findOneBy('USER');
     if (!defaultRole) {
-      throw new NotFoundException('Default Role not found');
+      throw new RpcException({
+        status: HttpStatus.NOT_FOUND,
+        message: 'Default Role not found',
+      });
     }
 
     if (!user.roles) {
@@ -133,14 +149,23 @@ export class UsersService {
       await this.saveUser(user);
       return user;
     } catch (error) {
-      const isDuplicateError = error.code === '23505' || error.code === 'ER_DUP_ENTRY';
+      const rpcErr = error?.error;
+
+      const isDuplicateError =
+        rpcErr?.status === HttpStatus.BAD_REQUEST && rpcErr?.message === 'Email already in use';
 
       if (isDuplicateError) {
-        throw new ConflictException('Email or Username already registered.');
+        throw new RpcException({
+          status: HttpStatus.CONFLICT,
+          message: 'Email already registered.',
+          details: { field: 'email' },
+        });
       }
 
-      console.error('Error creating user:', error);
-      throw new HttpException('Internal server error during registration.', 500);
+      throw new RpcException({
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Internal server error during registration.',
+      });
     }
   }
 
@@ -152,16 +177,25 @@ export class UsersService {
     }
 
     if (!user) {
-      throw new UnauthorizedException('User or password wrong.');
+      throw new RpcException({
+        status: HttpStatus.UNAUTHORIZED,
+        message: 'Invalid credentials.',
+      });
     }
 
     const compareResult = compareSync(loginUserDto.password, user.password);
     if (!compareResult) {
-      throw new UnauthorizedException('User or password wrong');
+      throw new RpcException({
+        status: HttpStatus.UNAUTHORIZED,
+        message: 'Invalid credentials.',
+      });
     }
 
     if (!user.roles || user.roles.length === 0) {
-      throw new UnauthorizedException('The user does not have a role assigned.');
+      throw new RpcException({
+        status: HttpStatus.FORBIDDEN,
+        message: 'User has no assigned roles.',
+      });
     }
 
     return user;
