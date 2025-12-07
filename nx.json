@@ -23,7 +23,10 @@
       "exclude": [
         "apps/api-gateway-e2e/**/*",
         "apps/microservice-users-e2e/**/*",
-        "apps/microservice-tasks-e2e/**/*"
+        "apps/microservice-tasks-e2e/**/*",
+        "microservice-mail-e2e/**/*",
+        "apps/microservice-mail-e2e/**/*",
+        "apps/microservice-mail-e2e/**/*"
       ]
     },
     {

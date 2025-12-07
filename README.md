@@ -29,6 +29,7 @@ Levantar microservicios individuales:
 
 ```bash
 nx serve microservice-users
+nx serve microservice-mail
 nx serve microservice-tasks
 nx serve api-gateway
 nx serve frontend
@@ -40,6 +41,7 @@ nx serve frontend
 
 - **Levantar microservicios**  
   `nx serve microservice-users`  
+  `nx serve microservice-mail`  
   `nx serve microservice-tasks`  
   `nx serve api-gateway`
 
@@ -48,7 +50,7 @@ nx serve frontend
   `npm run seed:tasks`  
 
 - **Levantar todo el backend**  
-  `npm run dev`  
+  `npm run dev`
 Este va mejor en windows por la naturaleza de su terminal  
   `npm run dev:windows`
 
@@ -57,6 +59,7 @@ Este va mejor en windows por la naturaleza de su terminal
 
 - **Lint**  
   `nx lint microservice-users`  
+  `nx lint microservice-mail`  
   `nx lint microservice-tasks`  
   `nx lint microservice-gateway`  
   `npm run lint`
@@ -113,6 +116,8 @@ DASHBOARD_SERVICE=http://localhost:4000
 ├─ apps/
 │  ├─ api-gateway/
 │  ├─ api-gateway-e2e/
+|  ├─ microservice-mail/
+|  ├─ microservice-mail-e2e/
 │  ├─ microservice-users/
 │  ├─ microservice-users-e2e/
 │  ├─ microservice-tasks/

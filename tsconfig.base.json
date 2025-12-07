@@ -5,30 +5,25 @@
     "outDir": "./dist",
     "sourceMap": true,
     "declaration": false,
-
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-
     "target": "ES2023",
     "module": "commonjs",
     "lib": ["es2020", "dom"],
-
     "importHelpers": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-
     "strictPropertyInitialization": false,
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-
     "baseUrl": ".",
     "paths": {
       "@shared/dtos": ["libs/shared/dtos/src/index"],
       "@api-gateway/*": ["apps/api-gateway/src/*"],
       "@microservice-users/*": ["apps/microservice-users/src/*"],
-      "@microservice-tasks/*": ["apps/microservice-tasks/src/*"],
+      "@microservice-tasks/*": ["apps/microservice-tasks/src/*"]
     }
   },
   "exclude": ["node_modules", "tmp"]
