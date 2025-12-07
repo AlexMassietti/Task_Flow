@@ -1,20 +1,16 @@
 import { Module } from '@nestjs/common';
-import { NodemailerAdapter } from '../infraestructure/adapters/nodemailer.adapter';
-import { SendPasswordResetUseCase } from '../core/use-cases/send-password-reset.usecase';
+import { MailService } from './mail.service';
 import { MailController } from './mail.controller';
+import { NodemailerAdapter } from '../infraestructure/adapters/nodemailer.adapter';
 
 @Module({
   controllers: [MailController],
   providers: [
-    // Caso de uso
-    SendPasswordResetUseCase,
-
-    // Adapter (infraestructura)
-    // Si en un futuro se quiere cambiar el adaptador se cambia el implement
+    MailService,
     {
-      provide: 'MailAdapter',
+      provide: 'MAIL_ADAPTER',
       useClass: NodemailerAdapter,
-    },
+    }
   ],
 })
 export class MailModule {}

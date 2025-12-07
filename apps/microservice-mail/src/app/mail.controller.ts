@@ -1,14 +1,14 @@
-import { Controller, Post, Body } from '@nestjs/common';
-import { SendPasswordResetUseCase } from '../core/use-cases/send-password-reset.usecase';
+import { Body, Controller, Post } from '@nestjs/common';
+import { MailService } from './mail.service';
 
 @Controller('mail')
 export class MailController {
-  constructor(
-    private readonly sendPasswordResetUseCase: SendPasswordResetUseCase,
-  ) {}
+  constructor(private readonly mailService: MailService) {}
 
-  @Post('password-reset')
-  async passwordReset(@Body() body: { email: string; token: string }) {
-    return this.sendPasswordResetUseCase.execute(body.email, body.token);
+  @Post('send-mail')
+  async sendMail(
+    @Body() body: { to: string; subject: string; html: string }
+  ) {
+    return this.mailService.sendGeneric(body.to, body.subject, body.html);
   }
 }
