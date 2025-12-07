@@ -16,8 +16,7 @@ export class MailService {
     });
   }
 
-
-  async sendGeneric(to: string, subject: string, html: string) {
-    return this.mailAdapter.sendMail({ to, subject, html });
+  async send(dto: { to: string; subject: string; html: string }) {
+    return await this.mailAdapter.sendMail({to : dto.to, subject: dto.subject, html:dto.html});
   }
 }

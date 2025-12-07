@@ -1,29 +1,33 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 import { MailAdapter } from '../../core/domain/mail.interface';
 
 @Injectable()
 export class NodemailerAdapter implements MailAdapter {
-  private transporter;
+  private transporter: nodemailer.Transporter;
 
-  constructor() {
+  constructor(private configService: ConfigService) {
     this.transporter = nodemailer.createTransport({
-      host: process.env.MAIL_HOST,
-      port: Number(process.env.MAIL_PORT),
+      host: this.configService.get<string>('MAIL_HOST'),
+      port: this.configService.get<number>('MAIL_PORT'),
+      secure: false,
       auth: {
-        user: process.env.MAIL_USER,
-        pass: process.env.MAIL_PASS,
+        user: this.configService.get<string>('MAIL_USER'),
+        pass: this.configService.get<string>('MAIL_PASS'),
       },
     });
   }
 
-  async sendMail({ to, subject, html, text }: any): Promise<void> {
+  async sendMail(options: {
+    to: string;
+    subject: string;
+    html?: string;
+    text?: string;
+  }): Promise<void> {
     await this.transporter.sendMail({
-      from: process.env.MAIL_FROM || '"Sistema" <no-reply@sistema.com>',
-      to,
-      subject,
-      html,
-      text,
+      from: this.configService.get<string>('MAIL_FROM'),
+      ...options,
     });
   }
 }

@@ -9,6 +9,6 @@ export class MailController {
   async sendMail(
     @Body() body: { to: string; subject: string; html: string }
   ) {
-    return this.mailService.sendGeneric(body.to, body.subject, body.html);
+    return this.mailService.send({to: body.to, subject: body.subject,html: body.html});
   }
 }
