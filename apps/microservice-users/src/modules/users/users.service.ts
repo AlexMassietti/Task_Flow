@@ -13,8 +13,8 @@ import { GetUserDto } from './dto/get-user.dto';
 import { IUserRepository } from '../core/ports/users.port';
 import { IRoleRepository } from '../core/ports/roles.port';
 import { ROLE_REPO, USER_REPO } from '../core/ports/tokens';
-import { CreateUserDto } from './dto/create-user.dto';
-import { LoginUserDto } from './dto/login-user.dto';
+import { CreateUserDto } from '../auth/dto/create-user.dto';
+import { LoginUserDto } from '../auth/dto/login-user.dto';
 import { RpcException } from '@nestjs/microservices';
 
 @Injectable()
@@ -96,12 +96,21 @@ export class UsersService {
   }
 
   async findOneByEmailWithRolesAndPermissions(email: string): Promise<User> {
-    const user = await this.userRepository.findByEmail(email, ['roles', 'roles.permissions']);
+    const user = await this.userRepository.findByEmail(email, [
+      'roles',
+      'roles.permissions',
+    ]);
+
     if (!user) {
-      throw new NotFoundException(`User with no roles`);
+      throw new NotFoundException(`User not found`);
     }
+
+    // Si no tiene roles, lo dejamos con [] y dejamos que el AuthService lo maneje
+    user.roles = user.roles ?? [];
+
     return user;
   }
+
 
   async updatePassword(id: number, newPassword: string): Promise<void> {
     if (!newPassword || newPassword.trim() === '') {

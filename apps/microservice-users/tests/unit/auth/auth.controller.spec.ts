@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from '../../../src/modules/auth/auth.controller';
 import { AuthService } from '../../../src/modules/auth/auth.service';
-import { CreateUserDto } from '../../../src/modules/users/dto/create-user.dto';
-import { LoginUserDto } from '../../../src/modules/users/dto/login-user.dto';
+import { CreateUserDto } from '../../../src/modules/auth/dto/create-user.dto';
+import { LoginUserDto } from '../../../src/modules/auth/dto/login-user.dto';
 import { RestorePasswordDto } from '../../../src/modules/auth/dto/restore-password.dto';
 
 // Mock del AuthService, el único proveedor que inyectamos

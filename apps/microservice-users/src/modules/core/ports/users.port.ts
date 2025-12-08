@@ -1,4 +1,4 @@
-import { CreateUserDto } from "@microservice-users/modules/users/dto/create-user.dto";
+import { CreateUserDto } from "@microservice-users/modules/auth/dto/create-user.dto";
 import { UpdateUserDto } from "@microservice-users/modules/users/dto/update-user.dto";
 import { User } from "@microservice-users/modules/users/entities/user.entity";
 

@@ -1,8 +1,8 @@
 import { Post, Body, Headers, Controller } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { CreateUserDto } from '../users/dto/create-user.dto';
-import { LoginUserDto } from '../users/dto/login-user.dto';
+import { CreateUserDto } from './dto/create-user.dto';
+import { LoginUserDto } from './dto/login-user.dto';
 import { RestorePasswordDto } from './dto/restore-password.dto';
 import { MessagePattern } from '@nestjs/microservices';
 import { Public } from '../middleware/decorator/permission.decorator';
@@ -34,10 +34,14 @@ export class AuthController {
     return this.authService.login(data.loginUserDto);
   }
 
-  @Public()
   @Post('forgot-password')
-  async forgotPassword(@Body('email') email: string) {
+  async forgotPasswordHttp(@Body('email') email: string) {
     return this.authService.forgotPassword(email);
+  }
+
+  @MessagePattern({ cmd: 'forgot-password' })
+  async forgotPasswordMicro(data: { email: string }) {
+    return this.authService.forgotPassword(data.email);
   }
 
   @Public()

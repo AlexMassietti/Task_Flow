@@ -1,4 +1,5 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Controller, Post, Body } from '@nestjs/common';
+import { MessagePattern } from '@nestjs/microservices';
 import { MailService } from './mail.service';
 import { PasswordResetDto } from './dto/password-reset.dto';
 
@@ -6,14 +7,13 @@ import { PasswordResetDto } from './dto/password-reset.dto';
 export class MailController {
   constructor(private readonly mailService: MailService) {}
 
-  @Post('send-mail')
-  async sendMail(
-    @Body() body: { to: string; subject: string; html: string }
-  ) {
-    return this.mailService.send({to: body.to, subject: body.subject,html: body.html});
-  }
   @Post('send-password-reset')
-  async passwordReset(@Body() data: PasswordResetDto) {
+  async passwordResetHttp(@Body() data: PasswordResetDto) {
+    return this.mailService.sendPasswordReset(data);
+  }
+
+  @MessagePattern({ cmd: 'mail-password-reset' })
+  async passwordResetMicro(data: PasswordResetDto) {
     return this.mailService.sendPasswordReset(data);
   }
 }

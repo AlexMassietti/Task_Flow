@@ -4,10 +4,14 @@ import { CreateUserDto } from '@shared/dtos';
 import { LoginUserDto } from './dto/login-user.dto';
 import { RegisterDoc } from './docs/register.doc';
 import { LoginDoc } from './docs/login.doc';
+import { ApiTags } from '@nestjs/swagger';
+import { PasswordResetDto } from './dto/password-reset.dto';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
   @Post('register')
   @RegisterDoc()
   register(@Body() createUserDto: CreateUserDto) {
@@ -19,5 +23,15 @@ export class AuthController {
   @LoginDoc()
   login(@Body() loginUserDto: LoginUserDto) {
     return this.authService.login(loginUserDto);
+  }
+
+  @Post('forgot-password')
+  @HttpCode(200)
+  async forgotPassword(@Body('email') email: string) {
+    const mailData: PasswordResetDto = await this.authService.forgotPassword(email);
+
+    await this.authService.sendPasswordResetMail(mailData);
+
+    return { message: 'Password reset email sent' };
   }
 }
