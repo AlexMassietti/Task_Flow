@@ -2,6 +2,8 @@ import { Inject, Injectable } from '@nestjs/common';
 import { NodemailerAdapter } from '../infraestructure/adapters/nodemailer.adapter';
 import { passwordResetTemplate } from '../templates/password-reset.template';
 import { PasswordResetDto } from './dto/password-reset.dto';
+import { DashboardInvitationDto} from './dto/dashboard-invitation.dto';
+import { dashboardInvitationTemplate} from '../templates/dashboard-invitation.template';
 @Injectable()
 export class MailService {
   constructor(
@@ -13,13 +15,18 @@ export class MailService {
 
     await this.mailAdapter.sendMail({
       to: data.to,
-      subject: 'Restablecer contraseña',
+      subject: 'Restore Password',
       html,
     });
     return { succes: true, message:'Password reset email sent'}
   }
-
-  async send(dto: { to: string; subject: string; html: string }) {
-    return await this.mailAdapter.sendMail({to : dto.to, subject: dto.subject, html:dto.html});
+  async sendDashboardInvitation(data: DashboardInvitationDto){
+    const html = dashboardInvitationTemplate(data.invitedBy, data.dashboardName, data.inviteLink);
+    await this.mailAdapter.sendMail({
+      to: data.to,
+      subject: 'Dashboard Invitation',
+      html,
+    });
+    return { succes: true, message:'Dashboard Invitation email sent'}
   }
 }
