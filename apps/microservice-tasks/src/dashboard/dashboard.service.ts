@@ -11,8 +11,10 @@ import { IStatusRepository } from '@microservice-tasks/status/infraestructure/st
 import { IParticipantTypeRepository } from '@microservice-tasks/participant-type/infraestructure/participant-type.interface';
 import { IRolDashboardRepository } from '@microservice-tasks/rol-dashboard/infraestructure/rol-dashboard.interface';
 import { CreateTaskDto } from '@microservice-tasks/task/dto/create-task.dto';
+import { DashboardInvitationDto } from './dto/dashboard-invitation.dto';
 import { Task } from '@microservice-tasks/task/entities/task.entity';
 import { Priority } from '@microservice-tasks/priority/entities/priority.entity';
+import { RpcException } from '@nestjs/microservices';
 
 @Injectable()
 export class DashboardService {
@@ -154,12 +156,50 @@ export class DashboardService {
   }
 
   async findUsersInDashboard(id: number): Promise<number[]> {
-    const dashboard = await this.dashboardRepository.findOne(id);
+      const dashboard = await this.dashboardRepository.findOne(id);
 
+      if (!dashboard) {
+        throw new NotFoundException(`Dashboard with ID: ${id} not found`);
+      }
+
+      return this.rolDashboardRepository.findUsersInDashboard(dashboard);
+    }
+  async processDashboardInvitation(data: DashboardInvitationDto) {
+    const { to, invitedBy, dashboardId } = data;
+
+    // 1. Verificar que el dashboard exista
+    const dashboard = await this.dashboardRepository.findOne(dashboardId);
     if (!dashboard) {
-      throw new NotFoundException(`Dashboard with ID: ${id} not found`);
+      throw new RpcException({ message: 'Dashboard not found', status: 404 });
     }
 
-    return this.rolDashboardRepository.findUsersInDashboard(dashboard);
+    // 2. Verificar que quien invita pertenece al dashboard
+    const inviter = await this.rolDashboardRepository.findOne(invitedBy);
+
+    if (!inviter) {
+      throw new RpcException({
+        message: "Inviter doesn't belong to this dashboard",
+        status: 403
+      });
+    }
+
+    // 3. Crear/añadir al nuevo usuario al dashboard
+    await this.rolDashboardRepository.save({
+      idUser: data.to,
+      dashboardId: dashboard,
+      participantTypeId: { id: 3},
+    });
+
+    // 4. Generar link "no sensible"
+    const inviteLink = `${process.env.FRONT_BASE_URL}/dashboard/${dashboardId}`;
+
+    // 5. Retornar datos para que el gateway mande el mail
+    return {
+      ok: true,
+      dashboardName: dashboard.name,
+      inviteLink
+    };
+
   }
+
 }

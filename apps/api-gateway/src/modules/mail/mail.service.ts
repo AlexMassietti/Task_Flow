@@ -13,4 +13,9 @@ export class MailGatewayService {
       this.mailClient.send({ cmd: 'password_reset' }, data),
     );
   }
+  async sendDashboardInvitation(data:{ to:string; username:string; dashboardName:string; invitationLink:string}){
+    return await firstValueFrom(
+      this.mailClient.send({ cmd :'dashboard_invitation'}, data),
+    );
+  }
 }

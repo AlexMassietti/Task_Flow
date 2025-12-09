@@ -5,21 +5,20 @@ import { PrimaryGeneratedColumn, Entity, ManyToOne, Column, JoinColumn } from 't
 @Entity('rol_dashboard')
 export class RolDashboard {
   @PrimaryGeneratedColumn()
-  id: number;
+  id?: number;
 
   @ManyToOne(() => Dashboard, (dashboard) => dashboard.id, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'idDashboard' })
-  dashboardId: Dashboard;
+  dashboardId: Partial<Dashboard>;   // 🔥 acepta { id: number }
 
   @ManyToOne(() => ParticipantType, (participant) => participant.id, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'idRol' })
-  participantTypeId: ParticipantType;
+  participantTypeId: Partial<ParticipantType>;   // 🔥 acepta { id: number }
 
-  // 3. ID del Usuario (Clave Externa)
   @Column({
     name: 'idUser',
     type: 'bigint',

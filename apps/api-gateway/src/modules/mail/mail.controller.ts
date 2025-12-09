@@ -9,4 +9,9 @@ export class MailController {
   async sendPasswordReset(@Body() body: any) {
     return this.mailService.sendPasswordReset(body);
   }
+  @Post('dashboard-invitation')
+  async sendDashboardInvitation(@Body()body: any){
+    return this.mailService.sendDashboardInvitation(body);
+  }
+  
 }

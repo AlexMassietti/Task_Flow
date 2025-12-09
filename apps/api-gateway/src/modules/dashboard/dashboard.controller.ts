@@ -1,10 +1,11 @@
-import { Controller, Get, Param, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
 import { DashboardService } from './dashboard.service';
 import { ApiBearerAuth, ApiOkResponse } from '@nestjs/swagger';
 import { DashboardDto } from './interfaces/dashboard.dto';
 import { TaskDto } from './interfaces/task.dto';
 import { UserDto } from './interfaces/user.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { DashboardInvitationDto } from './dto/dashboard-invitation.dto';
 
 @Controller('dashboard')
 @UseGuards(JwtAuthGuard)
@@ -35,5 +36,11 @@ export class DashboardController {
   @Get(':id/users')
   async getDashboardUsers(@Param('id') id: string) {
     return this.dashboardService.getDashboardUsers(+id);
+  }
+  @ApiOkResponse({ type: DashboardInvitationDto })
+  @Post('dashboard-invite')
+  async inviteToDashboard(@Body() dto: DashboardInvitationDto) {
+    const mailData = await this.dashboardService.processDashboardInvitation(dto);
+    return this.dashboardService.sendDashboardInvitationMail(mailData);
   }
 }
