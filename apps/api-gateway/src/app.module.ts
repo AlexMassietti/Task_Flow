@@ -3,7 +3,7 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
-  imports: [DashboardModule, AuthModule],
+  imports: [ AuthModule, DashboardModule],
   controllers: [],
   providers: [],
 })

@@ -1,4 +1,4 @@
-import { Post, Body, Headers, Controller } from '@nestjs/common';
+import { Post, Body, Headers, Controller, Get } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -20,7 +20,6 @@ export class AuthController {
   register(data: { createUserDto: CreateUserDto }) {
     return this.authService.register(data.createUserDto);
   }
-
   @Public()
   @Post('login')
   @ApiOperation({ summary: 'Iniciar sesión' })
@@ -29,6 +28,10 @@ export class AuthController {
     description: 'Login exitoso o error de credenciales',
   })
   @ApiBody({ type: LoginUserDto })
+  async loginUser(@Body() loginUserDto: LoginUserDto) {
+    return this.authService.login(loginUserDto);
+  }
+
   @MessagePattern({ cmd: 'user_login' })
   login(data: { loginUserDto: LoginUserDto }) {
     return this.authService.login(data.loginUserDto);

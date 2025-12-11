@@ -105,6 +105,7 @@ JWT_REFRESH_EXPIRES=1d
 ```
 USERS_SERVICE=http://localhost:4001
 DASHBOARD_SERVICE=http://localhost:4000
+MAIL_SERVICE=http://localhost:4003
 ```
 
 ---

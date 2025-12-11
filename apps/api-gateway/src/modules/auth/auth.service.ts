@@ -1,7 +1,7 @@
 import { HttpException, Inject, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ClientProxy } from '@nestjs/microservices';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { LoginUserDto } from './dto/login-user.dto';
 import { normalizeRemoteError } from './error/normalize-remote-error';
 import { PasswordResetDto } from './dto/password-reset.dto';
@@ -77,6 +77,25 @@ export class AuthService {
         { success: false, error: payload },
         payload.status ?? 500,
       );
+    }
+  }
+  async getUserByEmail(email: string) {
+    try {
+      const user = await lastValueFrom(
+        this.usersClient.send('get_user_by_email', { email }),
+      );
+
+      if (!user) {
+        throw new HttpException(
+          { message: 'User not found' },
+          404,
+        );
+      }
+
+      return user;
+    } catch (err) {
+      const payload = normalizeRemoteError(err);
+      throw new HttpException({ error: payload }, payload.status ?? 500);
     }
   }
 

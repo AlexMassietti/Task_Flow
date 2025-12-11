@@ -14,7 +14,8 @@ import { CreateTaskDto } from '@microservice-tasks/task/dto/create-task.dto';
 import { DashboardInvitationDto } from './dto/dashboard-invitation.dto';
 import { Task } from '@microservice-tasks/task/entities/task.entity';
 import { Priority } from '@microservice-tasks/priority/entities/priority.entity';
-import { RpcException } from '@nestjs/microservices';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
+import { lastValueFrom } from 'rxjs';
 
 @Injectable()
 export class DashboardService {
@@ -36,6 +37,8 @@ export class DashboardService {
 
     @Inject('IRolDashboardRepository')
     private readonly rolDashboardRepository: IRolDashboardRepository,
+    @Inject('GATEWAY_CLIENT')
+    private readonly gatewayClient: ClientProxy,
   ) {}
 
   create(dto: CreateDashboardDto): Promise<Dashboard> {
@@ -166,33 +169,53 @@ export class DashboardService {
     }
   async processDashboardInvitation(data: DashboardInvitationDto) {
     const { to, invitedBy, dashboardId } = data;
+    console.log('Verificando Dashboard')
 
     // 1. Verificar que el dashboard exista
     const dashboard = await this.dashboardRepository.findOne(dashboardId);
     if (!dashboard) {
       throw new RpcException({ message: 'Dashboard not found', status: 404 });
     }
+    console.log('Dashboard verificado= ', dashboard)
+    console.log('Verificando invitante')
 
     // 2. Verificar que quien invita pertenece al dashboard
     const inviter = await this.rolDashboardRepository.findOne(invitedBy);
-
-    if (!inviter) {
+    console.log('invitante= ', inviter)
+    if (inviter.idUser !== invitedBy || inviter.dashboardId !== dashboardId) {
       throw new RpcException({
         message: "Inviter doesn't belong to this dashboard",
         status: 403
       });
     }
+    console.log('Verificando invitado')
+    const invitedUser = await lastValueFrom(
+      this.gatewayClient.send(
+        { cmd: 'get_user_by_email' },
+        { email: to }
+      )
+    );
+    
+    if (!invitedUser) {
+      throw new RpcException({
+        message: 'User to invite does not exist',
+        status: 404
+      });
+    }
+    console.log('Añadiendo invitado')
 
     // 3. Crear/añadir al nuevo usuario al dashboard
     await this.rolDashboardRepository.save({
-      idUser: data.to,
+      idUser: invitedUser.id,
       dashboardId: dashboard,
       participantTypeId: { id: 3},
     });
 
+    console.log('Generando link')
+
     // 4. Generar link "no sensible"
     const inviteLink = `${process.env.FRONT_BASE_URL}/dashboard/${dashboardId}`;
-
+    console.log('Link generado')
     // 5. Retornar datos para que el gateway mande el mail
     return {
       ok: true,

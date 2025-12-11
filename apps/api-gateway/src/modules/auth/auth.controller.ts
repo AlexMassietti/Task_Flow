@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '@shared/dtos';
 import { LoginUserDto } from './dto/login-user.dto';
@@ -33,5 +33,9 @@ export class AuthController {
     await this.authService.sendPasswordResetMail(mailData);
 
     return { message: 'Password reset email sent' };
+  }
+  @Get('user-by-email/:email')
+  async getUserByEmail(@Body('email') email: string) {
+    return this.authService.getUserByEmail(email);
   }
 }

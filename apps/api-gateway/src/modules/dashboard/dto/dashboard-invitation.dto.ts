@@ -1,9 +1,9 @@
 import { IsEmail, IsInt, IsNotEmpty, IsString } from 'class-validator';
 
 export class DashboardInvitationDto {
-  @IsInt()
+  @IsEmail()
   @IsNotEmpty()
-  to: number;
+  to: string;
 
   @IsInt()
   @IsNotEmpty()

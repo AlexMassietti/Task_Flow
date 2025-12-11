@@ -3,9 +3,19 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 
-
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // LOG GLOBAL DE TODAS LAS REQUESTS
+  app.use((req, res, next) => {
+    console.log('-----------------------------');
+    console.log('[GLOBAL] Nueva request');
+    console.log('[GLOBAL] Método:', req.method);
+    console.log('[GLOBAL] URL:', req.url);
+    console.log('[GLOBAL] Headers:', req.headers);
+    console.log('-----------------------------');
+    next();
+  });
 
   const config = new DocumentBuilder()
     .setTitle('Api Gateway')

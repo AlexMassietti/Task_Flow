@@ -9,6 +9,7 @@ import { PriorityModule } from '@microservice-tasks/priority/priority.module';
 import { ParticipantTypeModule } from '@microservice-tasks/participant-type/participant-type.module';
 import { TaskModule } from '@microservice-tasks/task/task.module';
 import { RolDashboardModule } from '@microservice-tasks/rol-dashboard/rol-dashboard.module';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 
 @Module({
   imports: [
@@ -18,6 +19,16 @@ import { RolDashboardModule } from '@microservice-tasks/rol-dashboard/rol-dashbo
     forwardRef(() => TaskModule),
     forwardRef(() => RolDashboardModule),
     ParticipantTypeModule,
+    ClientsModule.register([
+      {
+        name: 'GATEWAY_CLIENT',
+        transport: Transport.TCP,
+        options: {
+          host: process.env.GATEWAY_HOST || '0.0.0.0',
+          port: parseInt(process.env.GATEWAY_PORT) || 3002, 
+        },
+      },
+    ]),
   ],
   controllers: [DashboardController],
   providers: [
