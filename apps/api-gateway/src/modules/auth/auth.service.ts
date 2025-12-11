@@ -82,9 +82,8 @@ export class AuthService {
   async getUserByEmail(email: string) {
     try {
       const user = await lastValueFrom(
-        this.usersClient.send('get_user_by_email', { email }),
+        this.usersClient.send({ cmd: 'get_user_by_email' }, { email })
       );
-
       if (!user) {
         throw new HttpException(
           { message: 'User not found' },

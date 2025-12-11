@@ -40,8 +40,6 @@ export class DashboardController {
   @ApiOkResponse({ type: DashboardInvitationDto })
   @Post('dashboard-invite')
   async inviteToDashboard(@Req() req,@Body() dto: DashboardInvitationDto) {
-    console.log('[API] Entró al endpoint /dashboard/dashboard-invite');
-  console.log('[API] req.headers.authorization = ', req.headers.authorization);
     const mailData = await this.dashboardService.processDashboardInvitation(dto);
     return this.dashboardService.sendDashboardInvitationMail(mailData);
   }

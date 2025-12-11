@@ -61,7 +61,7 @@ export class DashboardService {
     const payload = normalizeRemoteError(err);
     throw new HttpException(
       { success: false, error: payload },
-      payload.status ?? 500,
+      typeof payload.status === 'number' ? payload.status : 500,
     );
   }
   }

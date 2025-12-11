@@ -168,27 +168,26 @@ export class DashboardService {
       return this.rolDashboardRepository.findUsersInDashboard(dashboard.id);
     }
   async processDashboardInvitation(data: DashboardInvitationDto) {
+
     const { to, invitedBy, dashboardId } = data;
-    console.log('Verificando Dashboard')
 
     // 1. Verificar que el dashboard exista
     const dashboard = await this.dashboardRepository.findOne(dashboardId);
     if (!dashboard) {
       throw new RpcException({ message: 'Dashboard not found', status: 404 });
     }
-    console.log('Dashboard verificado= ', dashboard)
-    console.log('Verificando invitante')
 
     // 2. Verificar que quien invita pertenece al dashboard
-    const inviter = await this.rolDashboardRepository.findOne(invitedBy);
-    console.log('invitante= ', inviter)
-    if (inviter.idUser !== invitedBy || inviter.dashboardId !== dashboardId) {
+    const inviters = await this.rolDashboardRepository.findUsersInDashboard(invitedBy);
+    const belongs = inviters.includes(dashboardId);
+
+    if (!belongs) {
       throw new RpcException({
         message: "Inviter doesn't belong to this dashboard",
         status: 403
       });
     }
-    console.log('Verificando invitado')
+
     const invitedUser = await lastValueFrom(
       this.gatewayClient.send(
         { cmd: 'get_user_by_email' },
@@ -202,16 +201,13 @@ export class DashboardService {
         status: 404
       });
     }
-    console.log('Añadiendo invitado')
 
     // 3. Crear/añadir al nuevo usuario al dashboard
     await this.rolDashboardRepository.save({
-      idUser: invitedUser.id,
+      idUser: invitedUser,
       dashboardId: dashboard.id,
       participantTypeId: 3
     });
-
-    console.log('Generando link')
 
     // 4. Generar link "no sensible"
     const inviteLink = `${process.env.FRONT_BASE_URL}/dashboard/${dashboardId}`;

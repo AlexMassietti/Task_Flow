@@ -2,20 +2,11 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
+import { Transport } from '@nestjs/microservices';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // LOG GLOBAL DE TODAS LAS REQUESTS
-  app.use((req, res, next) => {
-    console.log('-----------------------------');
-    console.log('[GLOBAL] Nueva request');
-    console.log('[GLOBAL] Método:', req.method);
-    console.log('[GLOBAL] URL:', req.url);
-    console.log('[GLOBAL] Headers:', req.headers);
-    console.log('-----------------------------');
-    next();
-  });
 
   const config = new DocumentBuilder()
     .setTitle('Api Gateway')
@@ -36,6 +27,14 @@ async function bootstrap() {
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);
 
+  app.connectMicroservice({
+    transport: Transport.TCP,
+    options: {
+      host: process.env.GATEWAY_HOST || '0.0.0.0',
+      port: parseInt(process.env.GATEWAY_PORT) || 4002,
+    },
+  });
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -43,7 +42,7 @@ async function bootstrap() {
       transform: true,
     }),
   );
-
+  await app.startAllMicroservices();
   await app.listen(process.env.PORT ?? 3002);
 }
 bootstrap();

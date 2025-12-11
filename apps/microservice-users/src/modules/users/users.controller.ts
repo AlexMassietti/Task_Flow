@@ -39,15 +39,14 @@ export class UsersController {
 
   @MessagePattern({ cmd: 'get_user_by_email' })
   @ApiOperation({ summary: 'Obtener el ID de usuario por email' })
-  async getIdByEmail(data: { email: string }): Promise<number> {
-    const id = await this.usersService.getIdbyEmail(data.email);
-
-    if (!id) {
-      throw new NotFoundException(`Usuario con email ${data.email} no encontrado`);
+    async getIdByEmail(data: { email: string }): Promise<number> {
+      const id = await this.usersService.getIdbyEmail(data.email);
+      if (!id) {
+        throw new NotFoundException(`Usuario con email ${data.email} no encontrado`);
+      }
+      return id;
     }
 
-    return id;
-  }
 
   @MessagePattern({ cmd: 'get_users_by_id' })
   @ApiOperation({ summary: 'Obtener un array de usuarios por sus IDs' })
