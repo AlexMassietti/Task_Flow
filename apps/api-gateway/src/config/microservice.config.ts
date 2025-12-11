@@ -11,3 +11,9 @@ export const DASHBOARD_SERVICE: ClientProviderOptions = {
   transport: Transport.TCP,
   options: { host: '127.0.0.1', port: 4000 },
 };
+
+export const MAIL_SERVICE: ClientProviderOptions = {
+  name: 'MAIL_SERVICE',
+  transport:Transport.TCP,
+  options: { host: '0.0.0.0', port: 4003 },
+}

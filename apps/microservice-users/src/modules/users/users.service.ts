@@ -13,8 +13,8 @@ import { GetUserDto } from './dto/get-user.dto';
 import { IUserRepository } from '../core/ports/users.port';
 import { IRoleRepository } from '../core/ports/roles.port';
 import { ROLE_REPO, USER_REPO } from '../core/ports/tokens';
-import { CreateUserDto } from './dto/create-user.dto';
-import { LoginUserDto } from './dto/login-user.dto';
+import { CreateUserDto } from '../auth/dto/create-user.dto';
+import { LoginUserDto } from '../auth/dto/login-user.dto';
 import { RpcException } from '@nestjs/microservices';
 
 @Injectable()
@@ -49,7 +49,6 @@ export class UsersService {
 
     await this.userRepository.save(user);
   }
-
   async findByEmail(email: string, relations?: string[]) {
     return this.userRepository.findByEmail(email, relations);
   }
@@ -64,6 +63,14 @@ export class UsersService {
       throw new NotFoundException('No matching user found');
     }
     return userFound.id;
+  }
+  
+  async getUsernameById(id: number): Promise<String | null> {
+    const userFound= await this.userRepository.findOneBy(id);
+    if (!userFound) {
+      throw new NotFoundException('No matching user found');
+    }
+    return userFound.name;
   }
 
   async updateRol(id: number, updateUserRol: UpdateUserRoles): Promise<string> {
@@ -96,12 +103,21 @@ export class UsersService {
   }
 
   async findOneByEmailWithRolesAndPermissions(email: string): Promise<User> {
-    const user = await this.userRepository.findByEmail(email, ['roles', 'roles.permissions']);
+    const user = await this.userRepository.findByEmail(email, [
+      'roles',
+      'roles.permissions',
+    ]);
+
     if (!user) {
-      throw new NotFoundException(`User with no roles`);
+      throw new NotFoundException(`User not found`);
     }
+
+    // Si no tiene roles, lo dejamos con [] y dejamos que el AuthService lo maneje
+    user.roles = user.roles ?? [];
+
     return user;
   }
+
 
   async updatePassword(id: number, newPassword: string): Promise<void> {
     if (!newPassword || newPassword.trim() === '') {
@@ -117,6 +133,8 @@ export class UsersService {
     const hashedPassword = await hash(newPassword, 10);
     await this.userRepository.update(id, { password: hashedPassword });
   }
+
+  
 
   async getUsersById(usersId: number[]): Promise<GetUserDto[]> {
     const users = await this.userRepository.findUsersById(usersId);

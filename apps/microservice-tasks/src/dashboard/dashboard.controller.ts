@@ -17,6 +17,7 @@ import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { MessagePattern } from '@nestjs/microservices';
 import { Dashboard } from './entities/dashboard.entity';
 import { CreateTaskDto } from '@microservice-tasks/task/dto/create-task.dto';
+import { DashboardInvitationDto } from './dto/dashboard-invitation.dto';
 
 @ApiTags('Dashboards')
 @Controller('dashboard')
@@ -119,5 +120,10 @@ export class DashboardController {
   @MessagePattern({ cmd: 'get_users_dashboard' })
   findUsersInDashboard(data: { id: number }): Promise<number[]> {
     return this.dashboardService.findUsersInDashboard(data.id);
+  }
+
+  @MessagePattern({ cmd: 'dashboard_invite' })
+  handleDashboardInvite(data: DashboardInvitationDto) {
+    return this.dashboardService.processDashboardInvitation(data);
   }
 }

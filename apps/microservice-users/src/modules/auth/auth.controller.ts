@@ -1,8 +1,8 @@
-import { Post, Body, Headers, Controller } from '@nestjs/common';
+import { Post, Body, Headers, Controller, Get } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { CreateUserDto } from '../users/dto/create-user.dto';
-import { LoginUserDto } from '../users/dto/login-user.dto';
+import { CreateUserDto } from './dto/create-user.dto';
+import { LoginUserDto } from './dto/login-user.dto';
 import { RestorePasswordDto } from './dto/restore-password.dto';
 import { MessagePattern } from '@nestjs/microservices';
 
@@ -18,7 +18,7 @@ export class AuthController {
   register(data: { createUserDto: CreateUserDto }) {
     return this.authService.register(data.createUserDto);
   }
-
+  @Public()
   @Post('login')
   @ApiOperation({ summary: 'Iniciar sesión' })
   @ApiResponse({
@@ -26,16 +26,26 @@ export class AuthController {
     description: 'Login exitoso o error de credenciales',
   })
   @ApiBody({ type: LoginUserDto })
+  async loginUser(@Body() loginUserDto: LoginUserDto) {
+    return this.authService.login(loginUserDto);
+  }
+
   @MessagePattern({ cmd: 'user_login' })
   login(data: { loginUserDto: LoginUserDto }) {
     return this.authService.login(data.loginUserDto);
   }
 
   @Post('forgot-password')
-  async forgotPassword(@Body('email') email: string) {
+  async forgotPasswordHttp(@Body('email') email: string) {
     return this.authService.forgotPassword(email);
   }
 
+  @MessagePattern({ cmd: 'forgot-password' })
+  async forgotPasswordMicro(data: { email: string }) {
+    return this.authService.forgotPassword(data.email);
+  }
+
+  @Public()
   @Post('restore-password')
   async restorePassword(@Body() body: RestorePasswordDto) {
     return this.authService.restorePassword(body);

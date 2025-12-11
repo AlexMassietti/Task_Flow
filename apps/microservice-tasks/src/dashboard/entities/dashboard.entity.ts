@@ -5,8 +5,7 @@ import { Entity, Column, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 export class Dashboard {
   @PrimaryGeneratedColumn()
   id: number;
-
-  @Column()
+  @Column({ unique: true })
   name: string;
 
   @Column()

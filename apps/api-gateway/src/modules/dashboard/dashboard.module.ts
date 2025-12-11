@@ -2,9 +2,10 @@ import { Module } from '@nestjs/common';
 import { DashboardController } from './dashboard.controller';
 import { DashboardService } from './dashboard.service';
 import { ClientsModule } from '@nestjs/microservices';
-import { DASHBOARD_SERVICE, USERS_SERVICE } from '@api-gateway/config/microservice.config';
+import { DASHBOARD_SERVICE, USERS_SERVICE, MAIL_SERVICE } from '@api-gateway/config/microservice.config';
+import { AuthModule } from '../auth/auth.module';
 @Module({
-  imports: [ClientsModule.register([USERS_SERVICE, DASHBOARD_SERVICE])],
+  imports: [ClientsModule.register([USERS_SERVICE, DASHBOARD_SERVICE, MAIL_SERVICE]), AuthModule],
   controllers: [DashboardController],
   providers: [DashboardService],
   exports: [],

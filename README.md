@@ -104,6 +104,7 @@ JWT_REFRESH_EXPIRES=1d
 ```
 USERS_SERVICE=http://localhost:4001
 DASHBOARD_SERVICE=http://localhost:4000
+MAIL_SERVICE=http://localhost:4003
 ```
 
 ---
@@ -115,6 +116,8 @@ DASHBOARD_SERVICE=http://localhost:4000
 ├─ apps/
 │  ├─ api-gateway/
 │  ├─ api-gateway-e2e/
+|  ├─ microservice-mail/
+|  ├─ microservice-mail-e2e/
 │  ├─ microservice-users/
 │  ├─ microservice-users-e2e/
 │  ├─ microservice-tasks/

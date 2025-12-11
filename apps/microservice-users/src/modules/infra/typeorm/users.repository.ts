@@ -1,4 +1,4 @@
-import { CreateUserDto } from '../../users/dto/create-user.dto';
+import { CreateUserDto } from '../../auth/dto/create-user.dto';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { In, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';

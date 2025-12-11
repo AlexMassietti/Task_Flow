@@ -74,9 +74,9 @@ export class RolDashboardService {
           `Dashboard with ID ${updateRolDashboardDto.idDashboard} was not found.`,
         );
       }
-      updateObject.dashboardId = {
-        id: updateRolDashboardDto.idDashboard,
-      } as Dashboard;
+      
+      updateObject.dashboardId = updateRolDashboardDto.idDashboard;
+      
       shouldUpdate = true;
     }
 
@@ -87,9 +87,7 @@ export class RolDashboardService {
           `ParticipantType (Role) with ID ${updateRolDashboardDto.idRol} was not found.`,
         );
       }
-      updateObject.participantTypeId = {
-        id: updateRolDashboardDto.idRol,
-      } as ParticipantType;
+      updateObject.participantTypeId = updateRolDashboardDto.idRol;
       shouldUpdate = true;
     }
 

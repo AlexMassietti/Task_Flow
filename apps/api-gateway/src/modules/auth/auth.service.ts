@@ -1,13 +1,17 @@
 import { HttpException, Inject, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ClientProxy } from '@nestjs/microservices';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { LoginUserDto } from './dto/login-user.dto';
 import { normalizeRemoteError } from './error/normalize-remote-error';
+import { PasswordResetDto } from './dto/password-reset.dto';
 
 @Injectable()
 export class AuthService {
-  constructor(@Inject('USERS_SERVICE') private readonly usersClient: ClientProxy) {}
+  constructor(
+    @Inject('USERS_SERVICE') private readonly usersClient: ClientProxy,
+    @Inject('MAIL_SERVICE') private readonly mailClient: ClientProxy, // inyectamos MailService
+  ) {}
 
   async register(createUserDto: CreateUserDto) {
     try {
@@ -21,12 +25,8 @@ export class AuthService {
       };
     } catch (err: unknown) {
       const payload = normalizeRemoteError(err);
-
       throw new HttpException(
-        {
-          success: false,
-          error: payload,
-        },
+        { success: false, error: payload },
         payload.status ?? 500,
       );
     }
@@ -37,20 +37,81 @@ export class AuthService {
       const response: { accessToken: string; refreshToken: string } = await firstValueFrom(
         this.usersClient.send({ cmd: 'user_login' }, { loginUserDto }),
       );
-      return {
-        success: true,
-        data: response,
-      };
+      return { success: true, data: response };
     } catch (err: unknown) {
       const payload = normalizeRemoteError(err);
-
       throw new HttpException(
-        {
-          success: false,
-          error: payload,
-        },
+        { success: false, error: payload },
         payload.status ?? 500,
       );
+    }
+  }
+
+  // --------------------
+  // Forgot password
+  // --------------------
+  async forgotPassword(email: string): Promise<PasswordResetDto> {
+    try {
+      const response: { to: string; username: string; resetLink: string } = await firstValueFrom(
+        this.usersClient.send({ cmd: 'forgot-password' }, { email }),
+      );
+      return response;
+    } catch (err: unknown) {
+      const payload = normalizeRemoteError(err);
+      throw new HttpException(
+        { success: false, error: payload },
+        payload.status ?? 500,
+      );
+    }
+  }
+
+  async sendPasswordResetMail(mailData: PasswordResetDto) {
+    try {
+      const response: { status: string } = await firstValueFrom(
+        this.mailClient.send({ cmd: 'mail-password-reset' }, mailData),
+      );
+      return { success: true, data: response };
+    } catch (err: unknown) {
+      const payload = normalizeRemoteError(err);
+      throw new HttpException(
+        { success: false, error: payload },
+        payload.status ?? 500,
+      );
+    }
+  }
+  async getUserByEmail(email: string) {
+    try {
+      const user = await lastValueFrom(
+        this.usersClient.send({ cmd: 'get_user_by_email' }, { email })
+      );
+      if (!user) {
+        throw new HttpException(
+          { message: 'User not found' },
+          404,
+        );
+      }
+
+      return user;
+    } catch (err) {
+      const payload = normalizeRemoteError(err);
+      throw new HttpException({ error: payload }, payload.status ?? 500);
+    }
+  }
+  async getUserById(id:number){
+    try {
+      const user = await firstValueFrom(
+        this.usersClient.send({ cmd : 'get_user_by_id'}, { id})
+      );
+      if (!user) {
+        throw new HttpException(
+          { message: 'User not found' },
+          404,
+        );
+      }
+      return  user;
+    }catch (err) {
+      const payload = normalizeRemoteError(err);
+      throw new HttpException({ error: payload }, payload.status ?? 500);
     }
   }
 }
