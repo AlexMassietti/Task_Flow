@@ -16,14 +16,21 @@ export class RolDashboardRepository implements IRolDashboardRepository {
   ) {}
 
   saveArray(
-    rolDashboard: {
-      dashboardId: Dashboard;
-      participantTypeId: ParticipantType;
-      idUser: number;
-    }[],
-  ): Promise<RolDashboard[]> {
-    return this.rolDashboardRepository.save(rolDashboard);
-  }
+  rolDashboard: {
+    dashboardId: Dashboard;
+    participantTypeId: ParticipantType;
+    idUser: number;
+  }[],
+): Promise<RolDashboard[]> {
+  // Mapear para convertir dashboardId y participantTypeId a números
+  const rolDashboardToSave = rolDashboard.map((r) => ({
+    idUser: r.idUser,
+    dashboardId: r.dashboardId.id,       // solo el id
+    participantTypeId: r.participantTypeId.id, // solo el id
+  }));
+
+  return this.rolDashboardRepository.save(rolDashboardToSave);
+}
 
   count(): Promise<number> {
     return this.rolDashboardRepository.count();
@@ -75,32 +82,30 @@ export class RolDashboardRepository implements IRolDashboardRepository {
     userId: number,
     participantType: ParticipantType,
   ): Promise<RolDashboard[]> {
-    const participantTypes = await this.rolDashboardRepository.find({
-      where: { idUser: userId },
-      relations: {
-        participantTypeId: true,
-        dashboardId: true,
+    const roles = await this.rolDashboardRepository.find({
+      where: { 
+        idUser: userId,
+        participantTypeId: participantType.id  // ahora solo el id
       },
     });
 
-    return participantTypes.filter(
-      (rolDashboard) => rolDashboard.participantTypeId.id === participantType.id,
-    );
+    return roles;
   }
 
+  // Obtener dashboards compartidos (otros tipos de roles)
   findSharedByUserId(userId: number, participantTypes: number[]): Promise<RolDashboard[]> {
     return this.rolDashboardRepository.find({
-      where: { idUser: userId, participantTypeId: In(participantTypes) },
-      relations: {
-        participantTypeId: true,
-        dashboardId: true,
+      where: { 
+        idUser: userId, 
+        participantTypeId: In(participantTypes)  // solo ids
       },
     });
   }
 
-  async findUsersInDashboard(idDashboard: Dashboard): Promise<number[]> {
+  // Obtener ids de usuarios en un dashboard
+  async findUsersInDashboard(idDashboard: number): Promise<number[]> {
     const usersInDashboard = await this.rolDashboardRepository.find({
-      where: { dashboardId: idDashboard },
+      where: { dashboardId: idDashboard },  // solo el id
     });
 
     return usersInDashboard.map((u) => u.idUser);

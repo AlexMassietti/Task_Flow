@@ -165,7 +165,7 @@ export class DashboardService {
         throw new NotFoundException(`Dashboard with ID: ${id} not found`);
       }
 
-      return this.rolDashboardRepository.findUsersInDashboard(dashboard);
+      return this.rolDashboardRepository.findUsersInDashboard(dashboard.id);
     }
   async processDashboardInvitation(data: DashboardInvitationDto) {
     const { to, invitedBy, dashboardId } = data;
@@ -207,8 +207,8 @@ export class DashboardService {
     // 3. Crear/añadir al nuevo usuario al dashboard
     await this.rolDashboardRepository.save({
       idUser: invitedUser.id,
-      dashboardId: dashboard,
-      participantTypeId: { id: 3},
+      dashboardId: dashboard.id,
+      participantTypeId: 3
     });
 
     console.log('Generando link')
