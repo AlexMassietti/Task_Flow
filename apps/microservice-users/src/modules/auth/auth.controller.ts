@@ -51,7 +51,6 @@ export class AuthController {
     @Headers('authorization') authorization: string,
     @Body('requiredPermissions') requiredPermissions: string[],
   ): Promise<boolean> {
-    // Llama al método del servicio para ejecutar la lógica de negocio
     return this.authService.validateTokenAndPermissions(authorization, requiredPermissions);
   }
 }
