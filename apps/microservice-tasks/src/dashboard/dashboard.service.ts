@@ -187,7 +187,6 @@ export class DashboardService {
         status: 403
       });
     }
-
     const invitedUser = await lastValueFrom(
       this.gatewayClient.send(
         { cmd: 'get_user_by_email' },
@@ -201,7 +200,19 @@ export class DashboardService {
         status: 404
       });
     }
+    if (inviters.includes(invitedUser)){
+      throw new RpcException({
+        message: 'User is already in the dashboard',
+        status: 409
+      })
+    }
 
+    const inviterUsername = await lastValueFrom(
+          this.gatewayClient.send(
+            { cmd: 'get_user_by_id' },
+            { id: invitedBy }
+          )
+        );
     // 3. Crear/añadir al nuevo usuario al dashboard
     await this.rolDashboardRepository.save({
       idUser: invitedUser,
@@ -210,11 +221,15 @@ export class DashboardService {
     });
 
     // 4. Generar link "no sensible"
-    const inviteLink = `${process.env.FRONT_BASE_URL}/dashboard/${dashboardId}`;
-    console.log('Link generado')
+    const inviteLink = `http://localhost:4200/dashboard/${dashboardId}`;
     // 5. Retornar datos para que el gateway mande el mail
+
+
+    console.log('data', data.to, inviterUsername, dashboard.name, inviteLink);
     return {
       ok: true,
+      to: data.to,
+      invitedBy: inviterUsername,
       dashboardName: dashboard.name,
       inviteLink
     };

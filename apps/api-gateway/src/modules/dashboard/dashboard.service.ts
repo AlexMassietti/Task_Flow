@@ -55,8 +55,7 @@ export class DashboardService {
     const response: DashboardInvitationDto = await firstValueFrom(
       this.dashboardClient.send({ cmd: 'dashboard_invite' }, data),
     );
-
-    return response; // devuelvo lo mismo que usaré para enviarlo por mail
+    return response; 
   } catch (err: unknown) {
     const payload = normalizeRemoteError(err);
     throw new HttpException(

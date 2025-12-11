@@ -46,4 +46,10 @@ export class AuthController {
       return this.authService.getUserByEmail(email);
     }
 
+  @MessagePattern({ cmd: 'get_user_by_id' })
+    async getUserByIdMicroservice(payload: { id: number}){
+      const { id } = payload;
+      return this.authService.getUserById(id);
+    }
+
 }

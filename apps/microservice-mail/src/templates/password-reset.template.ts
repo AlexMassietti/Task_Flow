@@ -4,14 +4,14 @@ export function passwordResetTemplate(
 ) {
   return `
     <div style="font-family: Arial; padding: 20px;">
-      <h2>Restablecer contraseña</h2>
+      <h2>Password Reset</h2>
 
-      <p>Hola ${username ?? 'usuario'},</p>
+      <p>Hello ${username ?? 'user'},</p>
 
-      <p>Recibimos una solicitud para restablecer tu contraseña.</p>
+      <p>We received a request to reset your password.</p>
 
       <p>
-        Haz clic en el siguiente enlace para continuar:
+        Click the link below to continue:
       </p>
 
       <a href="${resetLink}" 
@@ -22,11 +22,11 @@ export function passwordResetTemplate(
             text-decoration: none;
             border-radius: 6px;
          ">
-        Restablecer contraseña
+        Reset Password
       </a>
 
       <p style="margin-top: 20px; color: gray;">
-        Si no solicitaste esto, simplemente ignora este mensaje.
+        If you did not request this, simply ignore this message.
       </p>
     </div>
   `;

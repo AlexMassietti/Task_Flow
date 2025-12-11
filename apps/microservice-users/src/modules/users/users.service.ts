@@ -49,7 +49,6 @@ export class UsersService {
 
     await this.userRepository.save(user);
   }
-
   async findByEmail(email: string, relations?: string[]) {
     return this.userRepository.findByEmail(email, relations);
   }
@@ -64,6 +63,14 @@ export class UsersService {
       throw new NotFoundException('No matching user found');
     }
     return userFound.id;
+  }
+  
+  async getUsernameById(id: number): Promise<String | null> {
+    const userFound= await this.userRepository.findOneBy(id);
+    if (!userFound) {
+      throw new NotFoundException('No matching user found');
+    }
+    return userFound.name;
   }
 
   async updateRol(id: number, updateUserRol: UpdateUserRoles): Promise<string> {
@@ -126,6 +133,8 @@ export class UsersService {
     const hashedPassword = await hash(newPassword, 10);
     await this.userRepository.update(id, { password: hashedPassword });
   }
+
+  
 
   async getUsersById(usersId: number[]): Promise<GetUserDto[]> {
     const users = await this.userRepository.findUsersById(usersId);

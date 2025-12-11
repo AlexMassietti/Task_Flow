@@ -5,17 +5,17 @@ export function dashboardInvitationTemplate(
 ) {
   return `
     <div style="font-family: Arial; padding: 20px;">
-      <h2>Invitación al dashboard</h2>
+      <h2>Dashboard Invitation</h2>
 
-      <p>Hola,</p>
+      <p>Hello,</p>
 
       <p>
-        <strong>${invitedBy}</strong> te ha invitado a unirte al dashboard 
+        <strong>${invitedBy}</strong> has invited you to join the dashboard 
         <strong>${dashboardName}</strong>.
       </p>
 
       <p>
-        Haz clic en el siguiente enlace para aceptar la invitación:
+        Click the following link to accept the invitation:
       </p>
 
       <a href="${inviteLink}"
@@ -26,11 +26,11 @@ export function dashboardInvitationTemplate(
             text-decoration: none;
             border-radius: 6px;
          ">
-        Aceptar invitación
+        Accept Invitation
       </a>
 
       <p style="margin-top: 20px; color: gray;">
-        Si no estabas esperando esta invitación, puedes ignorar este mensaje.
+        If you were not expecting this invitation, you can safely ignore this message.
       </p>
     </div>
   `;

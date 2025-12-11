@@ -47,6 +47,15 @@ export class UsersController {
       return id;
     }
 
+  @MessagePattern({ cmd: 'get_user_by_id' })
+  @ApiOperation({ summary: 'Obtener el nombre de usuario por su id' })
+  async getUserById(data: { id: number }): Promise<String | null> {
+    const user = await this.usersService.getUsernameById(data.id);
+    if (!user) {
+      throw new NotFoundException(`Usuario con id ${data.id} no encontrado`);
+    }
+    return user;
+  }
 
   @MessagePattern({ cmd: 'get_users_by_id' })
   @ApiOperation({ summary: 'Obtener un array de usuarios por sus IDs' })
