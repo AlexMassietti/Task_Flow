@@ -18,7 +18,6 @@ export class AuthController {
   register(data: { createUserDto: CreateUserDto }) {
     return this.authService.register(data.createUserDto);
   }
-  @Public()
   @Post('login')
   @ApiOperation({ summary: 'Iniciar sesión' })
   @ApiResponse({
@@ -45,7 +44,6 @@ export class AuthController {
     return this.authService.forgotPassword(data.email);
   }
 
-  @Public()
   @Post('restore-password')
   async restorePassword(@Body() body: RestorePasswordDto) {
     return this.authService.restorePassword(body);

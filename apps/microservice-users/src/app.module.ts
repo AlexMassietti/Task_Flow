@@ -6,6 +6,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { CoreModule } from './modules/core/core.module';
 import { InfraModule } from './modules/infra/infra.module';
 import { DatabaseModule } from './modules/database/database.module';
+import { JwksModule } from './modules/jwks/jwks.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { DatabaseModule } from './modules/database/database.module';
     RolesModule,
     AuthModule,
     UsersModule,
+    JwksModule
   ],
   controllers: [],
   providers: [],
