@@ -8,12 +8,21 @@ import { JwtRs256Guard } from '../auth/jwt-auth.guard';
 import { PermissionsGuard } from '../authorization/permission.guard';
 import { Permissions } from '../authorization/permission.decorator';
 import { DashboardInvitationDto } from './dto/dashboard-invitation.dto';
+import { CreateDashboardDto } from '@shared/dtos';
+import { CreateDashboardDoc } from './docs/create-dashboard.doc';
 
 @Controller('dashboard')
 @ApiBearerAuth('access-token')
 @UseGuards(JwtRs256Guard, PermissionsGuard)
 export class DashboardController {
-  constructor(private readonly dashboardService: DashboardService) {}
+  constructor(private readonly dashboardService: DashboardService) { }
+
+  @Post()
+  @Permissions('dashboard.create')
+  @CreateDashboardDoc()
+  create(@Body() createDashboardDto: CreateDashboardDto) {
+    return this.dashboardService.create(createDashboardDto);
+  }
 
   @ApiOkResponse({ type: DashboardDto, isArray: true })
   @Get('owned')

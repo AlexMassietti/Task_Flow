@@ -1,9 +1,8 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { CreateDashboardDto } from '../../../../libs/shared/dtos/src/lib/dashboard/create-dashboard.dto';
-import { UpdateDashboardDto } from '../../../../libs/shared/dtos/src/lib/dashboard/update-dashboard.dto';
+import { HttpStatus, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { CreateDashboardDto } from '@shared/dtos';
+import { UpdateDashboardDto } from '@shared/dtos';
 import { Dashboard } from './entities/dashboard.entity';
 import { AssignTaskDto } from './dto/assign-task.dto';
-import { DeleteDashboardDto } from '../../../../libs/shared/dtos/src/lib/dashboard/delete-dashboard.dto';
 import { ITaskRepository } from '@microservice-tasks/task/infraestructure/task.interface';
 import { IDashboardRepository } from './infraestructure/dashboard.interface';
 import { IPriorityRepository } from '@microservice-tasks/priority/infraestructure/priority.interface';
@@ -16,6 +15,7 @@ import { Task } from '@microservice-tasks/task/entities/task.entity';
 import { Priority } from '@microservice-tasks/priority/entities/priority.entity';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
+import { QueryFailedError } from 'typeorm';
 
 @Injectable()
 export class DashboardService {
@@ -39,13 +39,15 @@ export class DashboardService {
     private readonly rolDashboardRepository: IRolDashboardRepository,
     @Inject('GATEWAY_CLIENT')
     private readonly gatewayClient: ClientProxy,
-  ) {}
+  ) { }
 
-  create(dto: CreateDashboardDto): Promise<Dashboard> {
-    return this.dashboardRepository.create({
+  async create(dto: CreateDashboardDto): Promise<Dashboard> {
+    const dashboard = await this.dashboardRepository.create({
       name: dto.name,
       description: dto.description,
     });
+
+    return dashboard;
   }
   async findAll(): Promise<Dashboard[]> {
     return await this.dashboardRepository.findAll();
@@ -61,7 +63,7 @@ export class DashboardService {
 
   // Ver que hacer con esto, si devolver un message y el id o nada...
   // async remove(id: number): Promise<DeleteDashboardDto> {
-  async remove(id: number): Promise<{message: string, deletedId: number}> {
+  async remove(id: number): Promise<{ message: string, deletedId: number }> {
     const dashExist = await this.dashboardRepository.findOne(id);
     if (!dashExist) throw new NotFoundException(`Dashboard with ${id} not found`);
 
@@ -160,14 +162,14 @@ export class DashboardService {
   }
 
   async findUsersInDashboard(id: number): Promise<number[]> {
-      const dashboard = await this.dashboardRepository.findOne(id);
+    const dashboard = await this.dashboardRepository.findOne(id);
 
-      if (!dashboard) {
-        throw new NotFoundException(`Dashboard with ID: ${id} not found`);
-      }
-
-      return this.rolDashboardRepository.findUsersInDashboard(dashboard.id);
+    if (!dashboard) {
+      throw new NotFoundException(`Dashboard with ID: ${id} not found`);
     }
+
+    return this.rolDashboardRepository.findUsersInDashboard(dashboard.id);
+  }
   async processDashboardInvitation(data: DashboardInvitationDto) {
 
     const { to, invitedBy, dashboardId } = data;
@@ -194,14 +196,14 @@ export class DashboardService {
         { email: to }
       )
     );
-    
+
     if (!invitedUser) {
       throw new RpcException({
         message: 'User to invite does not exist',
         status: 404
       });
     }
-    if (inviters.includes(invitedUser)){
+    if (inviters.includes(invitedUser)) {
       throw new RpcException({
         message: 'User is already in the dashboard',
         status: 409
@@ -209,11 +211,11 @@ export class DashboardService {
     }
 
     const inviterUsername = await lastValueFrom(
-          this.gatewayClient.send(
-            { cmd: 'get_user_by_id' },
-            { id: invitedBy }
-          )
-        );
+      this.gatewayClient.send(
+        { cmd: 'get_user_by_id' },
+        { id: invitedBy }
+      )
+    );
     // 3. Crear/añadir al nuevo usuario al dashboard
     await this.rolDashboardRepository.save({
       idUser: invitedUser,

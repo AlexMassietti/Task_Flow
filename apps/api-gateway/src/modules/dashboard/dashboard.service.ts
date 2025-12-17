@@ -5,7 +5,8 @@ import { DashboardDto } from './interfaces/dashboard.dto';
 import { TaskDto } from './interfaces/task.dto';
 import { UserDto } from './interfaces/user.dto';
 import { normalizeRemoteError } from '../auth/error/normalize-remote-error';
-import { DashboardInvitationDto} from './dto/dashboard-invitation.dto'; 
+import { DashboardInvitationDto } from './dto/dashboard-invitation.dto';
+import { CreateDashboardDto } from '@shared/dtos';
 
 @Injectable()
 export class DashboardService {
@@ -13,7 +14,15 @@ export class DashboardService {
     @Inject('USERS_SERVICE') private readonly usersClient: ClientProxy,
     @Inject('DASHBOARD_SERVICE') private readonly dashboardClient: ClientProxy,
     @Inject('MAIL_SERVICE') private readonly mailClient: ClientProxy,
-  ) {}
+  ) { }
+
+  async create(createDashboardDto: CreateDashboardDto): Promise<DashboardDto> {
+    const dashboard: DashboardDto = await firstValueFrom(
+      this.dashboardClient.send({ cmd: 'create_dashboard' }, { createDashboardDto }),
+    );
+
+    return dashboard;
+  }
 
   async getOwnedDashboards(userId: number) {
 
@@ -51,32 +60,32 @@ export class DashboardService {
     return usersInDashboard;
   }
   async processDashboardInvitation(data: DashboardInvitationDto) {
-  try {
-    const response: DashboardInvitationDto = await firstValueFrom(
-      this.dashboardClient.send({ cmd: 'dashboard_invite' }, data),
-    );
-    return response; 
-  } catch (err: unknown) {
-    const payload = normalizeRemoteError(err);
-    throw new HttpException(
-      { success: false, error: payload },
-      typeof payload.status === 'number' ? payload.status : 500,
-    );
-  }
+    try {
+      const response: DashboardInvitationDto = await firstValueFrom(
+        this.dashboardClient.send({ cmd: 'dashboard_invite' }, data),
+      );
+      return response;
+    } catch (err: unknown) {
+      const payload = normalizeRemoteError(err);
+      throw new HttpException(
+        { success: false, error: payload },
+        typeof payload.status === 'number' ? payload.status : 500,
+      );
+    }
   }
   async sendDashboardInvitationMail(mailData: DashboardInvitationDto) {
-  try {
-    const response: { status: string } = await firstValueFrom(
-      this.mailClient.send({ cmd: 'mail-dashboard-invitation' }, mailData),
-    );
-    return { success: true, data: response };
-  } catch (err: unknown) {
-    const payload = normalizeRemoteError(err);
-    throw new HttpException(
-      { success: false, error: payload },
-      payload.status ?? 500,
-    );
+    try {
+      const response: { status: string } = await firstValueFrom(
+        this.mailClient.send({ cmd: 'mail-dashboard-invitation' }, mailData),
+      );
+      return { success: true, data: response };
+    } catch (err: unknown) {
+      const payload = normalizeRemoteError(err);
+      throw new HttpException(
+        { success: false, error: payload },
+        payload.status ?? 500,
+      );
+    }
   }
-}
 
 }

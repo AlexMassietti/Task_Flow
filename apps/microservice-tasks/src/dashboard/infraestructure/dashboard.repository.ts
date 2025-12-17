@@ -2,16 +2,17 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreateDashboardDto } from '../../../../../libs/shared/dtos/src/lib/dashboard/create-dashboard.dto';
 import { Dashboard } from '../entities/dashboard.entity';
 import { IDashboardRepository } from './dashboard.interface';
-import { In, Repository } from 'typeorm';
+import { In, QueryFailedError, Repository } from 'typeorm';
 import { UpdateDashboardDto } from '../../../../../libs/shared/dtos/src/lib/dashboard/update-dashboard.dto';
-import { NotFoundException } from '@nestjs/common';
+import { HttpStatus, NotFoundException } from '@nestjs/common';
 import { RolDashboard } from '@microservice-tasks/rol-dashboard/entities/rol-dashboard.entity';
+import { RpcException } from '@nestjs/microservices';
 
 export class DashboardRepository implements IDashboardRepository {
   constructor(
     @InjectRepository(Dashboard)
     private readonly dashboardRepository: Repository<Dashboard>,
-  ) {}
+  ) { }
   count(): Promise<number> {
     return this.dashboardRepository.count();
   }

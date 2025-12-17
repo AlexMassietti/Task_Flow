@@ -24,11 +24,9 @@ import { UpdateDashboardDto } from '@shared/dtos';
 export class DashboardController {
   constructor(private readonly dashboardService: DashboardService) {}
 
-  @Post()
-  @ApiOperation({ summary: 'Crear un nuevo dashboard' })
-  @ApiResponse({ status: 201, description: 'Dashboard creado exitosamente.' })
-  create(@Body() createDashboardDto: CreateDashboardDto) {
-    return this.dashboardService.create(createDashboardDto);
+  @MessagePattern({ cmd: 'create_dashboard'})
+  create(data: {createDashboardDto: CreateDashboardDto} ) {
+    return this.dashboardService.create(data.createDashboardDto);
   }
 
   @Get()
