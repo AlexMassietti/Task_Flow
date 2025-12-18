@@ -89,7 +89,7 @@ export class RolDashboardService {
     }
 
     if (updateRolDashboardDto.idUser) {
-      updateObject.idUser = updateRolDashboardDto.idUser;
+      updateObject.userId = updateRolDashboardDto.idUser;
       shouldUpdate = true;
     }
 

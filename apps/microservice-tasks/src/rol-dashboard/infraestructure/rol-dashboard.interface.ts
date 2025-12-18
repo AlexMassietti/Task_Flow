@@ -29,9 +29,9 @@ export interface IRolDashboardRepository {
 
   saveArray(
     rolDashboard: {
-      dashboardId: Dashboard;
-      participantTypeId: ParticipantType;
-      idUser: number;
+      dashboard: Dashboard;
+      participantType: ParticipantType;
+      userId: number;
     }[],
   ): Promise<RolDashboard[]>;
 }

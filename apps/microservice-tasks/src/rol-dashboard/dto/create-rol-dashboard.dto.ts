@@ -17,7 +17,7 @@ export class CreateRolDashboardDto {
   @IsNumber()
   @IsPositive()
   @IsNotEmpty()
-  idUser: number;
+  userId: number;
 
   @ApiProperty({
     description: 'ID del tipo de participante (Rol) asignado a este usuario en el Dashboard.',

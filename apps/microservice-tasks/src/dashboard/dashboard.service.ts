@@ -225,7 +225,7 @@ export class DashboardService {
 
     // 3. Crear/añadir al nuevo usuario al dashboard
     await this.rolDashboardRepository.save({
-      idUser: invitedUser,
+      userId: invitedUser,
       dashboard: dashboard,
       participantType: userRol
     });

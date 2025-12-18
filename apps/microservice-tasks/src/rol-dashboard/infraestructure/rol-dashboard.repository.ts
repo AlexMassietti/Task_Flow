@@ -17,20 +17,12 @@ export class RolDashboardRepository implements IRolDashboardRepository {
 
   saveArray(
     rolDashboard: {
-      dashboardId: Dashboard;
-      participantTypeId: ParticipantType;
-      idUser: number;
+      dashboard: Dashboard;
+      participantType: ParticipantType;
+      userId: number;
     }[],
   ): Promise<RolDashboard[]> {
-    // EVENTUALMENTE MORIRA ESTE MAP
-    // Mapear para convertir dashboardId y participantTypeId a números
-    const rolDashboardToSave = rolDashboard.map((r) => ({
-      idUser: r.idUser,
-      dashboard: r.dashboardId,
-      participantType: r.participantTypeId,
-    }));
-
-    return this.rolDashboardRepository.save(rolDashboardToSave);
+    return this.rolDashboardRepository.save(rolDashboard);
   }
 
   count(): Promise<number> {
@@ -85,7 +77,7 @@ export class RolDashboardRepository implements IRolDashboardRepository {
   ): Promise<RolDashboard[]> {
     const roles = await this.rolDashboardRepository.find({
       where: {
-        idUser: userId,
+        userId: userId,
         participantType: participantType
       },
     });
@@ -97,7 +89,7 @@ export class RolDashboardRepository implements IRolDashboardRepository {
   findSharedByUserId(userId: number, participantTypes: number[]): Promise<RolDashboard[]> {
     return this.rolDashboardRepository.find({
       where: {
-        idUser: userId,
+        userId: userId,
         participantType: In(participantTypes)
       },
     });
@@ -109,6 +101,6 @@ export class RolDashboardRepository implements IRolDashboardRepository {
       where: { dashboard: dashboard },
     });
 
-    return usersInDashboard.map((u) => u.idUser);
+    return usersInDashboard.map((u) => u.userId);
   }
 }

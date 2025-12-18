@@ -13,13 +13,6 @@ export class RolDashboard {
   @ManyToOne(() => ParticipantType, (participantType) => participantType.id)
   participantType: ParticipantType;
 
-  @Column({
-    name: 'idUser',
-    type: 'bigint',
-    transformer: {
-      to: (value) => value,
-      from: (value) => parseInt(value)
-    }
-  })
-  idUser: number;
+  @Column()
+  userId: number;
 }
