@@ -1,9 +1,9 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreateDashboardDto } from '../../../../../libs/shared/dtos/src/lib/dashboard/create-dashboard.dto';
+import { CreateDashboardDto } from '@shared/dtos';
 import { Dashboard } from '../entities/dashboard.entity';
 import { IDashboardRepository } from './dashboard.interface';
 import { In, QueryFailedError, Repository } from 'typeorm';
-import { UpdateDashboardDto } from '../../../../../libs/shared/dtos/src/lib/dashboard/update-dashboard.dto';
+import { UpdateDashboardDto } from '@shared/dtos';
 import { HttpStatus, NotFoundException } from '@nestjs/common';
 import { RolDashboard } from '@microservice-tasks/rol-dashboard/entities/rol-dashboard.entity';
 import { RpcException } from '@nestjs/microservices';
