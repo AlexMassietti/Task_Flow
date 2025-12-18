@@ -45,7 +45,6 @@ export class DashboardController {
   }
 
   @MessagePattern({ cmd: 'update_dashboard' })
-  // create(data: { createDashboardDto: CreateDashboardDto, userId: number }) {
   update(data: { updateDashboardDto: UpdateDashboardDto, dashboardId: number }) {
     return this.dashboardService.update(data.updateDashboardDto, data.dashboardId);
   }

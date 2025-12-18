@@ -10,6 +10,7 @@ import { Permissions } from '../authorization/permission.decorator';
 import { DashboardInvitationDto } from './dto/dashboard-invitation.dto';
 import { CreateDashboardDto, UpdateDashboardDto } from '@shared/dtos';
 import { CreateDashboardDoc } from './docs/create-dashboard.doc';
+import { UpdateDashboardDoc } from './docs/update-dashboard.doc';
 
 @Controller('dashboard')
 @ApiBearerAuth('access-token')
@@ -26,6 +27,7 @@ export class DashboardController {
 
   @Patch(':id')
   @Permissions('dashboard.update')
+  @UpdateDashboardDoc()
   update(@Body() updateDashboardDto: UpdateDashboardDto, @Param('id') id: string) {
     return this.dashboardService.update(updateDashboardDto, +id)
   }

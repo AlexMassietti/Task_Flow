@@ -56,7 +56,7 @@ export class DashboardRepository implements IDashboardRepository {
       ...updateDashboardDto,
     });
 
-    if (!dashboard) throw new NotFoundException(`Dashboard with ${id} not found`);
+    if (!dashboard) throw new NotFoundException(`Dashboard with id: ${id} not found`);
 
     return this.dashboardRepository.save(dashboard);
   }

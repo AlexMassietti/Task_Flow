@@ -83,7 +83,15 @@ export class DashboardService {
   }
 
   async update(updateDashboardDto: UpdateDashboardDto, dashboardId: number): Promise<Dashboard | null> {
-    return await this.dashboardRepository.update(updateDashboardDto, dashboardId);
+    try {
+      return await this.dashboardRepository.update(updateDashboardDto, dashboardId);
+    } catch (error) {
+      throw new RpcException({
+        error: error.response.error,
+        message: error.response.message,
+        status: HttpStatus.NOT_FOUND
+      });
+    }
   }
 
   // Ver que hacer con esto, si devolver un message y el id o nada...
