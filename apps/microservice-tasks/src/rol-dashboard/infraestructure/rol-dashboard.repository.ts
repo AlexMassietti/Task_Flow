@@ -22,11 +22,12 @@ export class RolDashboardRepository implements IRolDashboardRepository {
       idUser: number;
     }[],
   ): Promise<RolDashboard[]> {
+    // EVENTUALMENTE MORIRA ESTE MAP
     // Mapear para convertir dashboardId y participantTypeId a números
     const rolDashboardToSave = rolDashboard.map((r) => ({
       idUser: r.idUser,
-      dashboard: r.dashboardId,       // solo el id
-      participantTypeId: r.participantTypeId.id, // solo el id
+      dashboard: r.dashboardId,
+      participantType: r.participantTypeId,
     }));
 
     return this.rolDashboardRepository.save(rolDashboardToSave);
@@ -85,7 +86,7 @@ export class RolDashboardRepository implements IRolDashboardRepository {
     const roles = await this.rolDashboardRepository.find({
       where: {
         idUser: userId,
-        participantTypeId: participantType.id  // ahora solo el id
+        participantType: participantType
       },
     });
 
@@ -97,7 +98,7 @@ export class RolDashboardRepository implements IRolDashboardRepository {
     return this.rolDashboardRepository.find({
       where: {
         idUser: userId,
-        participantTypeId: In(participantTypes)  // solo ids
+        participantType: In(participantTypes)
       },
     });
   }
@@ -105,7 +106,7 @@ export class RolDashboardRepository implements IRolDashboardRepository {
   // Obtener ids de usuarios en un dashboard
   async findUsersInDashboard(dashboard: Dashboard): Promise<number[]> {
     const usersInDashboard = await this.rolDashboardRepository.find({
-      where: { dashboard: dashboard },  // solo el id
+      where: { dashboard: dashboard },
     });
 
     return usersInDashboard.map((u) => u.idUser);

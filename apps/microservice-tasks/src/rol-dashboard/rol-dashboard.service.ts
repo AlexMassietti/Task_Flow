@@ -84,7 +84,7 @@ export class RolDashboardService {
           `ParticipantType (Role) with ID ${updateRolDashboardDto.idRol} was not found.`,
         );
       }
-      updateObject.participantTypeId = updateRolDashboardDto.idRol;
+      updateObject.participantType = roleExists;
       shouldUpdate = true;
     }
 

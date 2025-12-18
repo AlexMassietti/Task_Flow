@@ -217,11 +217,17 @@ export class DashboardService {
         { id: invitedBy }
       )
     );
+
+    const userRol = await this.participantTypeRepository.findOneByName('Editor');
+    if (!userRol) {
+      throw new NotFoundException(`User Rol with name: Owner not found`);
+    }
+
     // 3. Crear/añadir al nuevo usuario al dashboard
     await this.rolDashboardRepository.save({
       idUser: invitedUser,
       dashboard: dashboard,
-      participantTypeId: 3
+      participantType: userRol
     });
 
     // 4. Generar link "no sensible"

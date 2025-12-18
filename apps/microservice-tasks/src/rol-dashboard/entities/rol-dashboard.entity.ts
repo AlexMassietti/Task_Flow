@@ -1,4 +1,5 @@
 import { Dashboard } from '@microservice-tasks/dashboard/entities/dashboard.entity';
+import { ParticipantType } from '@microservice-tasks/participant-type/entities/participant-type.entity';
 import { PrimaryGeneratedColumn, Entity, Column, ManyToOne } from 'typeorm';
 
 @Entity('rol_dashboard')
@@ -9,8 +10,8 @@ export class RolDashboard {
   @ManyToOne(() => Dashboard, (dashboard) => dashboard.id)
   dashboard: Dashboard;
 
-  @Column({ name: 'idRol', type: 'bigint' })
-  participantTypeId: number;
+  @ManyToOne(() => ParticipantType, (participantType) => participantType.id)
+  participantType: ParticipantType;
 
   @Column({
     name: 'idUser',
