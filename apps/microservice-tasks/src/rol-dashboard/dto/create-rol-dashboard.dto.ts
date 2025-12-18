@@ -3,7 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateRolDashboardDto {
   @ApiProperty({
-    description: 'ID del Dashboard al que se está asignando el usuario.',
+    description: 'el ID del Dashboard al que se está asignando el usuario.',
     example: 101,
   })
   @IsNumber()

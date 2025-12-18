@@ -15,6 +15,10 @@ export class RolDashboardRepository implements IRolDashboardRepository {
     private readonly rolDashboardRepository: Repository<RolDashboard>,
   ) { }
 
+  async updateUserInDashboard(rolDashboard: Partial<RolDashboard>): Promise<RolDashboard> {
+    return await this.rolDashboardRepository.save(rolDashboard)
+  }
+
   saveArray(
     rolDashboard: {
       dashboard: Dashboard;

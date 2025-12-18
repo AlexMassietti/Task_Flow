@@ -13,6 +13,8 @@ export interface IRolDashboardRepository {
 
   update(id: number, updateRolDashboardDto: UpdateDashboardDto): Promise<RolDashboard | null>;
 
+  updateUserInDashboard(rolDashboard: Partial<RolDashboard>): Promise<RolDashboard>
+
   remove(id: number): Promise<void>;
 
   save(status: RolDashboard): Promise<RolDashboard>;

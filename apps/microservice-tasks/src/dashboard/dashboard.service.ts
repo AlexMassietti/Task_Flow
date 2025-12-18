@@ -191,7 +191,7 @@ export class DashboardService {
         status: 403
       });
     }
-    const invitedUser = await lastValueFrom(
+    const invitedUser: number = await lastValueFrom(
       this.gatewayClient.send(
         { cmd: 'get_user_by_email' },
         { email: to }
@@ -223,8 +223,9 @@ export class DashboardService {
       throw new NotFoundException(`User Rol with name: Owner not found`);
     }
 
+
     // 3. Crear/añadir al nuevo usuario al dashboard
-    await this.rolDashboardRepository.save({
+    await this.rolDashboardRepository.updateUserInDashboard({
       userId: invitedUser,
       dashboard: dashboard,
       participantType: userRol

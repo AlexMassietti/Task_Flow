@@ -5,7 +5,7 @@ import { PrimaryGeneratedColumn, Entity, Column, ManyToOne } from 'typeorm';
 @Entity('rol_dashboard')
 export class RolDashboard {
   @PrimaryGeneratedColumn()
-  id?: number;
+  id: number;
 
   @ManyToOne(() => Dashboard, (dashboard) => dashboard.id)
   dashboard: Dashboard;
