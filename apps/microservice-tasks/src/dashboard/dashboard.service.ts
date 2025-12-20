@@ -9,7 +9,7 @@ import { IPriorityRepository } from '@microservice-tasks/priority/infraestructur
 import { IStatusRepository } from '@microservice-tasks/status/infraestructure/status.interface';
 import { IParticipantTypeRepository } from '@microservice-tasks/participant-type/infraestructure/participant-type.interface';
 import { IRolDashboardRepository } from '@microservice-tasks/rol-dashboard/infraestructure/rol-dashboard.interface';
-import { CreateTaskDto } from '@microservice-tasks/task/dto/create-task.dto';
+import { CreateTaskDto } from '@shared/dtos';
 import { DashboardInvitationDto } from './dto/dashboard-invitation.dto';
 import { Task } from '@microservice-tasks/task/entities/task.entity';
 import { Priority } from '@microservice-tasks/priority/entities/priority.entity';

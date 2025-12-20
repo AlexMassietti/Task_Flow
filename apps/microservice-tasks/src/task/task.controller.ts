@@ -1,7 +1,7 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { TaskService } from './task.service';
-import { CreateTaskDto } from './dto/create-task.dto';
-import { UpdateTaskDto } from './dto/update-task.dto';
+import { CreateTaskDto } from '@shared/dtos';
+import { UpdateTaskDto } from '@shared/dtos';
 import { ApiTags } from '@nestjs/swagger';
 import { TaskResponseDto } from './dto/response-task.dto';
 import { Task } from './entities/task.entity';
@@ -10,7 +10,7 @@ import { MessagePattern } from '@nestjs/microservices';
 @ApiTags('Tasks')
 @Controller('task')
 export class TaskController {
-  constructor(private readonly taskService: TaskService) {}
+  constructor(private readonly taskService: TaskService) { }
 
   @Post()
   create(@Body() createTaskDto: CreateTaskDto) {

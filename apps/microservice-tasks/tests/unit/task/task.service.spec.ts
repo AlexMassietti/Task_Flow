@@ -7,7 +7,7 @@ import { Task } from '@microservice-tasks/task/entities/task.entity';
 import { Priority } from '@microservice-tasks/priority/entities/priority.entity';
 import { Status } from '@microservice-tasks/status/entities/status.entity';
 import { Dashboard } from '@microservice-tasks/dashboard/entities/dashboard.entity';
-import { CreateTaskDto } from '@microservice-tasks/task/dto/create-task.dto';
+import { CreateTaskDto } from '@shared/dtos';
 
 describe('TaskService', () => {
   let service: TaskService;

@@ -3,8 +3,8 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Task } from '../entities/task.entity';
 import { ITaskRepository } from './task.interface';
-import { CreateTaskDto } from '../dto/create-task.dto';
-import { UpdateTaskDto } from '../dto/update-task.dto';
+import { CreateTaskDto } from '@shared/dtos';
+import { UpdateTaskDto } from '@shared/dtos';
 import { TaskResponseDto } from '../dto/response-task.dto';
 import { Status } from '@microservice-tasks/status/entities/status.entity';
 import { Priority } from '@microservice-tasks/priority/entities/priority.entity';
@@ -15,7 +15,7 @@ export class TaskRepository implements ITaskRepository {
   constructor(
     @InjectRepository(Task)
     private readonly taskRepository: Repository<Task>,
-  ) {}
+  ) { }
 
   count(): Promise<number> {
     return this.taskRepository.count();
