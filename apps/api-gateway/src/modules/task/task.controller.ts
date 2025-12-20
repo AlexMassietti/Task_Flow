@@ -7,6 +7,7 @@ import { CreateTaskDto, UpdateTaskDto } from "@shared/dtos";
 import { Permissions } from '../authorization/permission.decorator';
 import { CreateTaskDoc } from "./docs/create-task.doc";
 import { UpdateTaskDoc } from "./docs/update-task.doc";
+import { DeleteTaskDoc } from "./docs/delete-dashboard.doc";
 
 @Controller('task')
 @ApiBearerAuth('access-token')
@@ -31,6 +32,7 @@ export class TaskController {
     @Delete(':id')
     @Permissions('task.delete')
     @HttpCode(204)
+    @DeleteTaskDoc()
     delete(@Param('id') id: string) {
         return this.taskService.delete(+id);
     }
