@@ -8,7 +8,7 @@ export interface IDashboardRepository {
 
   findAll(): Promise<Dashboard[]>;
 
-  findOne(id: number): Promise<Dashboard | null>;
+  findOne(id: number): Promise<Dashboard>;
 
   findOneWithTasks(id: number): Promise<Dashboard | null>;
 

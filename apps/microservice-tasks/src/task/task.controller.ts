@@ -3,7 +3,6 @@ import { TaskService } from './task.service';
 import { CreateTaskDto } from '@shared/dtos';
 import { UpdateTaskDto } from '@shared/dtos';
 import { ApiTags } from '@nestjs/swagger';
-import { TaskResponseDto } from './dto/response-task.dto';
 import { Task } from './entities/task.entity';
 import { MessagePattern } from '@nestjs/microservices';
 
@@ -12,15 +11,16 @@ import { MessagePattern } from '@nestjs/microservices';
 export class TaskController {
   constructor(private readonly taskService: TaskService) { }
 
-  @Post()
-  create(@Body() createTaskDto: CreateTaskDto) {
-    return this.taskService.create(createTaskDto);
+  @MessagePattern({ cmd: 'create_task' })
+  create(data: { createTaskDto: CreateTaskDto }) {
+    return this.taskService.create(data.createTaskDto);
   }
 
   @Get()
   async findAll() {
     const tasks = await this.taskService.findAll();
-    return tasks.map((task) => new TaskResponseDto(task));
+    return tasks;
+    // return tasks.map((task) => new TaskResponseDto(task));
   }
 
   @Get(':id')
@@ -29,7 +29,8 @@ export class TaskController {
     if (!task) {
       return null;
     }
-    return new TaskResponseDto(task);
+    return task;
+    // return new TaskResponseDto(task);
   }
 
   @Patch(':id')

@@ -2,7 +2,6 @@ import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Req, UseGu
 import { DashboardService } from './dashboard.service';
 import { ApiBearerAuth, ApiBody, ApiOkResponse, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { DashboardDto } from './interfaces/dashboard.dto';
-import { TaskDto } from './interfaces/task.dto';
 import { UserDto } from './interfaces/user.dto';
 import { JwtRs256Guard } from '../auth/jwt-auth.guard';
 import { PermissionsGuard } from '../authorization/permission.guard';
@@ -12,6 +11,7 @@ import { CreateDashboardDto, UpdateDashboardDto } from '@shared/dtos';
 import { CreateDashboardDoc } from './docs/create-dashboard.doc';
 import { UpdateDashboardDoc } from './docs/update-dashboard.doc';
 import { DeleteDashboardDoc } from './docs/delete-dashboard.doc';
+import { TaskResponseDto } from '@shared/dtos';
 
 @Controller('dashboard')
 @ApiBearerAuth('access-token')
@@ -55,7 +55,7 @@ export class DashboardController {
     return this.dashboardService.getSharedDashboards(email);
   }
 
-  @ApiOkResponse({ type: TaskDto, isArray: true })
+  @ApiOkResponse({ type: TaskResponseDto, isArray: true })
   @Get(':id/tasks')
   @Permissions('task.read')
   async getDashboardTasks(@Param('id') id: string) {

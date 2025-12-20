@@ -25,7 +25,7 @@ export class CreateTaskDto {
   })
   @IsString()
   @IsOptional()
-  description?: string;
+  description: string;
 
   @ApiPropertyOptional({
     description: 'Fecha de inicio de la tarea (ISO 8601)',
@@ -59,7 +59,7 @@ export class CreateTaskDto {
   @IsNumber()
   @IsOptional()
   @IsPositive()
-  priorityId?: number;
+  priorityId: number;
 
   @ApiPropertyOptional({
     description: 'ID del dashboard al cual asociar la tarea',

@@ -40,9 +40,11 @@ export class DashboardRepository implements IDashboardRepository {
 
   async findOne(id: number): Promise<Dashboard> {
     const dashboard = await this.dashboardRepository.findOne({ where: { id } });
+
     if (!dashboard) {
       throw new NotFoundException(`Dashboard with id: ${id} not found`);
     }
+
     return dashboard;
   }
 

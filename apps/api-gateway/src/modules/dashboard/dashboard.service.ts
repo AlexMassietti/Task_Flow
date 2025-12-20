@@ -2,7 +2,7 @@ import { Injectable, Inject, HttpException } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { DashboardDto } from './interfaces/dashboard.dto';
-import { TaskDto } from './interfaces/task.dto';
+import { TaskResponseDto } from '@shared/dtos';
 import { UserDto } from './interfaces/user.dto';
 import { normalizeRemoteError } from '../auth/error/normalize-remote-error';
 import { DashboardInvitationDto } from './dto/dashboard-invitation.dto';
@@ -80,7 +80,7 @@ export class DashboardService {
     return dashboards;
   }
 
-  async getDashboardTasks(id: number): Promise<TaskDto[]> {
+  async getDashboardTasks(id: number): Promise<TaskResponseDto[]> {
     return await firstValueFrom(this.dashboardClient.send({ cmd: 'get_dashboard_tasks' }, { id }));
   }
 
