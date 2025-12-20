@@ -5,6 +5,7 @@ import { PermissionsGuard } from "../authorization/permission.guard";
 import { TaskService } from "./task.service";
 import { CreateTaskDto } from "@shared/dtos";
 import { Permissions } from '../authorization/permission.decorator';
+import { CreateTaskDoc } from "./docs/create-task.doc";
 
 @Controller('task')
 @ApiBearerAuth('access-token')
@@ -14,6 +15,7 @@ export class TaskController {
 
     @Post()
     @Permissions('task.create')
+    @CreateTaskDoc()
     create(@Body() createTaskDto: CreateTaskDto) {
         return this.taskService.create(createTaskDto);
     }
