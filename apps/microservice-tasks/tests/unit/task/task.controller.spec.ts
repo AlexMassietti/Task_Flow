@@ -1,4 +1,4 @@
-import { CreateTaskDto } from '@microservice-tasks/task/dto/create-task.dto';
+import { CreateTaskDto } from '@shared/dtos';
 import { TaskService } from '@microservice-tasks/task/task.service';
 import { Test, TestingModule } from '@nestjs/testing';
 

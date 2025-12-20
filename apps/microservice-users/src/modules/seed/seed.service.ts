@@ -18,7 +18,7 @@ export class SeedService {
 
     @Inject(USER_REPO)
     private readonly userRepository: IUserRepository,
-  ) {}
+  ) { }
 
   async run() {
     //
@@ -43,6 +43,7 @@ export class SeedService {
       'dashboard.delete',
       'dashboard.members.read',
       'dashboard.members.update',
+      'task.create',
       'task.read',
       'task.update',
       'task.delete',

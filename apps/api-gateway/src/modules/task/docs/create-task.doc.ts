@@ -1,25 +1,29 @@
 import { applyDecorators } from "@nestjs/common";
-import { ApiOperation, ApiResponse } from "@nestjs/swagger";
+import { ApiBody, ApiOperation, ApiResponse } from "@nestjs/swagger";
+import { CreateTaskDto, TaskResponseDto } from "@shared/dtos";
 
-export function DeleteDashboardDoc() {
+export function CreateTaskDoc() {
     return applyDecorators(
         ApiOperation({
-            summary: 'Eliminar un dashboard',
+            summary: 'Crear una nueva tarea',
         }),
 
+        ApiBody({ type: CreateTaskDto }),
+
         ApiResponse({
-            status: 204,
-            description: 'Dashboard correctamente eliminado',
+            status: 201,
+            description: 'Tarea correctamente creada',
+            type: TaskResponseDto
         }),
 
         ApiResponse({
             status: 404,
-            description: 'El dashboard no existe',
+            description: 'No se encontró el dashboard o no se encontró la prioridad o el estado (runnear seed)',
             schema: {
                 example: {
                     error: {
                         status: 404,
-                        message: "Dashboard with id: ${id} not found",
+                        message: "Dasboard with id: ${id} not found.",
                         details: null,
                     },
                 },
