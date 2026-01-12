@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { Repository, Between } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateTaskDto } from '@shared/dtos';
 import { UpdateTaskDto } from '@shared/dtos';
@@ -104,5 +104,14 @@ export class TaskRepository implements ITaskRepository {
 
   findAllWithPriorityId(id: number): Promise<Task[]> {
     return this.taskRepository.find({ where: { priorityId: id } });
+  }
+  findTasksStartingBetweenDatesInDashboard(startDate: Date, endDate: Date, dashboardId: number): Promise<Task[]>{
+    return this.taskRepository.find({
+      where:{
+        startDate: Between(startDate,endDate),
+        dashboard:{id:dashboardId}
+      },
+      relations: ['status']
+    })
   }
 }

@@ -112,4 +112,12 @@ export class RolDashboardService {
       deletedId: id,
     };
   }
+   async findUsersInDashboard(dashboardId: number): Promise<number[]>{
+    const dashboard = await this.dashboardRepository.findOne(dashboardId);
+    if (!dashboard){
+      throw new NotFoundException('Dashboard not found');
+    }
+    const userIds= await this.rolDashboardRepository.findUsersInDashboard(dashboardId)
+    return userIds;
+   }
 }

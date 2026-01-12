@@ -102,13 +102,11 @@ export class RolDashboardRepository implements IRolDashboardRepository {
       },
     });
   }
-
   // Obtener ids de usuarios en un dashboard
-  async findUsersInDashboard(dashboard: Dashboard): Promise<number[]> {
+  async findUsersInDashboard(dashboardId: number): Promise<number[]> {
     const usersInDashboard = await this.rolDashboardRepository.find({
-      where: { dashboard: dashboard },
+      where: { dashboard: {id:dashboardId} },
     });
-
     return usersInDashboard.map((u) => u.userId);
   }
 }

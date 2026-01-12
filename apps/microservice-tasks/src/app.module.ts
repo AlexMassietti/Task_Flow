@@ -8,6 +8,8 @@ import { ParticipantTypeModule } from './participant-type/participant-type.modul
 import { DatabaseModule } from './database/database.module';
 import { CoreModule } from './core/core.module';
 import { InfraModule } from './infra/infra.module';
+import { ScheduleModule} from '@nestjs/schedule';
+import { StatisticsModule } from './statistics/statistics.module';
 
 @Module({
   imports: [
@@ -16,10 +18,12 @@ import { InfraModule } from './infra/infra.module';
     InfraModule,
     TaskModule,
     StatusModule,
+    StatisticsModule,
     PriorityModule,
     DashboardModule,
     RolDashboardModule,
     ParticipantTypeModule,
+    ScheduleModule.forRoot(),
   ],
   controllers: [],
   providers: [],

@@ -209,7 +209,7 @@ export class DashboardService {
       throw new NotFoundException(`Dashboard with ID: ${id} not found`);
     }
 
-    return this.rolDashboardRepository.findUsersInDashboard(dashboard);
+    return this.rolDashboardRepository.findUsersInDashboard(dashboard.id);
   }
 
   async processDashboardInvitation(data: DashboardInvitationDto) {
@@ -223,7 +223,7 @@ export class DashboardService {
     }
 
     // 2. Verificar que quien invita pertenece al dashboard
-    const inviters = await this.rolDashboardRepository.findUsersInDashboard(dashboard);
+    const inviters = await this.rolDashboardRepository.findUsersInDashboard(dashboard.id);
     const belongs = inviters.includes(dashboardId);
 
     if (!belongs) {

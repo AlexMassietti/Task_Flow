@@ -20,6 +20,6 @@ import { InfraModule } from '@microservice-tasks/infra/infra.module';
   ],
   controllers: [DashboardController],
   providers: [DashboardService],
-  exports: [],
+  exports: [DashboardService],
 })
 export class DashboardModule { }

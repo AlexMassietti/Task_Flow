@@ -7,6 +7,6 @@ import { InfraModule } from '@microservice-tasks/infra/infra.module';
   imports: [InfraModule],
   controllers: [RolDashboardController],
   providers: [RolDashboardService],
-  exports: [],
+  exports: [RolDashboardService],
 })
 export class RolDashboardModule { }
