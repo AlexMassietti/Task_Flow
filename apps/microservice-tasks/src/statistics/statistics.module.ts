@@ -12,7 +12,6 @@ import { TaskModule } from '@microservice-tasks/task/task.module';
 
 @Module({
   imports: [
-    ScheduleModule.forRoot(),
     forwardRef(()=> TaskModule),
     forwardRef(() => DashboardModule),
     RolDashboardModule,
