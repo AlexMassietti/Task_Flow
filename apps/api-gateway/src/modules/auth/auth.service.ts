@@ -114,4 +114,17 @@ export class AuthService {
       throw new HttpException({ error: payload }, payload.status ?? 500);
     }
   }
+  async getUsersById(ids:number[]){
+    try {
+      return await firstValueFrom(
+        this.usersClient.send({ cmd : 'get_users_by_id'},
+          ids 
+        )
+      )
+    }
+    catch (err){
+      const payload = normalizeRemoteError(err);
+      throw new HttpException({ error: payload}, payload.status ?? 500);
+    }
+  }
 }

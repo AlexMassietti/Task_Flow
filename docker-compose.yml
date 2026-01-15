@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  # Base de datos para Microservicio de Tareas
+  db-task:
+    image: postgres:alpine
+    container_name: microservice-task-db
+    restart: always
+    env_file:
+      - apps\microservice-tasks\.env.db
+    ports:
+      - '5431:5432'
+    volumes:
+      - postgres_task_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Base de datos para Microservicio de Usuarios
+  db-users: # Le cambié el nombre de 'db' a 'db-users' para ser más claro
+    image: postgres:alpine
+    container_name: microservice-users-db
+    restart: always
+    env_file:
+      - apps\microservice-users\.env.db
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # Redis para Colas del Microservicio de Mail
+  redis:
+    image: redis:alpine
+    container_name: redis-dev
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  postgres_task_data:
+  postgres_data:
+  redis_data:

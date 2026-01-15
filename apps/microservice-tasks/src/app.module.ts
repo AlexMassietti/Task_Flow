@@ -10,6 +10,8 @@ import { CoreModule } from './core/core.module';
 import { InfraModule } from './infra/infra.module';
 import { ScheduleModule} from '@nestjs/schedule';
 import { StatisticsModule } from './statistics/statistics.module';
+import { ConfigModule } from '@nestjs/config';
+import { configuration } from '../config/configuration';
 
 @Module({
   imports: [
@@ -24,6 +26,11 @@ import { StatisticsModule } from './statistics/statistics.module';
     RolDashboardModule,
     ParticipantTypeModule,
     ScheduleModule.forRoot(),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [configuration],
+      envFilePath: '.env',
+    }),
   ],
   controllers: [],
   providers: [],

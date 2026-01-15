@@ -3,6 +3,11 @@ import { DashboardService } from '../dashboard/dashboard.service';
 import { RolDashboardService } from '../rol-dashboard/rol-dashboard.service';
 import { DashboardStatsDto } from './dto/monthly-stats.dto';
 import { TaskRepository } from '@microservice-tasks/infra/typeorm/task.repository';
+import { ClientProxy } from '@nestjs/microservices';
+import { DashboardStatsResponseDto } from './dto/dashboard-stats-response.dto';
+import { firstValueFrom } from 'rxjs';
+import { UserDataResponseDto } from './dto/user-data.dto';
+import { ConfigService } from '@nestjs/config';
 
 
 @Injectable()
@@ -14,28 +19,50 @@ export class StatisticsService {
     @Inject(forwardRef(() => DashboardService))
     private dashboardService: DashboardService,
     private readonly rolDashboardService: RolDashboardService,
+    @Inject('GATEWAY_CLIENT')
+    private readonly gatewayClient: ClientProxy,
+    private readonly configService: ConfigService,
   ) {}
 
   async generateAndNotify(month: number, year: number) {
+    console.log('Generando las stats')
     const dashboards = await this.dashboardService.findAll();
-
+    console.log('Dashboards encontrados: ', dashboards.length);
     for (const dashboard of dashboards) {
       try {
-        const dto: DashboardStatsDto = {dashboardId: dashboard.id,
+        const dto: DashboardStatsDto = {
+          dashboardId: dashboard.id,
+          year: year,
+          month: month
+        };
 
-        year: year,
-
-        month: month};
-        const stats = await this.generateMonthlyStats(dto);
+        const stats: DashboardStatsResponseDto = await this.generateMonthlyStats(dto);
 
         // Si no hay tareas o el dashboard no existe (null), saltamos
         if (!stats || stats.totalTasks === 0) continue;
 
-        const users = await this.rolDashboardService.findUsersInDashboard(dashboard.id);
+        const usersIds : number[] = await this.rolDashboardService.findUsersInDashboard(dashboard.id);
+
+        console.log('Buscando información de los usuarios')
         
         // Solo enviamos si hay usuarios y hay estadísticas
-        if (users.length > 0) {
-          // Lógica de mailClient...
+        if (usersIds.length > 0) {
+          const usersData : UserDataResponseDto = await firstValueFrom( this.gatewayClient.send(
+          { cmd: 'get_users_by_id'},
+          usersIds )
+          );
+          console.log('Enviando info para el mail; ', {stats, users: usersData});
+          try {
+            await firstValueFrom(
+              this.gatewayClient.send(
+                { cmd: 'gateway_send_stats' },
+                { stats, users: usersData }
+              )
+            );
+            console.log('Mensaje enviado y procesado por el Gateway');
+          } catch (error) {
+            console.error('Error al enviar el mensaje al Gateway:', error);
+          }
         }
       } catch (error) {
         // Si un dashboard falla (ej. 404), logueamos y seguimos con el siguiente
@@ -45,7 +72,7 @@ export class StatisticsService {
     }
   }
 
-  async generateMonthlyStats(dto: DashboardStatsDto) {
+  async generateMonthlyStats(dto: DashboardStatsDto) : Promise<DashboardStatsResponseDto | null>{
     // 1. Desestructuración para limpieza
     const { dashboardId, year, month } = dto;
 
@@ -74,8 +101,13 @@ export class StatisticsService {
 
     const completionRate = total === 0 ? '0%' : `${Math.round((completed / total) * 100)}%`;
 
+    const baseUrl = this.configService.get<string>('FRONTEND_URL');
+
+    const dashboardLink = `${baseUrl}/dashboard/${dashboardId}`;
+
     return {
-      dashboardId,
+      dashboardLink,
+      dashboardName: dashboard.name,
       year,
       month,
       totalTasks: total,

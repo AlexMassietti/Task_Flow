@@ -1,32 +1,57 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { NodemailerAdapter } from '../infraestructure/adapters/nodemailer.adapter';
-import { passwordResetTemplate } from '../templates/password-reset.template';
+import { Injectable } from '@nestjs/common';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 import { PasswordResetDto } from './dto/password-reset.dto';
-import { DashboardInvitationDto} from './dto/dashboard-invitation.dto';
-import { dashboardInvitationTemplate} from '../templates/dashboard-invitation.template';
+import { DashboardInvitationDto } from './dto/dashboard-invitation.dto';
+import { SendStatsEmailDto } from './dto/send-stats.dto';
+
 @Injectable()
 export class MailService {
   constructor(
-    @Inject('MAIL_ADAPTER') private readonly mailAdapter: NodemailerAdapter,
+    // Cambiamos el nombre de la cola a algo más genérico, ej: 'mail-queue'
+    @InjectQueue('mail-queue') private readonly mailQueue: Queue,
   ) {}
 
   async sendPasswordReset(data: PasswordResetDto) {
-    const html = passwordResetTemplate(data.username, data.resetLink);
+    // Agregamos a la cola con Prioridad 1 (Máxima urgencia)
+    await this.mailQueue.add('send-password-reset', data, {
+      priority: 1, 
+      attempts: 5,
+      backoff: { type: 'exponential', delay: 2000 },
+      removeOnComplete: true, // No llenar Redis con trabajos viejos
+    });
 
-    await this.mailAdapter.sendMail({
-      to: data.to,
-      subject: 'Restore Password',
-      html,
-    });
-    return { succes: true, message:'Password reset email sent'}
+    return { success: true, message: 'Solicitud de restauración encolada' };
   }
-  async sendDashboardInvitation(data: DashboardInvitationDto){
-    const html = dashboardInvitationTemplate(data.invitedBy, data.dashboardName, data.inviteLink);
-    await this.mailAdapter.sendMail({
-      to: data.to,
-      subject: 'Dashboard Invitation',
-      html,
+
+  async sendDashboardInvitation(data: DashboardInvitationDto) {
+    // Invitaciones también son alta prioridad (Prioridad 1 o 2)
+    await this.mailQueue.add('send-dashboard-invitation', data, {
+      priority: 2,
+      attempts: 3,
+      removeOnComplete: true,
     });
-    return { succes: true, message:'Dashboard Invitation email sent'}
+
+    return { success: true, message: 'Invitación encolada' };
+  }
+
+  async sendStatsEmail(data: SendStatsEmailDto) {
+    const { stats, users } = data;
+    console.log('Mail Serviece. ', data);
+
+    const jobs = users.map((user) => ({
+      name: 'send-individual-stats',
+      data: { user, stats },
+      opts: {
+        priority: 10, // Prioridad BAJA. Solo se envían si no hay passwords/invitaciones
+        attempts: 3,
+        backoff: { type: 'exponential', delay: 5000 },
+        removeOnComplete: true,
+      },
+    }));
+
+    await this.mailQueue.addBulk(jobs);
+
+    return { success: true, message: 'Envío masivo iniciado en segundo plano' };
   }
 }

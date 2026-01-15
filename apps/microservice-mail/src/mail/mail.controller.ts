@@ -10,6 +10,7 @@ import {
 import { MailService } from './mail.service';
 import { PasswordResetDto } from './dto/password-reset.dto';
 import { DashboardInvitationDto } from './dto/dashboard-invitation.dto';
+import { SendStatsEmailDto } from './dto/send-stats.dto';
 
 @ApiTags('Mail')
 @Controller('mail')
@@ -63,4 +64,9 @@ export class MailController {
   async dashoboardInviteMicro(data: DashboardInvitationDto) {
     return this.mailService.sendDashboardInvitation(data);
   }
-}
+
+  @MessagePattern({ cmd: 'send_stats_email'})
+  async handleSendStastEmail(data: SendStatsEmailDto){
+    console.log('mail controller: ', data);
+    return await this.mailService.sendStatsEmail(data);
+  }}

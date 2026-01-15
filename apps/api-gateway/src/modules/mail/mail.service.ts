@@ -3,6 +3,8 @@ import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { PasswordResetDto } from './dto/password-reset.dto';
 import { DashboardInvitationDto } from './dto/dashboard-invitation.dto';
+import { DashboardStatsDto } from './dto/dashboard-stats-response.dto';
+import { SendStatsEmailDto } from './dto/send-stats.dto';
 
 @Injectable()
 export class MailGatewayService {
@@ -19,5 +21,11 @@ export class MailGatewayService {
     return await firstValueFrom(
       this.mailClient.send({ cmd :'dashboard_invitation'}, data),
     );
+  }
+  async sendStatsEmail(data: SendStatsEmailDto){
+    console.log('Mailgateway Service - enviando la info: ', data);
+    return await firstValueFrom(
+      this.mailClient.send({ cmd: 'send_stats_email'}, data)
+    )
   }
 }
