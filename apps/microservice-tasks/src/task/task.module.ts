@@ -5,11 +5,13 @@ import { InfraModule } from '@microservice-tasks/infra/infra.module';
 import { TaskRepository } from '@microservice-tasks/infra/typeorm/task.repository';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Task } from './entities/task.entity';
+import { LeaderboardModule } from '@microservice-tasks/leaderboard/leaderboard.module';
 
 @Module({
   imports: [
     InfraModule,
-    TypeOrmModule.forFeature([Task])
+    TypeOrmModule.forFeature([Task]),
+    LeaderboardModule,
   ],
   controllers: [TaskController],
   providers: [TaskService, TaskRepository],

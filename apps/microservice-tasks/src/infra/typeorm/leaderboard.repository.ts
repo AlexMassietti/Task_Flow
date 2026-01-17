@@ -70,4 +70,15 @@ export class LeaderboardRepository implements ILeaderboardRepository {
       }
     });
   }
+  async findByDashboard(dashboardId: number, limit?: number): Promise<Leaderboard[]> {
+  return await this.leaderboardRepository.find({
+    where: { 
+      dashboard: { id: dashboardId } 
+    },
+    order: { 
+      totalPoints: 'DESC' 
+    },
+    take: limit, 
+  });
+}
 }

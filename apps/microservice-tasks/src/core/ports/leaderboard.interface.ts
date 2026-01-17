@@ -20,5 +20,7 @@ export interface ILeaderboardRepository{
     findByUserAndDashboard(userId: number, dashboardId: number): Promise<Leaderboard | null>;
 
     saveArray(leaderboards: DeepPartial<Leaderboard>[]): Promise<Leaderboard[]>;
-    
+
+    findByDashboard(dashboardId:number, limit?:number): Promise<Leaderboard [] | null>;
+
 }

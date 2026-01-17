@@ -29,4 +29,7 @@ export class TaskResponseDto {
 
   @ApiProperty({ example: 1 })
   dashboardId: number;
+
+  @ApiProperty({ example: 5, description: 'ID de la persona que completó la tarea', nullable: true })
+  completedByUserId?: number| null;
 }

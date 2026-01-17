@@ -46,4 +46,7 @@ export class Task {
   })
   @JoinColumn({ name: 'dashboardId' })
   dashboard: Dashboard;
+
+  @Column({ nullable: true })
+  completedByUserId: number;
 }
