@@ -1,6 +1,7 @@
 import { applyDecorators } from "@nestjs/common";
-import { ApiBody, ApiOperation, ApiResponse } from "@nestjs/swagger";
-import { CreateTaskDto, TaskResponseDto } from "@shared/dtos";
+import { ApiBody, ApiConsumes, ApiOperation, ApiResponse } from "@nestjs/swagger";
+import { TaskResponseDto } from "@shared/dtos";
+import { CreateTaskWithFileDto } from "../dtos/create-task-with-file.dto";
 
 export function CreateTaskDoc() {
     return applyDecorators(
@@ -8,7 +9,9 @@ export function CreateTaskDoc() {
             summary: 'Crear una nueva tarea',
         }),
 
-        ApiBody({ type: CreateTaskDto }),
+        ApiConsumes('multipart/form-data'),
+
+        ApiBody({ type: CreateTaskWithFileDto }),
 
         ApiResponse({
             status: 201,
