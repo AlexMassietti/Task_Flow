@@ -47,6 +47,8 @@ export class SeedService {
       'task.read',
       'task.update',
       'task.delete',
+      'image.read',
+      'image.delete'
     ];
 
     const allPermissions = [...systemPermissions, ...domainPermissions];
