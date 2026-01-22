@@ -1,9 +1,10 @@
 import { Response } from 'express';
 
-import { Controller, Get, Param, Res, UseGuards } from '@nestjs/common';
+import { Controller, Delete, Get, HttpCode, Param, Res, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
 
 import { FilesService } from './files.service';
+import { Permissions } from '../authorization/permission.decorator';
 import { JwtRs256Guard } from '../auth/jwt-auth.guard';
 import { PermissionsGuard } from '../authorization/permission.guard';
 import { GetTaskImageDoc } from './docs/get-task-image.doc';
@@ -16,6 +17,7 @@ export class FilesController {
 
   @Get('task/:imageName')
   @GetTaskImageDoc()
+  @Permissions('image.read')
   async findTaskImage(
     @Res() res: Response,
     @Param('imageName') imageName: string
@@ -24,6 +26,15 @@ export class FilesController {
     const path = await this.filesService.getStaticTaskImage(imageName);
 
     res.sendFile(path);
+  }
+
+  @Delete('task/:imageName')
+  @Permissions('image.delete')
+  @HttpCode(204)
+  deleteTaskImage(
+    @Param('imageName') imageName: string
+  ) {
+    return this.filesService.deleteTaskImage(imageName);
   }
 
 }

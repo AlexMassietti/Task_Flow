@@ -17,4 +17,11 @@ export class FilesController {
     return path;
   }
 
+  @MessagePattern({ cmd: 'delete_task_image' })
+  deleteImage(
+    data: { imageName: string }
+  ) {
+    return this.filesService.deleteImage(data.imageName);
+  }
+
 }

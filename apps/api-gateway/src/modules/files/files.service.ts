@@ -28,4 +28,20 @@ export class FilesService {
       );
     }
   }
+
+
+  async deleteTaskImage(imageName: string) {
+    try {
+
+      await firstValueFrom(this.dashboardClient.send({ cmd: 'delete_task_image' }, { imageName }), { defaultValue: null });
+
+      return;
+    } catch (err: unknown) {
+      const payload = normalizeRemoteError(err);
+      throw new HttpException(
+        { error: payload },
+        typeof payload.status === 'number' ? payload.status : 500,
+      );
+    }
+  }
 }
