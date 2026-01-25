@@ -45,7 +45,6 @@ export class HomeComponent implements OnInit {
 
   private loadDashboardData(): void {
     this.loading = true;
-    // Ensure the loading state is visible
     this.cdr.markForCheck();
 
     combineLatest([
@@ -56,19 +55,18 @@ export class HomeComponent implements OnInit {
         takeUntil(this.destroy$),
         finalize(() => {
           this.loading = false;
-          this.cdr.markForCheck(); // 2. Trigger update when loading finishes
+          this.cdr.markForCheck();
         }),
       )
       .subscribe({
         next: ([ownedDashboards, sharedDashboards]) => {
           this.ownedDashboards = ownedDashboards;
           this.sharedDashboards = sharedDashboards;
-          console.log('Data loaded successfully');
-          this.cdr.markForCheck(); // 3. Trigger update when data arrives
+          this.cdr.markForCheck();
         },
         error: (err) => {
           console.log('Error Source:', err.url);
-          this.cdr.markForCheck(); // 4. Trigger update even on error to hide loading
+          this.cdr.markForCheck();
         }
       });
   }
@@ -76,17 +74,10 @@ export class HomeComponent implements OnInit {
   ngOnInit() {
     this.sidebarService.isOpen$.subscribe((state) => {
       this.isSidebarOpen = state;
-      this.cdr.markForCheck(); // 5. Ensure sidebar toggle updates UI
+      this.cdr.markForCheck();
     });
-
-    if (isPlatformBrowser(this.platformId)) {
-      this.loadDashboardData();
-    }
+    this.loadDashboardData();
   }
-
-  // ... rest of your methods (goToDashboard, openEditModal, etc.) remain the same
-  // Note: Your newDashboard and updateDashboard methods call loadDashboardData(), 
-  // so they will benefit from the fixes above automatically.
 
   goToDashboard(dashboardId: number) {
     this.router.navigateByUrl(`/dashboard/${dashboardId}`);
