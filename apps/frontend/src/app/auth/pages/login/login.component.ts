@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { AuthService } from '../../auth.service';
+import { AuthService } from '../../../services/auth.service';
 import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
@@ -49,7 +49,7 @@ export class LoginComponent {
         error: () => {
           this.successMessage = null;
           this.errorMessage = 'Invalid credentials';
-          this.cd.detectChanges(); // Forzar actualización inmediata
+          this.cd.detectChanges();
         },
       });
     } else {

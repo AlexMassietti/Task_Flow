@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectorRef } from '@angular/core'; // Added ChangeDetectorRef
 import { HeaderComponent } from '../header/header.component';
 import { CommonModule } from '@angular/common';
 import { SidebarService } from '../services/sidebar.service';
@@ -9,7 +9,8 @@ import { HomeService } from '../services/home.service';
 import { combineLatest } from 'rxjs/internal/observable/combineLatest';
 import { finalize, pipe, Subject, takeUntil } from 'rxjs';
 import { DashboardCreateModalComponent } from './CreateModal/dashboard-create-modal.component';
-import { AuthService } from '../services/auth.service';
+import { Inject, PLATFORM_ID } from '@angular/core'; 
+import { isPlatformBrowser } from '@angular/common'; 
 
 @Component({
   selector: 'app-home',
@@ -19,16 +20,17 @@ import { AuthService } from '../services/auth.service';
     CommonModule,
     DashboardEditModalComponent,
     DashboardCreateModalComponent,
-  ], 
+  ],
   templateUrl: './home.html',
   styleUrls: ['./home.css'],
 })
 export class HomeComponent implements OnInit {
   constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
     private sidebarService: SidebarService,
     private router: Router,
     private HomeService: HomeService,
-    private authService: AuthService,
+    private cdr: ChangeDetectorRef // 1. Injected ChangeDetectorRef
   ) {}
 
   private destroy$ = new Subject<void>();
@@ -38,57 +40,53 @@ export class HomeComponent implements OnInit {
   dashboardToEdit: DashboardModel | null = null;
   loading = false;
   useMock = false;
-  userId: number | null = null; // Store the user ID here
   ownedDashboards: DashboardModel[] | null = [];
   sharedDashboards: DashboardModel[] | null = [];
 
   private loadDashboardData(): void {
     this.loading = true;
+    // Ensure the loading state is visible
+    this.cdr.markForCheck();
+
     combineLatest([
-      this.HomeService.getOwnedDashboardsByUser(this.userId),
-      this.HomeService.getSharedDashboardsByUser(this.userId),
+      this.HomeService.getOwnedDashboardsByUser(),
+      this.HomeService.getSharedDashboardsByUser(),
     ])
       .pipe(
         takeUntil(this.destroy$),
-        finalize(() => (this.loading = false)),
+        finalize(() => {
+          this.loading = false;
+          this.cdr.markForCheck(); // 2. Trigger update when loading finishes
+        }),
       )
       .subscribe({
         next: ([ownedDashboards, sharedDashboards]) => {
           this.ownedDashboards = ownedDashboards;
           this.sharedDashboards = sharedDashboards;
-          console.log('Dashboard data loaded', { ownedDashboards, sharedDashboards });
+          console.log('Data loaded successfully');
+          this.cdr.markForCheck(); // 3. Trigger update when data arrives
         },
         error: (err) => {
-          console.error('Failed to load dashboard data', err);
-        },
+          console.log('Error Source:', err.url);
+          this.cdr.markForCheck(); // 4. Trigger update even on error to hide loading
+        }
       });
   }
 
   ngOnInit() {
-    this.sidebarService.isOpen$.subscribe((state) => (this.isSidebarOpen = state));
-    if (!this.useMock) {
-      this.loadUserID();
-      console.log(this.userId)
-    } else {
-      this.userId = 7;
+    this.sidebarService.isOpen$.subscribe((state) => {
+      this.isSidebarOpen = state;
+      this.cdr.markForCheck(); // 5. Ensure sidebar toggle updates UI
+    });
+
+    if (isPlatformBrowser(this.platformId)) {
+      this.loadDashboardData();
     }
-    this.loadDashboardData();
   }
 
-  loadUserID() {
-    const token = localStorage.getItem('token');
-    if (token) {
-      this.authService.getUserIDByToken(token).subscribe({
-        next: (userId) => {
-          this.userId = userId;
-          console.log('User ID loaded:', userId);
-        },
-        error: (err) => {
-          console.error('Failed to load user ID', err);
-        },
-      });
-    }
-  }
+  // ... rest of your methods (goToDashboard, openEditModal, etc.) remain the same
+  // Note: Your newDashboard and updateDashboard methods call loadDashboardData(), 
+  // so they will benefit from the fixes above automatically.
 
   goToDashboard(dashboardId: number) {
     this.router.navigateByUrl(`/dashboard/${dashboardId}`);
@@ -106,7 +104,6 @@ export class HomeComponent implements OnInit {
 
   openCreateModal() {
     this.showCreateModal = true;
-    console.log('Abriendo modal de creación de dashboard');
   }
 
   closeCreateModal() {
@@ -114,7 +111,6 @@ export class HomeComponent implements OnInit {
   }
 
   newDashboard(name: string, description: string) {
-    console.log('Nuevo Dashboard creado:', { name, description });
     this.HomeService.newDashboard(name, description)
       .pipe(takeUntil(this.destroy$))
       .subscribe({

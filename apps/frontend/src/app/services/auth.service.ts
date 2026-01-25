@@ -1,43 +1,104 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
+import {jwtDecode} from 'jwt-decode';
+import { Inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+
+export interface JwtPayload {
+  sub: number;
+  email: string;
+
+  rolesId: number[];
+  rolesCode: string[];
+
+  permissions: string[];
+
+  iat: number;
+  exp: number;
+
+  [key: string]: any;
+}
+
 
 @Injectable({ providedIn: 'root' })
+
 export class AuthService {
-  private baseUrl = 'http://localhost:3001';
+  private baseUrl = 'http://localhost:3002';
+  private token: string | null = null;
+  private userSubject = new BehaviorSubject<JwtPayload | null>(null);
+  private isBrowser: boolean;
+  user$ = this.userSubject.asObservable();
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    @Inject(PLATFORM_ID) platformId: Object
+  ) {
+    this.isBrowser = isPlatformBrowser(platformId);
+    this.restore();
+  }
 
-  login(credentials: { email: string; password: string }): Observable<any> {
-    return this.http.post(`${this.baseUrl}/login`, credentials).pipe(
+  login(credentials: { identifierName: string; password: string }): Observable<any> {
+    return this.http.post(`${this.baseUrl}/auth/login`, credentials).pipe(
       tap((response: any) => {
-        localStorage.setItem('token', response.accessToken);
+        localStorage.setItem('token', response.data.accessToken);
       }),
     );
   }
-
-  getUserID(): Observable<number> {
-    const token = this.getToken();
-    return this.http.post<number>(`${this.baseUrl}/users/getIdByEmail`, { token });
+  
+  private restore() {
+    if (!this.isBrowser) return;
+    const token = localStorage.getItem('token');
+    if (token) this.setToken(token);
   }
 
-  register(data: { email: string; password: string }): Observable<any> {
-    return this.http.post(`${this.baseUrl}/register`, data);
+  register(data: { name: string; email: string; password: string }): Observable<any> {
+    return this.http.post(`${this.baseUrl}/auth/register`, data);
   }
 
   logout(): void {
     localStorage.removeItem('token');
   }
 
-  getUserIDByToken(token: string): Observable<number> {
-    return this.http.post<number>(`${this.baseUrl}/users/getIdByEmail`, { token });
-  }
-
   getToken(): string | null {
-    return localStorage.getItem('token');
+    if (this.token) return this.token;
+    if (this.isBrowser) {
+      return localStorage.getItem('token');
+    }
+    return null;
   }
 
-  isAuthenticated(): boolean {
-    return !!this.getToken();
+  private setToken(token: string) {
+    this.token = token;
+    if (this.isBrowser) {
+      localStorage.setItem('token', token);
+    }
+    const decoded = jwtDecode<JwtPayload>(token);
+    this.userSubject.next(decoded);
+  }
+
+  private clearToken() {
+    this.token = null;
+    if (this.isBrowser) {
+      localStorage.removeItem('token');
+    }
+    this.userSubject.next(null);
+  }
+
+ isAuthenticated(): boolean {
+    const t = this.getToken();
+    if (!t) return false;
+    const decoded = (() => {
+      try { return jwtDecode<JwtPayload>(t); } catch { return null; }
+    })();
+    return !!decoded && !(decoded.exp && decoded.exp * 1000 < Date.now());
+  }
+
+  forgotPassword(email: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/auth/forgot-password`, { email });
+  }
+  restorePassword(email: string, password: string): Observable<any> {
+    console.log('Restoring password: ', email, password);
+    return this.http.post(`${this.baseUrl}/auth/restore-password`, { email, password });
   }
 }

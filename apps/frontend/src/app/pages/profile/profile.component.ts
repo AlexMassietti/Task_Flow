@@ -10,8 +10,8 @@ import {
 import { HeaderComponent } from '../../header/header.component';
 import { CommonModule } from '@angular/common';
 import { ProfileService } from '../../services/profile.service';
-import { AuthService } from '../../services/auth.service';
 import { UserModel } from '../../Models/User/user.model';
+import { AuthService } from '../../services/auth.service';
 
 type SocialPlatform = 'Twitter' | 'LinkedIn' | 'GitHub' | 'Facebook' | 'Website';
 
@@ -45,8 +45,6 @@ export class ProfileComponent implements OnInit {
       socials: this.fb.array([]),
     });
 
-    // Example: populate with existing data (replace with real fetch)
-    this.loadUserID();
     this.loadData(this.userId!);
   }
 
@@ -107,18 +105,6 @@ export class ProfileComponent implements OnInit {
 
     // Feedback example (replace with real UX)
     alert('Profile saved (replace with real API call)');
-  }
-
-  loadUserID() {
-    this.authService.getUserID().subscribe({
-      next: (userId) => {
-        this.userId = userId;
-        console.log('User ID loaded:', userId);
-      },
-      error: (err) => {
-        console.error('Failed to load user ID', err);
-      },
-    });
   }
 
   private loadData(userID: number) {

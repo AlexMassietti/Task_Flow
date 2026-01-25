@@ -10,7 +10,7 @@ import { HttpClient } from '@angular/common/http';
 export class HomeService {
   constructor(private http: HttpClient) {}
 
-  private useMock = true;
+  private useMock = false;
   private baseUrl = 'http://localhost:3002';
 
   private mockContracts: ContractsDTO[] = [
@@ -34,18 +34,16 @@ export class HomeService {
     { id: 600, name: "Mark's Dashboard" },
   ];
 
-  getSharedDashboardsByUser(userId: number | null): Observable<DashboardModel[] | null> {
-    if (userId == null) {
-      return of(null);
-    }
+  getSharedDashboardsByUser(): Observable<DashboardModel[] | null> {
     if (!this.useMock) {
       return this.http
-        .get<DashboardDTO[]>(`${this.baseUrl}/users/${userId}/sharedDashboards`)
+        .get<DashboardDTO[]>(`${this.baseUrl}/dashboard/shared`)
         .pipe(map((dtos) => dtos.map((dto) => DashboardModel.fromDTO(dto))));
     }
+    const mockId = 1;
     const contractModels = this.mockContracts
       .map((dto) => ContractModel.fromDTO(dto))
-      .filter((t) => Number(t.userId) === Number(userId));
+      .filter((t) => Number(t.userId) === Number(mockId));
     const contractModels2 = contractModels.filter((t) => Number(t.roleId) === Number(2));
     const dashboardIds = [...new Set(contractModels2.map((contract) => contract.dashboardId))];
     const filteredDashboardDTOs = this.mockDashboards.filter((dashboardDTO) =>
@@ -55,18 +53,16 @@ export class HomeService {
     return of(models);
   }
 
-  getOwnedDashboardsByUser(userId: number | null): Observable<DashboardModel[] | null> {
-    if (userId == null) {
-      return of(null);
-    }
+  getOwnedDashboardsByUser(): Observable<DashboardModel[] | null> {
     if (!this.useMock) {
       return this.http
         .get<DashboardDTO[]>(`${this.baseUrl}/users/${userId}/ownedDashboards`)
         .pipe(map((dtos) => dtos.map((dto) => DashboardModel.fromDTO(dto))));
     }
+    const mockId = 1;
     const contractModels = this.mockContracts
       .map((dto) => ContractModel.fromDTO(dto))
-      .filter((t) => Number(t.userId) === Number(userId));
+      .filter((t) => Number(t.userId) === Number(mockId));
     const contractModels2 = contractModels.filter((t) => Number(t.roleId) === Number(1));
     const dashboardIds = [...new Set(contractModels2.map((contract) => contract.dashboardId))];
     const filteredDashboardDTOs = this.mockDashboards.filter((dashboardDTO) =>
@@ -81,7 +77,7 @@ export class HomeService {
     if (!this.useMock) {
       return this.http
         .put<DashboardDTO>(
-          `${this.baseUrl}/dashboards/${updatedDashboard.id}`,
+          `${this.baseUrl}/dashboard/${updatedDashboard.id}`,
           updatedDashboard.toDTO(),
         )
         .pipe(map((dto) => DashboardModel.fromDTO(dto)));
@@ -100,7 +96,7 @@ export class HomeService {
   ): Observable<DashboardModel> {
     if (!this.useMock) {
       return this.http
-        .post<DashboardDTO>(`${this.baseUrl}/dashboards`, {
+        .post<DashboardDTO>(`${this.baseUrl}/dashboard`, {
           name: newDashboardName,
           description: newDashboardDescription,
         })
