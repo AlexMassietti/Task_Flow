@@ -1,4 +1,4 @@
-import { IsEmail, IsInt, IsNotEmpty } from 'class-validator';
+import { IsEmail, IsInt, IsNotEmpty, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class DashboardInvitationDto {
@@ -15,8 +15,8 @@ export class DashboardInvitationDto {
     description: 'ID del usuario que envía la invitación',
   })
   @IsInt()
-  @IsNotEmpty()
-  invitedBy: number;
+  @IsOptional()
+  invitedBy?: number;
 
   @ApiProperty({
     example: 5,

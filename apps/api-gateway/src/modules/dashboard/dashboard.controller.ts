@@ -12,6 +12,7 @@ import { CreateDashboardDoc } from './docs/create-dashboard.doc';
 import { UpdateDashboardDoc } from './docs/update-dashboard.doc';
 import { DeleteDashboardDoc } from './docs/delete-dashboard.doc';
 import { TaskResponseDto } from '@shared/dtos';
+import { User } from '@api-gateway/common/decorators/user.decorator';
 
 @Controller('dashboard')
 @ApiBearerAuth('access-token')
@@ -22,8 +23,11 @@ export class DashboardController {
   @Post()
   @Permissions('dashboard.create')
   @CreateDashboardDoc()
-  create(@Body() createDashboardDto: CreateDashboardDto, @Req() req) {
-    return this.dashboardService.create(createDashboardDto, req.user.sub);
+  create(
+    @Body() createDashboardDto: CreateDashboardDto, 
+    @User('sub') userId: number 
+  ) {
+    return this.dashboardService.create(createDashboardDto, userId);
   }
 
   @Patch(':id')
@@ -44,15 +48,17 @@ export class DashboardController {
   @ApiOkResponse({ type: DashboardDto, isArray: true })
   @Get('owned')
   @Permissions('dashboard.read')
-  async getOwnedDashboards(@Req() req) {
-    return this.dashboardService.getOwnedDashboards(req.user.sub);
+  @ApiOperation({ summary: 'Obtener dashboards propios del usuario autenticado' })
+  async getOwnedDashboards(@User('sub') userId: number) {
+    return this.dashboardService.getOwnedDashboards(userId);
   }
 
   @ApiOkResponse({ type: DashboardDto, isArray: true })
-  @Get(':email/shared')
+  @Get('shared')
   @Permissions('dashboard.read')
-  async getSharedDashboards(@Param('email') email: string) {
-    return this.dashboardService.getSharedDashboards(email);
+  @ApiOperation({ summary: 'Obtener dashboards compartidos con el usuario autenticado' })
+  async getSharedDashboards(@User('sub') userId: number) {
+    return this.dashboardService.getSharedDashboards(userId);
   }
 
   @ApiOkResponse({ type: TaskResponseDto, isArray: true })
@@ -68,29 +74,20 @@ export class DashboardController {
   async getDashboardUsers(@Param('id') id: string) {
     return this.dashboardService.getDashboardUsers(+id);
   }
+
+
   @ApiOkResponse({ type: DashboardInvitationDto })
   @Post('dashboard-invite')
-  @ApiOperation({
-    summary: 'Invitar un usuario a un dashboard',
-    description:
-      'Procesa la invitación y envía un correo electrónico al usuario invitado.',
-  })
+  @Permissions('dashboard.members.update')
+  @ApiOperation({ summary: 'Invitar un usuario a un dashboard' })
   @ApiBody({ type: DashboardInvitationDto })
-  @ApiResponse({
-    status: 201,
-    description: 'Invitación procesada y correo enviado correctamente',
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Datos inválidos',
-  })
   async inviteToDashboard(
-    @Req() req: Request,
-    @Body() dto: DashboardInvitationDto,
+    @User('sub') userId: number,
+    @Body() dto: DashboardInvitationDto
   ) {
-    const mailData =
-      await this.dashboardService.processDashboardInvitation(dto);
-
+    dto.invitedBy = userId; 
+    console.log('el dto tiene: ', dto);
+    const mailData = await this.dashboardService.processDashboardInvitation(dto);
     return this.dashboardService.sendDashboardInvitationMail(mailData);
   }
 }

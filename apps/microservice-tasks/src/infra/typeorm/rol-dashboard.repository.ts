@@ -93,13 +93,13 @@ export class RolDashboardRepository implements IRolDashboardRepository {
     return roles;
   }
 
-  // Obtener dashboards compartidos (otros tipos de roles)
   findSharedByUserId(userId: number, participantTypes: number[]): Promise<RolDashboard[]> {
     return this.rolDashboardRepository.find({
       where: {
         userId: userId,
         participantType: In(participantTypes)
       },
+      relations: ['dashboard']
     });
   }
   // Obtener ids de usuarios en un dashboard

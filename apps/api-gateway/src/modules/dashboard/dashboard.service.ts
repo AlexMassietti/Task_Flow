@@ -60,19 +60,13 @@ export class DashboardService {
   }
 
   async getOwnedDashboards(userId: number) {
-
     const dashboards: DashboardDto[] = await firstValueFrom(
       this.dashboardClient.send({ cmd: 'get_owned_dashboards' }, { userId }),
-    );
-
+    );  
     return dashboards;
   }
 
-  async getSharedDashboards(email: string) {
-    const userId: number = await firstValueFrom(
-      this.usersClient.send({ cmd: 'get_user_by_email' }, { email }),
-    );
-
+  async getSharedDashboards(userId: number) {
     const dashboards: DashboardDto[] = await firstValueFrom(
       this.dashboardClient.send({ cmd: 'get_shared_dashboards' }, { userId }),
     );

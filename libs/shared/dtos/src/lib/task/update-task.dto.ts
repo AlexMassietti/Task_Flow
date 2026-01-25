@@ -2,10 +2,6 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsInt, IsOptional, IsString, IsDateString, IsPositive } from 'class-validator';
 
 export class UpdateTaskDto {
-  @ApiPropertyOptional({ description: 'ID del usuario que opera (para el ranking)', example: 1 })
-  @IsInt()
-  @IsOptional()
-  userId?: number;
 
   @ApiPropertyOptional({ description: 'Nombre de la tarea', example: 'Actualizar servidor' })
   @IsString()
