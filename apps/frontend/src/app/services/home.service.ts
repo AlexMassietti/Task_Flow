@@ -76,9 +76,9 @@ export class HomeService {
     console.log('Updating dashboard:', updatedDashboard);
     if (!this.useMock) {
       return this.http
-        .put<DashboardDTO>(
+        .patch<DashboardDTO>(
           `${this.baseUrl}/dashboard/${updatedDashboard.id}`,
-          updatedDashboard.toDTO(),
+          updatedDashboard.toDTOWithoutID(),
         )
         .pipe(map((dto) => DashboardModel.fromDTO(dto)));
     }

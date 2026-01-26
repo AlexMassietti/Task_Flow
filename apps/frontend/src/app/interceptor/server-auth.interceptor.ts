@@ -13,14 +13,12 @@ export const serverAuthInterceptor: HttpInterceptorFn = (req: HttpRequest<unknow
   const isProtected = protectedRoutes.some(url => req.url.includes(url));
 
   if (isProtected) {
-    console.log(`[SSR] Skipping protected request: ${req.url}`);
     return EMPTY; 
   }
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
       if (error.status === 401) {
-        console.warn(`[SSR] Suppressed 401 error for: ${req.url}`);
         return EMPTY;
       }
       throw error;

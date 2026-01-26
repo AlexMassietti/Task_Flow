@@ -4,6 +4,11 @@ export interface DashboardDTO {
   description: string;
 }
 
+export interface DashboardDTOWithoutID {
+  name: string;
+  description: string;
+}
+
 export class DashboardModel {
   constructor(
     public id: number,
@@ -17,5 +22,9 @@ export class DashboardModel {
 
   toDTO(): DashboardDTO {
     return { id: this.id, name: this.name, description: this.description };
+  }
+
+  toDTOWithoutID(): DashboardDTOWithoutID {
+    return { name: this.name, description: this.description };
   }
 }
