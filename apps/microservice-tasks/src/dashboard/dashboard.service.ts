@@ -45,9 +45,7 @@ export class DashboardService {
 
   async create(dto: CreateDashboardDto, userId: number): Promise<Dashboard> {
     const dashboardsWithName = await this.findOwned(userId)
-    console.log('dashboardWithname: ', dashboardsWithName);
     const filteredDashboards = dashboardsWithName.filter((d) => d.name === dto.name)
-    console.log('FilteredWithname: ', filteredDashboards);
 
     if (filteredDashboards.length) {
       throw new RpcException({

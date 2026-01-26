@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { DashboardService } from './dashboard.service';
-import { ApiBearerAuth, ApiBody, ApiOkResponse, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 import { DashboardDto } from './interfaces/dashboard.dto';
 import { UserDto } from './interfaces/user.dto';
 import { JwtRs256Guard } from '../auth/jwt-auth.guard';
@@ -33,16 +33,16 @@ export class DashboardController {
   @Patch(':id')
   @Permissions('dashboard.update')
   @UpdateDashboardDoc()
-  update(@Body() updateDashboardDto: UpdateDashboardDto, @Param('id') id: string) {
-    return this.dashboardService.update(updateDashboardDto, +id)
+  update(@Body() updateDashboardDto: UpdateDashboardDto, @Param('id') id: number) {
+    return this.dashboardService.update(updateDashboardDto, id)
   }
 
   @Delete(':id')
   @Permissions('dashboard.delete')
   @HttpCode(204)
   @DeleteDashboardDoc()
-  delete(@Param('id') id: string) {
-    return this.dashboardService.delete(+id)
+  delete(@Param('id') id: number) {
+    return this.dashboardService.delete(id)
   }
 
   @ApiOkResponse({ type: DashboardDto, isArray: true })
@@ -64,15 +64,15 @@ export class DashboardController {
   @ApiOkResponse({ type: TaskResponseDto, isArray: true })
   @Get(':id/tasks')
   @Permissions('task.read')
-  async getDashboardTasks(@Param('id') id: string) {
-    return this.dashboardService.getDashboardTasks(+id);
+  async getDashboardTasks(@Param('id') id: number) {
+    return this.dashboardService.getDashboardTasks(id);
   }
 
   @ApiOkResponse({ type: UserDto, isArray: true })
   @Get(':id/users')
   @Permissions('dashboard.members.read')
-  async getDashboardUsers(@Param('id') id: string) {
-    return this.dashboardService.getDashboardUsers(+id);
+  async getDashboardUsers(@Param('id') id: number) {
+    return this.dashboardService.getDashboardUsers(id);
   }
 
 
