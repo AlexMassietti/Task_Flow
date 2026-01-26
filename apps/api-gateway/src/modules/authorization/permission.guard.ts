@@ -13,7 +13,7 @@ export class PermissionsGuard implements CanActivate {
     ]);
 
     if (!requiredPermissions || requiredPermissions.length === 0) {
-      return true; // endpoint sin permisos declarados
+      return true; 
     }
 
     const req = context.switchToHttp().getRequest();

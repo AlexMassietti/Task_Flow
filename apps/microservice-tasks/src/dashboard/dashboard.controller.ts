@@ -26,6 +26,7 @@ export class DashboardController {
 
   @MessagePattern({ cmd: 'create_dashboard' })
   create(data: { createDashboardDto: CreateDashboardDto, userId: number }) {
+    console.log('Estoy creando el maldito db: ', data);
     return this.dashboardService.create(data.createDashboardDto, data.userId);
   }
 

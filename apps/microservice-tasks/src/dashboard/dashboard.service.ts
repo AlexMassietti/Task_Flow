@@ -45,9 +45,11 @@ export class DashboardService {
 
   async create(dto: CreateDashboardDto, userId: number): Promise<Dashboard> {
     const dashboardsWithName = await this.findOwned(userId)
-    dashboardsWithName.filter((d) => d.name === dto.name)
+    console.log('dashboardWithname: ', dashboardsWithName);
+    const filteredDashboards = dashboardsWithName.filter((d) => d.name === dto.name)
+    console.log('FilteredWithname: ', filteredDashboards);
 
-    if (dashboardsWithName.length) {
+    if (filteredDashboards.length) {
       throw new RpcException({
         message: "Repeated name on dashboard",
         status: HttpStatus.CONFLICT
