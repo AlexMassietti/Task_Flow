@@ -86,7 +86,6 @@ export class DashboardController {
     @Body() dto: DashboardInvitationDto
   ) {
     dto.invitedBy = userId; 
-    console.log('el dto tiene: ', dto);
     const mailData = await this.dashboardService.processDashboardInvitation(dto);
     return this.dashboardService.sendDashboardInvitationMail(mailData);
   }

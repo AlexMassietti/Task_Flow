@@ -1,0 +1,138 @@
+/* --- Reutilización de tus estilos base --- */
+.modal-backdrop {
+  position: fixed !important;
+  inset: 0 !important;
+  background: rgba(0, 0, 0, 0.4) !important; /* Un poco más oscuro para enfoque */
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  z-index: 2000 !important;
+}
+
+.modal {
+  background: white !important; /* Fondo blanco para formularios se lee mejor */
+  position: relative !important; /* Cambiado a relative porque está dentro del flex backdrop */
+  width: 400px !important;
+  /* Altura automática para ajustarse al contenido */
+  height: auto !important; 
+  min-height: 250px;
+  border-radius: 8px !important;
+  padding: 0 !important; /* Padding manejado internamente */
+  display: flex !important;
+  flex-direction: column !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+  border: none !important;
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 20px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+  cursor: grab; /* Indica que se puede arrastrar */
+}
+
+.modal-header:active {
+  cursor: grabbing;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #333;
+  font-weight: 600;
+}
+
+/* --- Estilos específicos del formulario --- */
+
+.modal-body {
+  padding: 20px;
+  flex: 1;
+}
+
+.description {
+  color: #666;
+  font-size: 0.95rem;
+  margin-bottom: 15px;
+  line-height: 1.5;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: #444;
+}
+
+.form-control {
+  padding: 10px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.form-control:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+}
+
+.modal-footer {
+  padding: 15px 20px;
+  background-color: #fff;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  border-top: 1px solid #eee;
+}
+
+/* Botones */
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #666;
+}
+
+.btn-cancel {
+  background: white;
+  border: 1px solid #ddd;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #555;
+  font-weight: 500;
+}
+
+.btn-cancel:hover {
+  background-color: #f1f1f1;
+}
+
+.btn-confirm {
+  background-color: #007bff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  color: white;
+  font-weight: 500;
+}
+
+.btn-confirm:hover {
+  background-color: #0056b3;
+}
+
+.btn-confirm:disabled {
+  background-color: #a0cfff;
+  cursor: not-allowed;
+}

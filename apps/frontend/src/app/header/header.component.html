@@ -11,8 +11,17 @@
       <button class="btn notifications-btn" (click)="viewNotifications()">
         <i class="bi bi-bell"></i>
       </button>
-
+      <button 
+        *ngIf="showInviteButton" 
+        class="btn invite-btn" 
+        (click)="invitePeople()"
+        title="Invitar personas"
+        >
+        <i class="bi bi-person-plus-fill"></i>
+        <span class="d-none d-md-inline ms-1">Invite</span>
+        </button>
       <div class="dropdown">
+        
         <button
           class="btn btn-light dropdown-toggle user-avatar-btn"
           type="button"
@@ -30,3 +39,9 @@
     </div>
   </div>
 </div>
+
+<app-invite-people 
+  [show]="isInviteModalOpen" 
+  (close)="isInviteModalOpen = false"
+  (inviteUser)="handleInviteUser($event)">
+</app-invite-people>

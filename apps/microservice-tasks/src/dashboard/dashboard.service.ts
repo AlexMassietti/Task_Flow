@@ -214,7 +214,6 @@ export class DashboardService {
   }
 
   async processDashboardInvitation(data: DashboardInvitationDto) {
-
     const { to, invitedBy, dashboardId } = data;
 
     // 1. Verificar que el dashboard exista
@@ -225,7 +224,7 @@ export class DashboardService {
 
     // 2. Verificar que quien invita pertenece al dashboard
     const inviters = await this.rolDashboardRepository.findUsersInDashboard(dashboard.id);
-    const belongs = inviters.includes(dashboardId);
+    const belongs = inviters.includes(invitedBy);
 
     if (!belongs) {
       throw new RpcException({

@@ -12,7 +12,7 @@ import { HttpClient } from '@angular/common/http';
 })
 export class DashBoardService {
   constructor(private http: HttpClient) {}
-  private baseUrl = 'http://localhost:3000';
+  private baseUrl = 'http://localhost:3002';
   private useMock = true;
 
   private mockContracts: ContractsDTO[] = [
@@ -175,7 +175,6 @@ export class DashBoardService {
     const task = this.mockTasks.find((t) => t.id === taskId);
     if (task) {
       task.status = { id: statusId };
-      console.log(this.mockTasks);
     }
     return of(undefined);
   }
@@ -187,8 +186,14 @@ export class DashBoardService {
     const index = this.mockTasks.findIndex((t) => t.id === task.id);
     if (index !== -1) {
       this.mockTasks[index] = task.toDTO();
-      console.log(task.toDTO());
     }
     return of(undefined);
+  }
+  inviteUser(email: string, dashboardId: number): Observable<void>{
+    const dto = {
+      to : email,
+      dashboardId: dashboardId,
+    }
+    return this.http.post<void>(`${this.baseUrl}/dashboard/dashboard-invite`, dto);
   }
 }

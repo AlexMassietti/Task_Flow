@@ -1,0 +1,41 @@
+<div class="modal-backdrop" *ngIf="show" (click)="onClose()">
+  
+  <div class="modal invite-modal" cdkDrag (click)="$event.stopPropagation()">
+    
+    <div class="modal-header" cdkDragHandle>
+      <h2>Invite Member</h2>
+      <button class="close-btn" (click)="onClose()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <p class="description">
+        Enter the email address of the person you want to invite to this dashboard.
+      </p>
+
+      <div class="form-group">
+        <label for="emailInput">Email Address</label>
+        <input 
+          type="email" 
+          id="emailInput" 
+          class="form-control" 
+          placeholder="user@example.com"
+          [(ngModel)]="email"
+          (keyup.enter)="onSubmit()"
+        >
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="onClose()">Cancel</button>
+      <button 
+        class="btn-confirm" 
+        [disabled]="!email || isLoading" 
+        (click)="onSubmit()"
+      >
+        {{ isLoading ? 'Sending...' : 'Send Invitation' }}
+      </button>
+    </div>
+  </div>
+</div>
