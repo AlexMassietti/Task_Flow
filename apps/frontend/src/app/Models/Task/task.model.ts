@@ -1,115 +1,121 @@
 import { StatusModel } from '../Status/status.model';
 import { PriorityModel } from '../Priority/priority.model';
-import { UserModel } from '../User/user.model';
 
 export interface TaskDTO {
   id: number;
-  dashboard: { id: number };
   name: string;
-  startDate?: Date | null;
-  endDate?: Date | null;
-  finishDate?: Date | null;
-  statusId?: number | null;
-  priorityId?: number | null;
-  status?: { id: number | null } | number | null;
-  priority?: { id: number | null } | number | null;
   description?: string | null;
-  user?: { id: number | null } | null;
+  startDate?: string | Date | null;
+  endDate?: string | Date | null;
+  finishDate?: string | Date | null;
+  statusId: number;
+  priorityId: number;
+  dashboardId: number;
+  assignedToUserId?: number | null;
+  reviewedByUserId?: number | null;
+}
+
+export interface TaskUpdateDTO {
+  name: string;
+  description?: string | null;
+  endDate?: string | Date | null;
+  finishDate?: string | Date | null;
+  statusId: number;
+  priorityId: number;
+  assignedToUserId?: number | null;
+  reviewedByUserId?: number | null;
 }
 
 export class TaskModel {
   id: number;
-  dashboardId: number;
   name: string;
+  description: string | null;
   startDate: Date | null;
   endDate: Date | null;
   finishDate: Date | null;
-  status?: StatusModel | undefined;
-  priorityId: number | null;
-  description?: string | undefined;
-  userId: number | null;
+  statusId: number;
+  priorityId: number;
+  dashboardId: number;
+  assignedToUserId: number | null;
+  reviewedByUserId: number | null;
 
-  constructor(params: {
-    id: number;
-    dashboardId: number;
-    name: string;
-    startDate?: Date | null;
-    endDate?: Date | null;
-    finishDate?: Date | null;
-    status?: StatusModel | undefined;
-    priorityId: number | null;
-    description?: string | undefined;
-    userId: number | null;
-  }) {
-    this.id = params.id;
-    this.dashboardId = params.dashboardId;
-    this.name = params.name;
+  // Optional: Keep rich objects for UI display/logic
+  status?: StatusModel;
+  priority?: PriorityModel;
+
+  constructor(params: Partial<TaskModel>) {
+    this.id = params.id ?? 0;
+    this.name = params.name ?? '';
+    this.description = params.description ?? null;
     this.startDate = params.startDate ?? null;
     this.endDate = params.endDate ?? null;
     this.finishDate = params.finishDate ?? null;
+    this.statusId = params.statusId ?? 0;
+    this.priorityId = params.priorityId ?? 0;
+    this.dashboardId = params.dashboardId ?? 0;
+    this.assignedToUserId = params.assignedToUserId ?? null;
+    this.reviewedByUserId = params.reviewedByUserId ?? null;
     this.status = params.status;
-    this.priorityId = params.priorityId;
-    this.description = params.description;
-    this.userId = params.userId;
+    this.priority = params.priority;
   }
 
   static fromDTO(
-    dto: TaskDTO | any,
+    dto: TaskDTO,
     options?: {
       statusLookup?: (id: number) => StatusModel | undefined;
       priorityLookup?: (id: number) => PriorityModel | undefined;
-    },
+    }
   ): TaskModel {
     const parseDate = (v: any): Date | null => {
-      if (v == null) return null;
+      if (!v) return null;
       const d = v instanceof Date ? v : new Date(v);
       return isNaN(d.getTime()) ? null : d;
     };
 
-    let status: StatusModel | undefined;
-    if (dto.status && typeof dto.status === 'object') {
-      status = StatusModel.fromDTO(dto.status);
-    } else if (dto.statusId != null) {
-      status = options?.statusLookup?.(Number(dto.statusId));
-    } else if (typeof dto.status === 'number') {
-      status = options?.statusLookup?.(Number(dto.status));
-    }
-
-    let priority: PriorityModel | undefined;
-    if (dto.priority && typeof dto.priority === 'object') {
-      priority = PriorityModel.fromDTO(dto.priority);
-    } else if (dto.priorityId != null) {
-      priority = options?.priorityLookup?.(Number(dto.priorityId));
-    } else if (typeof dto.priority === 'number') {
-      priority = options?.priorityLookup?.(Number(dto.priority));
-    }
-
     return new TaskModel({
-      id: Number(dto.id),
-      dashboardId: Number(dto.dashboard.id),
-      name: String(dto.name ?? ''),
+      id: dto.id,
+      name: dto.name,
+      description: dto.description,
       startDate: parseDate(dto.startDate),
       endDate: parseDate(dto.endDate),
       finishDate: parseDate(dto.finishDate),
-      status,
-      priorityId: Number(dto.priorityId ?? priority?.id ?? null),
-      description: dto.description ?? undefined,
-      userId: Number(dto.user?.id ?? null),
+      statusId: dto.statusId,
+      priorityId: dto.priorityId,
+      dashboardId: dto.dashboardId,
+      assignedToUserId: dto.assignedToUserId,
+      reviewedByUserId: dto.reviewedByUserId,
+      // Hydrate objects if lookups are provided
+      status: options?.statusLookup?.(dto.statusId),
+      priority: options?.priorityLookup?.(dto.priorityId),
     });
   }
 
   toDTO(): TaskDTO {
     return {
       id: this.id,
-      dashboard: { id: this.dashboardId },
       name: this.name,
-      startDate: this.startDate,
-      endDate: this.endDate,
-      finishDate: this.finishDate,
-      status: this.status ? { id: this.status.id } : null,
-      priority: { id: this.priorityId },
-      description: this.description ?? null,
-      user: { id: this.userId },
+      description: this.description,
+      startDate: this.startDate?.toISOString() ?? null,
+      endDate: this.endDate?.toISOString() ?? null,
+      finishDate: this.finishDate?.toISOString() ?? null,
+      statusId: this.statusId,
+      priorityId: this.priorityId,
+      dashboardId: this.dashboardId,
+      assignedToUserId: this.assignedToUserId,
+      reviewedByUserId: this.reviewedByUserId,
+    };
+  }
+
+  toUpdateDTO(): TaskUpdateDTO {
+    return {
+      name: this.name,
+      description: this.description,
+      endDate: this.endDate?.toISOString() ?? null,
+      finishDate: this.finishDate?.toISOString() ?? null,
+      statusId: this.statusId,
+      priorityId: this.priorityId,
+      assignedToUserId: this.assignedToUserId,
+      reviewedByUserId: this.reviewedByUserId,
     };
   }
 }

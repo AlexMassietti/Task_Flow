@@ -18,6 +18,8 @@ import { TaskEditModalComponent } from '../modal-edit-task/task-edit-modal.compo
 import { PriorityModel } from '../../Models/Priority/priority.model';
 import { HeaderComponent } from '../../header/header.component';
 import { ArchivedTasksModalComponent } from './Archived-task-modal/archived-tasks-modal';
+import { tap } from 'rxjs/operators';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-dashboard',
@@ -54,6 +56,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private sidebarService: SidebarService,
     private route: ActivatedRoute,
     private dashBoardService: DashBoardService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -71,51 +74,48 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.tasksByStatus[status.id] = [];
       this.tasksByStatus[status.id] = this.filterTasksByStatus(status);
     });
+    console.log(this.tasksByStatus);
     return this.tasksByStatus;
   }
 
   private filterTasksByStatus(status: StatusModel) {
-    return this.tasks.filter((task) => task.status?.id === status.id);
+    return this.tasks.filter((task) => task.statusId === status.id);
   }
 
-  private loadDashboardData(): void {
-    this.loading = true;
-    combineLatest([
-      this.dashBoardService.getStatuses(),
-      this.dashBoardService.getTasks(this.dashboardId),
-      this.dashBoardService.getUsers(this.dashboardId),
-      this.dashBoardService.getPriorities(),
-    ])
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => (this.loading = false)),
-      )
-      .subscribe({
-        next: ([statuses, tasks, users, priorities]) => {
-          this.statuses = statuses;
-          this.archivedTasks = tasks.filter((t) => t.status?.id === this.ARCHIVED_STATUS_ID) || [];
-          this.tasks = tasks.filter((t) => t.status?.id !== this.ARCHIVED_STATUS_ID) || [];
-          this.users = users;
-          this.priorities = priorities;
-          this.tasksByStatus = this.loadTaskByStatus();
-          console.log('Dashboard data loaded', {
-            statuses,
-            tasks,
-            users,
-            priorities,
-            archivedCount: this.archivedTasks.length,
-          });
-        },
-        error: (err) => {
-          console.error('Failed to load dashboard data', err);
-          this.tasks = [];
-          this.statuses = [];
-          this.tasksByStatus = {};
-          this.archivedTasks = [];
-        },
-      });
-  }
+ private loadDashboardData(): void {
+  this.loading = true;
+  combineLatest([
+    this.dashBoardService.getStatuses(),
+    this.dashBoardService.getTasks(this.dashboardId),
+    this.dashBoardService.getUsers(this.dashboardId),
+    this.dashBoardService.getPriorities(),
+  ])
+    .pipe(
+      takeUntil(this.destroy$),
+      finalize(() => {
+        this.loading = false;
+        this.cdr.markForCheck();
+      })
+    )
+    .subscribe({
+      next: ([statuses, tasks, users, priorities]) => {
+        this.statuses = statuses;
+        this.users = users;
+        this.priorities = priorities;
+        this.archivedTasks = tasks.filter((t) => t.statusId === this.ARCHIVED_STATUS_ID);
+        this.tasks = tasks.filter((t) => t.statusId !== this.ARCHIVED_STATUS_ID);
 
+        this.tasksByStatus = this.loadTaskByStatus();
+      },
+      error: (err) => {
+        console.error('Failed to load dashboard data', err);
+        this.tasks = [];
+        this.statuses = [];
+        this.tasksByStatus = {};
+        this.archivedTasks = [];
+      },
+    });
+}
   refreshData(): void {
     this.loadDashboardData();
   }

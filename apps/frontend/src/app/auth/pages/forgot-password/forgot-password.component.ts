@@ -37,8 +37,6 @@ export class ForgotPasswordComponent {
     const { email } = this.forgotForm.value;
     this.authService.forgotPassword(email).subscribe({
       next: (res) => {
-        console.log('Solicitud exitosa', res);
-        // Acá debería mostrarse un mensaje al usuario que se envió el mail
       },
       error: (err) => {
         this.errorMessage = 'Ocurrió un error al procesar la solicitud.';

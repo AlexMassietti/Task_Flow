@@ -9,7 +9,6 @@ export const jwtInterceptor: HttpInterceptorFn = (
 ): Observable<HttpEvent<any>> => {
   const authService = inject(AuthService);
   const token = authService.getToken();
-  console.log('token injected')
 
   if (token) {
     const cloned = req.clone({

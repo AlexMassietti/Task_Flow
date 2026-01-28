@@ -48,79 +48,72 @@ export class DashBoardService {
   ];
 
   private mockTasks: TaskDTO[] = [
-    {
-      id: 1,
-      dashboard: { id: 100 },
-      name: 'Design header',
-      startDate: new Date('2025-08-01T09:00:00Z'),
-      endDate: new Date('2025-08-05T17:00:00Z'),
-      finishDate: null,
-      status: { id: 1 },
-      priority: { id: 3 },
-      description: 'Create responsive header',
-      user: { id: 1 },
-    },
-    {
-      id: 2,
-      dashboard: { id: 100 },
-      name: 'Implement auth',
-      startDate: new Date('2025-08-02T10:00:00Z'),
-      endDate: new Date('2025-08-07T18:00:00Z'),
-      finishDate: null,
-      status: { id: 2 },
-      priority: { id: 4 },
-      description: 'Login, register endpoints + UI',
-      user: { id: 2 },
-    },
-    {
-      id: 3,
-      dashboard: { id: 100 },
-      name: 'Write unit tests for service with a very long name to check ellipsis',
-      startDate: null,
-      endDate: null,
-      finishDate: null,
-      status: { id: 3 },
-      priority: { id: 1 },
-      description: 'Add coverage for critical paths',
-      user: { id: 3 },
-    },
-    {
-      id: 17,
-      dashboard: { id: 100 },
-      name: 'wow',
-      startDate: null,
-      endDate: null,
-      finishDate: null,
-      status: { id: 4 },
-      priority: { id: 3 },
-      description: 'Add coverage for critical paths',
-      user: { id: 4 },
-    },
-    {
-      id: 4,
-      dashboard: { id: 100 },
-      name: 'Onboard customer',
-      startDate: new Date('2025-07-20T09:00:00Z'),
-      endDate: new Date('2025-07-25T17:00:00Z'),
-      finishDate: new Date('2025-07-24T15:00:00Z'),
-      status: { id: 5 },
-      priority: { id: 2 },
-      description: 'Onboarding tasks done',
-      user: { id: 1 },
-    },
-    {
-      id: 5,
-      dashboard: { id: 200 },
-      name: 'wow',
-      startDate: new Date('2025-07-20T09:00:00Z'),
-      endDate: new Date('2025-07-25T17:00:00Z'),
-      finishDate: new Date('2025-07-24T15:00:00Z'),
-      status: { id: 2 },
-      priority: { id: 3 },
-      description: 'wow',
-      user: { id: 1 },
-    },
-  ];
+  {
+    id: 1,
+    name: "Initialize Project Repository",
+    description: "Setup the Git repository, CI/CD pipelines, and initial folder structure.",
+    startDate: "2026-01-01T09:00:00.000Z",
+    endDate: "2026-01-05T17:00:00.000Z",
+    finishDate: "2026-01-04T15:30:00.000Z",
+    statusId: 3, // Assuming 3 = Completed
+    priorityId: 3, // Assuming 3 = High
+    dashboardId: 1,
+    assignedToUserId: 2,
+    reviewedByUserId: 1
+  },
+  {
+    id: 2,
+    name: "Bypassing Firewall",
+    description: "Amplexus alter veritas accusantium vacuus crepusculum volva delicate vester ultio.",
+    startDate: "2026-01-10T08:00:00.000Z",
+    endDate: "2026-01-20T18:00:00.000Z",
+    finishDate: null,
+    statusId: 2, // Assuming 2 = In Progress
+    priorityId: 2, // Assuming 2 = Medium
+    dashboardId: 1,
+    assignedToUserId: 5,
+    reviewedByUserId: null
+  },
+  {
+    id: 3,
+    name: "Database Optimization",
+    description: "Refactor slow-running queries and add necessary indexes to the Task table.",
+    startDate: "2026-01-25T10:00:00.000Z",
+    endDate: "2026-01-28T12:00:00.000Z",
+    finishDate: null,
+    statusId: 2,
+    priorityId: 3,
+    dashboardId: 1,
+    assignedToUserId: 5,
+    reviewedByUserId: 5
+  },
+  {
+    id: 4,
+    name: "Write Unit Tests",
+    description: "Increase code coverage for the auth module.",
+    startDate: "2026-02-01T09:00:00.000Z",
+    endDate: null,
+    finishDate: null,
+    statusId: 1, // Assuming 1 = Backlog / Todo
+    priorityId: 1, // Assuming 1 = Low
+    dashboardId: 1,
+    assignedToUserId: null,
+    reviewedByUserId: null
+  },
+  {
+    id: 5,
+    name: "UI/UX Review",
+    description: "Review final mockups with the design team before implementation.",
+    startDate: null,
+    endDate: "2026-01-30T16:00:00.000Z",
+    finishDate: null,
+    statusId: 1,
+    priorityId: 2,
+    dashboardId: 2,
+    assignedToUserId: 3,
+    reviewedByUserId: null
+  }
+];
 
   getTasks(dashboardId: number): Observable<TaskModel[]> {
     if (!this.useMock) {
@@ -128,7 +121,7 @@ export class DashBoardService {
         .get<TaskDTO[]>(`${this.baseUrl}/dashboard/${dashboardId}/tasks`)
         .pipe(map((dtos) => dtos.map((dto) => TaskModel.fromDTO(dto))));
     }
-    const dtos = this.mockTasks.filter((t) => Number(t.dashboard.id) === Number(dashboardId));
+    const dtos = this.mockTasks.filter((t) => Number(t.dashboardId) === Number(dashboardId));
     const models = dtos.map((dto) => TaskModel.fromDTO(dto));
     return of(models);
   }
@@ -170,18 +163,18 @@ export class DashBoardService {
 
   updateTaskStatus(taskId: number, statusId: number): Observable<void> {
     if (!this.useMock) {
-      return this.http.patch<void>(`${this.baseUrl}/tasks/${taskId}`, { statusId });
+      return this.http.patch<void>(`${this.baseUrl}/task/${taskId}`, { statusId });
     }
     const task = this.mockTasks.find((t) => t.id === taskId);
     if (task) {
-      task.status = { id: statusId };
+      task.statusId = statusId;
     }
     return of(undefined);
   }
 
   updateTask(task: TaskModel): Observable<void> {
     if (!this.useMock) {
-      return this.http.put<void>(`${this.baseUrl}/tasks/${task.id}`, task.toDTO());
+      return this.http.patch<void>(`${this.baseUrl}/task/${task.id}`, task.toUpdateDTO());
     }
     const index = this.mockTasks.findIndex((t) => t.id === task.id);
     if (index !== -1) {

@@ -32,7 +32,7 @@
       <!-- User assignment -->
       <label>
         Assigned User:
-        <select [(ngModel)]="editedTask.userId" name="user">
+        <select [(ngModel)]="editedTask.assignedToUserId" name="user">
           <option [ngValue]="null">Unassigned</option>
           <option *ngFor="let user of users" [ngValue]="user.id">
             {{ user.name }}

@@ -38,8 +38,8 @@
         <div class="date-item" *ngIf="task.finishDate">
           <strong>Finished:</strong> {{ task.finishDate | date:'MMM dd, yyyy' }}
         </div>
-        <div class="author" *ngIf="task.userId">
-          <strong>By:</strong> {{ getUserName(task.userId) }}
+        <div class="author" *ngIf="task.assignedToUserId">
+          <strong>By:</strong> {{ getUserName(task.assignedToUserId) }}
         </div>
       </div>
     </div>
