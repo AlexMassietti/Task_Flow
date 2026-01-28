@@ -60,7 +60,6 @@ export class UsersController {
     async getUsersById(
     @Payload('idUsersInDashboard') ids: number[]
     ): Promise<GetUserDto[]> {
-    console.log('IDs recibidos:', ids); 
     return this.usersService.getUsersById(ids);
     }
 }

@@ -30,7 +30,7 @@ export class HomeComponent implements OnInit {
     private sidebarService: SidebarService,
     private router: Router,
     private HomeService: HomeService,
-    private cdr: ChangeDetectorRef // 1. Injected ChangeDetectorRef
+    private cdr: ChangeDetectorRef
   ) {}
 
   private destroy$ = new Subject<void>();

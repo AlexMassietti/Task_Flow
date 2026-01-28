@@ -85,8 +85,8 @@ export class SeedService {
       await this.statusRepository.saveArray([
         { name: 'Pending', description: 'Tarea pendiente de inicio' },
         { name: 'In Progress', description: 'Tarea en curso' },
-        { name: 'Completed', description: 'Tarea finalizada exitosamente' },
         { name: 'In Review', description: 'Tarea finalizada pero no aprobada' },
+        { name: 'Completed', description: 'Tarea finalizada exitosamente' },
         { name: 'Archived', description: 'Tarea archivada' },
       ]);
       this.logger.log('Estados cargados');
@@ -101,7 +101,6 @@ export class SeedService {
         { name: 'High', description: 'Alta prioridad' },
         { name: 'Medium', description: 'Prioridad media' },
         { name: 'Low', description: 'Baja prioridad' },
-        { name: 'Undefined', description: 'Sin prioridad' },
       ]);
       this.logger.log('Prioridades cargadas');
     } else this.logger.log('Las prioridades ya estaban cargadas');

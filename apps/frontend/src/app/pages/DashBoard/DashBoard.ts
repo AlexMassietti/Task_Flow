@@ -134,10 +134,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   getPriorityClass(priorityId: number): string {
     const priorityClasses: { [key: number]: string } = {
-      1: 'bg-low',
-      2: 'bg-warning',
-      3: 'bg-high',
-      4: 'bg-urgent',
+      4: 'bg-low',
+      3: 'bg-warning',
+      2: 'bg-high',
+      1: 'bg-urgent',
       5: 'bg-archived',
     };
     return priorityClasses[priorityId] || 'bg-secondary';
@@ -341,6 +341,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
   editTask(task: TaskModel) {
     this.selectedTask = task;
     this.isEditModalOpen = true;
+  }
+
+  createTask() {
+    return
   }
 
   onModalSave(updatedTask: TaskModel) {

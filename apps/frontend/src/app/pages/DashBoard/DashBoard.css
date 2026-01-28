@@ -48,6 +48,7 @@
   padding: 60px 20px;
 }
 
+
 .loading-spinner {
   border: 4px solid #f3f3f3;
   border-top: 4px solid #007bff;
@@ -320,12 +321,48 @@
   opacity: 0.9;
 }
 
-/* Disable text selection while dragging */
+
 .cdk-drag-preview {
   user-select: none;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
+}
+
+.column-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.create-btn {
+  /* Button Shape */
+  width: 42px;
+  height: 42px;
+  background-color: #6c757d;
+  color: white; /* This sets the 'currentColor' for the SVG stroke */
+  
+  border: none;
+  border-radius: 10px; /* Rounded corners */
+  cursor: pointer;
+  
+  /* Flex centering makes the SVG sit perfectly in the middle */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  transition: all 0.2s ease;
+}
+
+.create-btn:hover {
+  background-color: #5a6268;
+  transform: translateY(-1px);
+}
+
+/* Control the icon size here */
+.create-btn svg {
+  width: 20px;
+  height: 20px;
 }
 
 /* ========================================
