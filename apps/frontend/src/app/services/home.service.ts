@@ -73,7 +73,6 @@ export class HomeService {
   }
 
   updateDashboard(updatedDashboard: DashboardModel): Observable<DashboardModel> {
-    console.log('Updating dashboard:', updatedDashboard);
     if (!this.useMock) {
       return this.http
         .patch<DashboardDTO>(
@@ -85,7 +84,6 @@ export class HomeService {
     const index = this.mockDashboards.findIndex((d) => d.id === updatedDashboard.id);
     if (index !== -1) {
       this.mockDashboards[index] = updatedDashboard.toDTO();
-      console.log('Mock dashboard updated:', this.mockDashboards[index]);
     }
     return of(updatedDashboard);
   }

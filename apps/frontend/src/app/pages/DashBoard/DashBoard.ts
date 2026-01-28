@@ -45,7 +45,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   selectedTask: TaskModel | null = null;
   isEditModalOpen = false;
   isSideBarOpen = false;
-  readonly ARCHIVED_STATUS_ID = 5; // keep in sync with your status mapping
+  readonly ARCHIVED_STATUS_ID = 5; 
   archivedTasks: TaskModel[] = [];
   showArchived = false;
   archiveDropHover = false;
@@ -233,14 +233,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.archiveDropHover = false;
   }
 
-  // Called when an item is dropped directly into the Archived column (drop-list-archived)
   onArchivedColumnDrop(event: CdkDragDrop<TaskModel[]>) {
     if (event.previousContainer === event.container) {
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
       return;
     }
 
-    // Transfer into archived column array
     transferArrayItem(
       event.previousContainer.data,
       event.container.data,

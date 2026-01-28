@@ -194,7 +194,6 @@ export class DashboardService {
     if (!userRoles) {
       throw new NotFoundException(`User Roles not found, please run npm run seed`);
     }
-    console.log('Llegué hasta acá: ',userId, userRoles);
     const idDashboardsShared = await this.rolDashboardRepository.findSharedByUserId(
       userId,
       userRoles,

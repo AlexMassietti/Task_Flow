@@ -48,10 +48,8 @@ export class ArchivedTasksModalComponent {
     const task = event.item.data as TaskModel;
     if (!task) return;
 
-    // update in-memory
     task.status = { id: this.ARCHIVED_STATUS_ID, name: 'Archived' } as any;
 
-    // persist as archived
     this.dashBoardService
       .updateTaskStatus(task.id, this.ARCHIVED_STATUS_ID)
       .pipe(takeUntil(this.destroy$))

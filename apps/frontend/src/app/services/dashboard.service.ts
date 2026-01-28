@@ -13,7 +13,7 @@ import { HttpClient } from '@angular/common/http';
 export class DashBoardService {
   constructor(private http: HttpClient) {}
   private baseUrl = 'http://localhost:3002';
-  private useMock = true;
+  private useMock = false;
 
   private mockContracts: ContractsDTO[] = [
     { id: 1, user: { id: 1 }, dashboard: { id: 100 }, role: { id: 1 } },
@@ -125,7 +125,7 @@ export class DashBoardService {
   getTasks(dashboardId: number): Observable<TaskModel[]> {
     if (!this.useMock) {
       return this.http
-        .get<TaskDTO[]>(`${this.baseUrl}/dashboards/${dashboardId}/tasks`)
+        .get<TaskDTO[]>(`${this.baseUrl}/dashboard/${dashboardId}/tasks`)
         .pipe(map((dtos) => dtos.map((dto) => TaskModel.fromDTO(dto))));
     }
     const dtos = this.mockTasks.filter((t) => Number(t.dashboard.id) === Number(dashboardId));
@@ -146,7 +146,7 @@ export class DashBoardService {
   getUsers(dashboardId: number): Observable<UserModel[]> {
     if (!this.useMock) {
       return this.http
-        .get<UserDTO[]>(`${this.baseUrl}/dashboards/${dashboardId}/users`)
+        .get<UserDTO[]>(`${this.baseUrl}/dashboard/${dashboardId}/users`)
         .pipe(map((dtos) => dtos.map((dto) => UserModel.fromDTO(dto))));
     }
     const contractModels = this.mockContracts
