@@ -9,7 +9,7 @@ import {
 } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { UpdateUserRoles } from './dto/update-user-role.dto';
-import { MessagePattern } from '@nestjs/microservices';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 import { GetUserDto } from './dto/get-user.dto';
 
 @ApiTags('Users')
@@ -56,8 +56,11 @@ export class UsersController {
   }
 
   @MessagePattern({ cmd: 'get_users_by_id' })
-  @ApiOperation({ summary: 'Obtener un array de usuarios por sus IDs' })
-  async getUsersById( ids: number[] ): Promise<GetUserDto[]> {
+    @ApiOperation({ summary: 'Obtener un array de usuarios por sus IDs' })
+    async getUsersById(
+    @Payload('idUsersInDashboard') ids: number[]
+    ): Promise<GetUserDto[]> {
+    console.log('IDs recibidos:', ids); 
     return this.usersService.getUsersById(ids);
-  }
+    }
 }

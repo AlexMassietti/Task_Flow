@@ -14,6 +14,7 @@ export class UserRepository implements IUserRepository {
   ) {}
 
   findUsersById(usersId: number[]): Promise<User[]> {
+    console.log('usersId: ', usersId);
     return this.userRepository.find({
       where: { 
         id: In(usersId) 
