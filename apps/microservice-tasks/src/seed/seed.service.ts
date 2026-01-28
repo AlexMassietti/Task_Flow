@@ -83,11 +83,11 @@ export class SeedService {
     const count = await this.statusRepository.count();
     if (count === 0) {
       await this.statusRepository.saveArray([
-        { name: 'To Do', description: 'Tarea pendiente de inicio' },
-        { name: 'Doing', description: 'Tarea en curso' },
+        { name: 'Pending', description: 'Tarea pendiente de inicio' },
+        { name: 'In Progress', description: 'Tarea en curso' },
+        { name: 'Completed', description: 'Tarea finalizada exitosamente' },
         { name: 'In Review', description: 'Tarea finalizada pero no aprobada' },
-        { name: 'Done', description: 'Tarea finalizada exitosamente' },
-        { name: 'Archived', description: 'Tarea archivada para su consulta mas tarde' },
+        { name: 'Archived', description: 'Tarea archivada' },
       ]);
       this.logger.log('Estados cargados');
     } else this.logger.log('Los estados ya estaban cargados');
@@ -101,7 +101,7 @@ export class SeedService {
         { name: 'High', description: 'Alta prioridad' },
         { name: 'Medium', description: 'Prioridad media' },
         { name: 'Low', description: 'Baja prioridad' },
-        { name: 'Archived', description: 'Sin prioridad' },
+        { name: 'Undefined', description: 'Sin prioridad' },
       ]);
       this.logger.log('Prioridades cargadas');
     } else this.logger.log('Las prioridades ya estaban cargadas');

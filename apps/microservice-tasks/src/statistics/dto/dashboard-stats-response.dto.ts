@@ -42,17 +42,27 @@ export class DashboardStatsResponseDto {
   @Min(0)
   totalTasks: number;
 
-  @ApiProperty({ example: 5, description: 'Tareas con estado "Realizada"' })
+  @ApiProperty({ example: 5, description: 'Tareas con estado "Completed"' })
   @IsNumber()
   @Min(0)
   completedTasks: number;
 
-  @ApiProperty({ example: 3, description: 'Tareas con estado "Pendiente"' })
+  @ApiProperty({ example: 3, description: 'Tareas con estado "Pending"' })
   @IsNumber()
   @Min(0)
   pendingTasks: number;
 
-  @ApiProperty({ example: 2, description: 'Tareas con estado "En progreso"' })
+  @ApiProperty({ example: 3, description: 'Tareas con estado "In Review"' })
+  @IsNumber()
+  @Min(0)
+  inReviewTasks: number;
+
+  @ApiProperty({ example: 3, description: 'Tareas con estado "Archived"' })
+  @IsNumber()
+  @Min(0)
+  archivedTasks: number;
+
+  @ApiProperty({ example: 2, description: 'Tareas con estado "inProgress"' })
   @IsNumber()
   @Min(0)
   inProgressTasks: number;

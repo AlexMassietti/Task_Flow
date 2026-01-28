@@ -92,8 +92,10 @@ export class StatisticsService {
     const completed = tasks.filter(t => t.status.name === 'Completed').length;
     const pending = tasks.filter(t => t.status.name === 'Pending').length;
     const inProgress = tasks.filter(t => t.status.name === 'In Progress').length;
+    const inReview = tasks.filter(t => t.status.name === 'In Review').length;
+    const Archived = tasks.filter(t => t.status.name === 'Archived').length;
 
-    const completionRate = total === 0 ? '0%' : `${Math.round((completed / total) * 100)}%`;
+    const completionRate = total === 0 ? '0%' : `${Math.round(((completed - Archived) / (total - Archived)) * 100)}%`;
 
     const baseUrl = this.configService.get<string>('FRONTEND_URL');
 
@@ -108,6 +110,8 @@ export class StatisticsService {
       completedTasks: completed,
       pendingTasks: pending,
       inProgressTasks: inProgress,
+      inReviewTasks: inReview,
+      archivedTasks: Archived,
       completionRate,
     };
   }

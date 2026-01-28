@@ -53,10 +53,18 @@ export class TaskService {
     if (!dashboard) throw new RpcException({ message: 'Dashboard not found', status: HttpStatus.NOT_FOUND });
 
     const isCompleted = statusTask.name === 'Completed';
+    const isInReview = statusTask.name === 'In Review';
 
     if (isCompleted && !completedByUserId) {
       throw new RpcException({
         message: 'CompletedByUserId is required when status is Completed',
+        status: HttpStatus.BAD_REQUEST
+      });
+    }
+
+    if (isInReview && !completedByUserId) {
+      throw new RpcException({
+        message: 'CompletedByUserId is required when status is In Review',
         status: HttpStatus.BAD_REQUEST
       });
     }
@@ -115,9 +123,14 @@ export class TaskService {
       // 3. DEFINIR BANDERAS DE TRANSICIÓN
       const wasCompleted = existingTask.status.name === 'Completed';
       const isNowCompleted = newStatus.name === 'Completed';
+      const isNowInReview = newStatus.name === 'In Review';
 
       // CASO A: Se está completando ahora (Antes NO, Ahora SÍ)
       const justCompleted = !wasCompleted && isNowCompleted;
+
+      // CASO A-1: Se está completando ahora pero necesita revision
+
+      const justPutForReview = !wasCompleted && isNowInReview;
 
       // CASO B: Se está reabriendo (Antes SÍ, Ahora NO)
       const justReopened = wasCompleted && !isNowCompleted;
@@ -129,10 +142,14 @@ export class TaskService {
         throw new RpcException({ message: 'User required', status: HttpStatus.BAD_REQUEST });
       }
 
+      if (justPutForReview && !updateTaskDto.completedByUserId && !existingTask.completedByUserId) {
+        throw new RpcException({ message: 'User required', status: HttpStatus.BAD_REQUEST });
+      }
+
       // 5. Preparar datos para guardar
       let finishDateToSave = existingTask.finishDate;
 
-      if (justCompleted) {
+      if (justCompleted || justPutForReview) {
         finishDateToSave = new Date(); // Ponemos fecha hoy
       } else if (justReopened) {
         finishDateToSave = null; // Borramos fecha

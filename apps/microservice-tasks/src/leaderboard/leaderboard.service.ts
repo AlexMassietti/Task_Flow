@@ -109,6 +109,7 @@ export class LeaderboardService {
    */
   private calculatePoints(priorityName: string, deadline: Date, completionDate: Date): number {
     const basePoints: Record<string, number> = {
+      'Urgent': 70,
       'High': 50,
       'Medium': 20,
       'Low': 10,
