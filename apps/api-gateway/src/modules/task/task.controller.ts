@@ -1,5 +1,5 @@
 import 'multer';
-import { Body, Controller, Delete, HttpCode, Param, Patch, Post, UploadedFile, UploadedFiles, UseGuards, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Delete, HttpCode, Param, Patch, Post, UploadedFiles, UseGuards, UseInterceptors } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { JwtRs256Guard } from "../auth/jwt-auth.guard";
@@ -37,7 +37,7 @@ export class TaskController {
         @User('sub') userId: number,
         @UploadedFiles() files?: Array<Express.Multer.File>,
     ) {
-        createTaskDto.assignedToUserId =  userId;
+        createTaskDto.createdBy =  userId;
         return this.taskService.create(createTaskDto, files);
     }
 
@@ -45,17 +45,20 @@ export class TaskController {
     @Permissions('task.update')
     @UpdateTaskDoc()
     update(
+        @User('sub') userId: number,
         @Param('id') id: number, 
         @Body() updateTaskDto: UpdateTaskDto,
     ) {
-        return this.taskService.update(id, updateTaskDto);
+        return this.taskService.update(id, updateTaskDto, userId);
     }
 
     @Delete(':id')
     @Permissions('task.delete')
     @HttpCode(204)
     @DeleteTaskDoc()
-    delete(@Param('id') id: number) {
-        return this.taskService.delete(id);
+    delete(
+        @User('sub') userId:number,
+        @Param('id') id: number) {
+        return this.taskService.delete(id, userId);
     }
 }

@@ -14,6 +14,7 @@ import { LeaderboardService } from '@microservice-tasks/leaderboard/leaderboard.
 import { IRankableTask } from '@microservice-tasks/core/ports/rankeable-task.interface';
 import { ITaskImageRepository } from '@microservice-tasks/core/ports/task-image.interface';
 import { E } from '@faker-js/faker/dist/airline-DF6RqYmq';
+import { AuthorizationService } from '@microservice-tasks/authorization/authorization.service';
 
 @Injectable()
 export class TaskService {
@@ -30,14 +31,18 @@ export class TaskService {
     @Inject(DASHBOARD_REPO)
     private readonly dashboardRepository: IDashboardRepository,
 
-    @Inject(LEADERBOARD_REPO) private readonly leaderboardRepository: ILeaderboardRepository,
+    @Inject(LEADERBOARD_REPO) 
     private readonly leaderboardService: LeaderboardService,
 
     @Inject(TASK_IMAGE_REPO)
     private readonly taskImageRepository: ITaskImageRepository,
+
+    private readonly authorizationService: AuthorizationService,
   ) { }
   async create(createTaskDto: CreateTaskDto, files?: Array<Express.Multer.File>): Promise<TaskResponseDto> {
-    const { name, description, priorityId, endDate, statusId, dashboardId, assignedToUserId } = createTaskDto;
+    const { name, description, priorityId, endDate, statusId, dashboardId, assignedToUserId, createdBy, reviewedByUserId } = createTaskDto;
+
+    await this.authorizationService.canCreateOrDeleteTask(createdBy, dashboardId);
 
     const statusTask = statusId
       ? await this.statusRepository.findOne(statusId)
@@ -81,6 +86,8 @@ export class TaskService {
       priorityId: priority.id,
       dashboardId,
       assignedToUserId: isCompleted ? assignedToUserId : null,
+      reviewedByUserId: isInReview ? reviewedByUserId : null,
+      createdBy: createdBy,
     });
 
     // 5. AÑADIR IMAGEN
@@ -108,14 +115,20 @@ export class TaskService {
     return this.taskRepository.findOne(id);
   }
 
-  async update(id: number, updateTaskDto: UpdateTaskDto) {
+  async update(id: number, updateTaskDto: UpdateTaskDto, userId:number) {
     try {
-      // 1. Obtener estado ACTUAL de la BD (La verdad absoluta)
-      // Necesitamos finishDate y status para saber si YA estaba completada
+
       const existingTask = await this.taskRepository.findOne(id);
 
       if (!existingTask) throw new RpcException({ status: HttpStatus.NOT_FOUND, message: 'Task not found' });
 
+      const dashboard = await this.dashboardRepository.findOne(existingTask.dashboardId);
+
+      await this.authorizationService.canUpdateTask(
+        userId, 
+        dashboard, 
+        updateTaskDto.statusId // Pasamos el status objetivo si existe
+     );
       // 2. Calcular nuevo estado
       let newStatus = existingTask.status;
       if (updateTaskDto.statusId) {
@@ -206,8 +219,10 @@ export class TaskService {
     }
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(id: number, userId: number): Promise<void> {
     try {
+      const task = await this.taskRepository.findOne(id);
+      await this.authorizationService.canCreateOrDeleteTask(userId, task.dashboardId);
       return await this.taskRepository.remove(id);
     } catch (error) {
       throw new RpcException({

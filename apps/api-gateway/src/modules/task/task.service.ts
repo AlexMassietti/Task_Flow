@@ -26,10 +26,10 @@ export class TaskService {
         }
     }
 
-    async update(id: number, updateTaskDto: UpdateTaskDto) {
+    async update(id: number, updateTaskDto: UpdateTaskDto, userId: number) {
         try {
             const task: TaskResponseDto = await firstValueFrom(
-                this.dashboardClient.send({ cmd: 'update_task' }, { id, updateTaskDto }),
+                this.dashboardClient.send({ cmd: 'update_task' }, { id, updateTaskDto, userId }),
             );
             return task;
         } catch (err: unknown) {
@@ -41,10 +41,10 @@ export class TaskService {
         }
     }
 
-    async delete(id: number) {
+    async delete(id: number, userId: number) {
         try {
             await firstValueFrom(
-                this.dashboardClient.send({ cmd: 'delete_task' }, { id }), { defaultValue: null },
+                this.dashboardClient.send({ cmd: 'delete_task' }, { id, userId }), { defaultValue: null },
             );
             return;
         } catch (err: unknown) {

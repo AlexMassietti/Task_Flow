@@ -3,9 +3,7 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
-  Delete,
   NotFoundException,
   ParseIntPipe,
 } from '@nestjs/common';
@@ -14,9 +12,8 @@ import { AssignTaskDto } from './dto/assign-task.dto';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { MessagePattern } from '@nestjs/microservices';
 import { Dashboard } from './entities/dashboard.entity';
-import { CreateTaskDto } from '@shared/dtos';
 import { DashboardInvitationDto } from './dto/dashboard-invitation.dto';
-import { CreateDashboardDto, DeleteDashboardDto } from '@shared/dtos';
+import { CreateDashboardDto} from '@shared/dtos';
 import { UpdateDashboardDto } from '@shared/dtos';
 
 @ApiTags('Dashboards')
@@ -26,7 +23,6 @@ export class DashboardController {
 
   @MessagePattern({ cmd: 'create_dashboard' })
   create(data: { createDashboardDto: CreateDashboardDto, userId: number }) {
-    console.log('Estoy creando el maldito db: ', data);
     return this.dashboardService.create(data.createDashboardDto, data.userId);
   }
 
@@ -46,13 +42,13 @@ export class DashboardController {
   }
 
   @MessagePattern({ cmd: 'update_dashboard' })
-  update(data: { updateDashboardDto: UpdateDashboardDto, dashboardId: number }) {
-    return this.dashboardService.update(data.updateDashboardDto, data.dashboardId);
+  update(data: { updateDashboardDto: UpdateDashboardDto, dashboardId: number, userId:number }) {
+    return this.dashboardService.update(data.updateDashboardDto, data.dashboardId, data.userId);
   }
 
   @MessagePattern({ cmd: 'delete_dashboard' })
-  remove(data: { dashboardId: number }) {
-    return this.dashboardService.remove(+data.dashboardId);
+  remove(data: { dashboardId: number, userId:number }) {
+    return this.dashboardService.remove(+data.dashboardId, data.userId);
   }
 
   @Post('assign-task')
@@ -70,29 +66,6 @@ export class DashboardController {
     return taskResult;
   }
 
-  @Post(':id/new-task')
-  @ApiOperation({
-    summary: 'Crear una nueva tarea y asignarla al dashboard especificado',
-  })
-  @ApiResponse({
-    status: 201,
-    description: 'Tarea creada y asignada exitosamente al dashboard.',
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Dashboard o entidad relacionada no encontrada.',
-  })
-  async createAndAssignTask(
-    @Param('id', ParseIntPipe) dashboardId: number,
-    @Body() createTaskDto: CreateTaskDto,
-  ) {
-    const task = await this.dashboardService.createAndAssignTask({
-      ...createTaskDto,
-      dashboardId,
-    });
-
-    return task;
-  }
 
   @MessagePattern({ cmd: 'get_owned_dashboards' })
   findOwned(data: { userId: number }): Promise<Dashboard[]> {
@@ -110,7 +83,7 @@ export class DashboardController {
   }
 
   @MessagePattern({ cmd: 'dashboard_invite' })
-  handleDashboardInvite(data: DashboardInvitationDto) {
+  handleDashboardInvite(data: DashboardInvitationDto, userId: number) {
     return this.dashboardService.processDashboardInvitation(data);
   }
 }

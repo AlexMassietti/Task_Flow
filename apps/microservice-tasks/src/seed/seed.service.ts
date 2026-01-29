@@ -203,6 +203,10 @@ export class SeedService {
         if (validUsersForDashboard.length > 0) {
            assignedUser = validUsersForDashboard[Math.floor(Math.random() * validUsersForDashboard.length)];
         }
+        let createdBy : number | null = null;
+        if (validUsersForDashboard.length > 0) {
+           createdBy = validUsersForDashboard[Math.floor(Math.random() * validUsersForDashboard.length)];
+        }
 
         // Si es Completed pero no hay usuarios en el dashboard, forzamos a Pending para evitar error
         const finalStatus = (isCompleted && !assignedUser) ? statuses.find(s => s.name === 'Pending') : status;

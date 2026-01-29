@@ -3,10 +3,7 @@ import { CreateDashboardDto } from '@shared/dtos';
 import { UpdateDashboardDto } from '@shared/dtos';
 import { Dashboard } from './entities/dashboard.entity';
 import { AssignTaskDto } from './dto/assign-task.dto';
-import { CreateTaskDto } from '@shared/dtos';
 import { DashboardInvitationDto } from './dto/dashboard-invitation.dto';
-import { Task } from '@microservice-tasks/task/entities/task.entity';
-import { Priority } from '@microservice-tasks/priority/entities/priority.entity';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
 import { CreateRolDashboardDto } from '@microservice-tasks/rol-dashboard/dto/create-rol-dashboard.dto';
@@ -17,6 +14,7 @@ import { IPriorityRepository } from '@microservice-tasks/core/ports/priority.int
 import { IStatusRepository } from '@microservice-tasks/core/ports/status.interface';
 import { IParticipantTypeRepository } from '@microservice-tasks/core/ports/participant-type.interface';
 import { IRolDashboardRepository } from '@microservice-tasks/core/ports/rol-dashboard.interface';
+import { AuthorizationService } from '@microservice-tasks/authorization/authorization.service';
 
 @Injectable()
 export class DashboardService {
@@ -41,6 +39,8 @@ export class DashboardService {
 
     @Inject('GATEWAY_CLIENT')
     private readonly gatewayClient: ClientProxy,
+
+    private readonly authorizationService: AuthorizationService,
   ) { }
 
   async create(dto: CreateDashboardDto, userId: number): Promise<Dashboard> {
@@ -85,8 +85,10 @@ export class DashboardService {
     return await this.dashboardRepository.findOne(id);
   }
 
-  async update(updateDashboardDto: UpdateDashboardDto, dashboardId: number): Promise<Dashboard | null> {
+  async update(updateDashboardDto: UpdateDashboardDto, dashboardId: number, userId:number): Promise<Dashboard | null> {
+    await this.authorizationService.canManageDashboard(userId, dashboardId);
     try {
+      
       return await this.dashboardRepository.update(updateDashboardDto, dashboardId);
     } catch (error) {
       throw new RpcException({
@@ -97,7 +99,8 @@ export class DashboardService {
     }
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(id: number, userId:number): Promise<void> {
+    await this.authorizationService.canManageDashboard(userId, id);
     try {
       await this.dashboardRepository.findOne(id);
 
@@ -126,57 +129,7 @@ export class DashboardService {
     return await this.taskRepository.save(foundTask);
   }
 
-  async createAndAssignTask(createTaskDto: CreateTaskDto): Promise<Task> {
-    const { dashboardId, name, description, priorityId, endDate, statusId } = createTaskDto;
-
-    const dashboard = await this.dashboardRepository.findOne(dashboardId);
-    if (!dashboard) {
-      throw new NotFoundException(`Dashboard with id ${dashboardId} not found`);
-    }
-
-    const defaultStatusId = 2;
-    const resolvedStatusId: number = statusId ?? defaultStatusId;
-
-    const status = await this.statusRepository.findOne(resolvedStatusId);
-    if (!status) {
-      throw new NotFoundException(`Status with id ${resolvedStatusId} not found`);
-    }
-
-    if (priorityId) {
-      const foundPriority: Priority | null = await this.priorityRepository.findOne(priorityId);
-      if (!foundPriority) {
-        throw new NotFoundException(`Priority with id ${priorityId} not found`);
-      }
-    }
-
-    const task = await this.taskRepository.create({
-      name,
-      description,
-      endDate,
-      startDate: new Date(),
-      statusId,
-      priorityId,
-      dashboardId,
-    });
-
-    const savedTask = await this.taskRepository.save(task);
-
-    return {
-      id: savedTask.id,
-      name: savedTask.name,
-      description: savedTask.description,
-      startDate: savedTask.startDate,
-      endDate: savedTask.endDate,
-      finishDate: savedTask.finishDate,
-      status: savedTask.status,
-      priority: savedTask.priority,
-      dashboard: {
-        id: dashboard.id,
-        name: dashboard.name,
-        description: dashboard.description,
-      },
-    } as Task;
-  }
+  
 
   async findOwned(userId: number): Promise<Dashboard[]> {
     const userRol = await this.participantTypeRepository.findOneByName('Owner');
@@ -215,6 +168,7 @@ export class DashboardService {
 
   async processDashboardInvitation(data: DashboardInvitationDto) {
     const { to, invitedBy, dashboardId } = data;
+    await this.authorizationService.canManageMembers(invitedBy, dashboardId);
 
     // 1. Verificar que el dashboard exista
     const dashboard = await this.dashboardRepository.findOne(dashboardId);
@@ -224,14 +178,7 @@ export class DashboardService {
 
     // 2. Verificar que quien invita pertenece al dashboard
     const inviters = await this.rolDashboardRepository.findUsersInDashboard(dashboard.id);
-    const belongs = inviters.includes(invitedBy);
 
-    if (!belongs) {
-      throw new RpcException({
-        message: "Inviter doesn't belong to this dashboard",
-        status: 403
-      });
-    }
     const invitedUser: number = await lastValueFrom(
       this.gatewayClient.send(
         { cmd: 'get_user_by_email' },

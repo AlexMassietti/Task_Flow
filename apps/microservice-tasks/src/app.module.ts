@@ -14,6 +14,7 @@ import { ConfigModule } from '@nestjs/config';
 import { configuration } from '../config/configuration';
 import { LeaderboardModule } from './leaderboard/leaderboard.module';
 import { FilesModule } from './files/files.module';
+import { AuthorizationModule } from './authorization/authorization.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { FilesModule } from './files/files.module';
     }),
     LeaderboardModule,
     FilesModule,
+    AuthorizationModule,
   ],
   controllers: [],
   providers: [],

@@ -7,12 +7,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Task } from './entities/task.entity';
 import { LeaderboardModule } from '@microservice-tasks/leaderboard/leaderboard.module';
 import { TaskImage } from './entities/task-image.entity';
+import { AuthorizationModule } from '@microservice-tasks/authorization/authorization.module';
 
 @Module({
   imports: [
     InfraModule,
     TypeOrmModule.forFeature([Task, TaskImage]),
     LeaderboardModule,
+    AuthorizationModule,
   ],
   controllers: [TaskController],
   providers: [TaskService, TaskRepository],

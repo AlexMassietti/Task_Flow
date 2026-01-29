@@ -31,10 +31,10 @@ export class DashboardService {
     }
   }
 
-  async update(updateDashboardDto: UpdateDashboardDto, dashboardId: number): Promise<DashboardDto> {
+  async update(updateDashboardDto: UpdateDashboardDto, dashboardId: number, userId:number): Promise<DashboardDto> {
     try {
       const dashboard: DashboardDto = await firstValueFrom(
-        this.dashboardClient.send({ cmd: 'update_dashboard' }, { updateDashboardDto, dashboardId }),
+        this.dashboardClient.send({ cmd: 'update_dashboard' }, { updateDashboardDto, dashboardId, userId }),
       );
       return dashboard;
     } catch (err: unknown) {
@@ -46,9 +46,9 @@ export class DashboardService {
     }
   }
 
-  async delete(dashboardId: number): Promise<void> {
+  async delete(dashboardId: number, userId:number): Promise<void> {
     try {
-      await firstValueFrom(this.dashboardClient.send({ cmd: 'delete_dashboard' }, { dashboardId }), { defaultValue: null });
+      await firstValueFrom(this.dashboardClient.send({ cmd: 'delete_dashboard' }, { dashboardId, userId }), { defaultValue: null });
       return;
     } catch (err: unknown) {
       const payload = normalizeRemoteError(err);

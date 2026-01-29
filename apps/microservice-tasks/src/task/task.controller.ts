@@ -1,11 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Param,  } from '@nestjs/common';
 import { TaskService } from './task.service';
 import { CreateTaskDto } from '@shared/dtos';
 import { UpdateTaskDto } from '@shared/dtos';
 import { ApiTags } from '@nestjs/swagger';
 import { Task } from './entities/task.entity';
 import { MessagePattern } from '@nestjs/microservices';
-import { Express } from 'express';
 import 'multer';
 
 @ApiTags('Tasks')
@@ -25,7 +24,7 @@ export class TaskController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: number) {
     const task = await this.taskService.findOne(+id);
     if (!task) {
       return null;
@@ -34,13 +33,13 @@ export class TaskController {
   }
 
   @MessagePattern({ cmd: 'update_task' })
-  update(data: { id: string, updateTaskDto: UpdateTaskDto }) {
-    return this.taskService.update(+data.id, data.updateTaskDto);
+  update(data: { id: number, updateTaskDto: UpdateTaskDto, userId: number  }) {
+    return this.taskService.update(data.id, data.updateTaskDto, data.userId);
   }
 
   @MessagePattern({ cmd: 'delete_task' })
-  remove(data: { id: string }) {
-    return this.taskService.remove(+data.id);
+  remove(data: { id: number, userId:number }) {
+    return this.taskService.remove(data.id, data.userId);
   }
 
   @MessagePattern({ cmd: 'get_dashboard_tasks' })

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { DashboardService } from './dashboard.service';
 import { ApiBearerAuth, ApiBody, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 import { DashboardDto } from './interfaces/dashboard.dto';
@@ -33,16 +33,20 @@ export class DashboardController {
   @Patch(':id')
   @Permissions('dashboard.update')
   @UpdateDashboardDoc()
-  update(@Body() updateDashboardDto: UpdateDashboardDto, @Param('id') id: number) {
-    return this.dashboardService.update(updateDashboardDto, id)
+  update(
+    @User('sub') userId:number, 
+    @Body() updateDashboardDto: UpdateDashboardDto, @Param('id') id: number) {
+    return this.dashboardService.update(updateDashboardDto, id, userId);
   }
 
   @Delete(':id')
   @Permissions('dashboard.delete')
   @HttpCode(204)
   @DeleteDashboardDoc()
-  delete(@Param('id') id: number) {
-    return this.dashboardService.delete(id)
+  delete(
+    @User('sub') userId:number,
+    @Param('id') id: number) {
+    return this.dashboardService.delete(id, userId);
   }
 
   @ApiOkResponse({ type: DashboardDto, isArray: true })

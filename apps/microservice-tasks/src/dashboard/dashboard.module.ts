@@ -3,6 +3,7 @@ import { DashboardService } from './dashboard.service';
 import { DashboardController } from './dashboard.controller';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { InfraModule } from '@microservice-tasks/infra/infra.module';
+import { AuthorizationModule } from '@microservice-tasks/authorization/authorization.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { InfraModule } from '@microservice-tasks/infra/infra.module';
         },
       },
     ]),
+    AuthorizationModule,
   ],
   controllers: [DashboardController],
   providers: [DashboardService],

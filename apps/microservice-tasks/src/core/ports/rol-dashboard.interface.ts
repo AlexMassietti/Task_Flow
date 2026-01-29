@@ -25,6 +25,8 @@ export interface IRolDashboardRepository {
 
   findSharedByUserId(userId: number, participantTypes: number[]): Promise<RolDashboard[]>;
 
+  findUserRole(userId: number, dashboardId: number): Promise<RolDashboard | null>;
+
   findUsersInDashboard(dahsboardId: number): Promise<number[]>;
 
   count(): Promise<number>;

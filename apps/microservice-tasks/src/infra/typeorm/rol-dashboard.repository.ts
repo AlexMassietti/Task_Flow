@@ -109,4 +109,14 @@ export class RolDashboardRepository implements IRolDashboardRepository {
     });
     return usersInDashboard.map((u) => u.userId);
   }
+
+  async findUserRole(userId: number, dashboardId: number): Promise<RolDashboard | null> {
+      return this.rolDashboardRepository.findOne({
+        where: { userId : userId, 
+          dashboard : {id: dashboardId},
+          
+        },
+        relations: ['participantType']
+      })
+  }
 }
