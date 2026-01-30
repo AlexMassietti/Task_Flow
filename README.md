@@ -27,7 +27,9 @@ npm run dev
 ## Comandos útiles
 
 - **Levantar microservicios**  
-  `npx nx serve microservice-users`  
+  `npx nx serve microservice-users`
+  `npx nx serve microservice-mail`
+  `npx nx serve microservice-notifications`  
   `npx nx serve microservice-tasks`  
   `npx nx serve api-gateway`  
   `npx nx serve frontend`

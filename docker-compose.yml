@@ -25,6 +25,18 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+
+  db-notifications: # Le cambié el nombre de 'db' a 'db-notifications' para ser más claro
+    image: postgres:alpine
+    container_name: microservice-notifications-db
+    restart: always
+    env_file:
+      - apps/microservice-notifications/.env.db
+    ports:
+      - '5433:5432'
+    volumes:
+      - postgres_notifications_data:/var/lib/postgresql/data
+
   # Redis para Colas del Microservicio de Mail
   redis:
     image: redis:alpine
@@ -38,4 +50,5 @@ services:
 volumes:
   postgres_task_data:
   postgres_data:
+  postgres_notifications_data:
   redis_data:
