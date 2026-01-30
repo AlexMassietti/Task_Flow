@@ -7,9 +7,9 @@ import { LeaderboardModule } from './modules/leaderboard/leaderboard.module';
 import { FilesModule } from './modules/files/files.module';
 import { StatusModule } from './modules/status/status.module';
 import { PriorityModule } from './modules/priority/priority.module';
-
+import { NotificationModule } from './modules/notification/notification.module';
 @Module({
-  imports: [AuthModule, DashboardModule, TaskModule, MailModule, LeaderboardModule, FilesModule, StatusModule, PriorityModule],
+  imports: [AuthModule, DashboardModule, TaskModule, MailModule, LeaderboardModule, FilesModule, StatusModule, PriorityModule, NotificationModule],
   controllers: [],
   providers: [],
 })
