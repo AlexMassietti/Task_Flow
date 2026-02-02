@@ -3,18 +3,15 @@ import { CreateDashboardDto } from '@shared/dtos';
 import { UpdateDashboardDto } from '@shared/dtos';
 import { Dashboard } from './entities/dashboard.entity';
 import { AssignTaskDto } from './dto/assign-task.dto';
-import { DashboardInvitationDto } from './dto/dashboard-invitation.dto';
-import { ClientProxy, RpcException } from '@nestjs/microservices';
-import { lastValueFrom } from 'rxjs';
+import { RpcException } from '@nestjs/microservices';
 import { CreateRolDashboardDto } from '@microservice-tasks/rol-dashboard/dto/create-rol-dashboard.dto';
-import { DASHBOARD_REPO, PARTICIPANT_TYPE_REPO, PRIORITY_REPO, ROL_DASHBOARD_REPO, STATUS_REPO, TASK_REPO } from '@microservice-tasks/core/ports/tokens';
+import { DASHBOARD_REPO, PARTICIPANT_TYPE_REPO, ROL_DASHBOARD_REPO, TASK_REPO } from '@microservice-tasks/core/ports/tokens';
 import { ITaskRepository } from '@microservice-tasks/core/ports/task.interface';
 import { IDashboardRepository } from '@microservice-tasks/core/ports/dashboard.interface';
-import { IPriorityRepository } from '@microservice-tasks/core/ports/priority.interface';
-import { IStatusRepository } from '@microservice-tasks/core/ports/status.interface';
 import { IParticipantTypeRepository } from '@microservice-tasks/core/ports/participant-type.interface';
 import { IRolDashboardRepository } from '@microservice-tasks/core/ports/rol-dashboard.interface';
 import { AuthorizationService } from '@microservice-tasks/authorization/authorization.service';
+
 
 @Injectable()
 export class DashboardService {
@@ -25,20 +22,11 @@ export class DashboardService {
     @Inject(DASHBOARD_REPO)
     private readonly dashboardRepository: IDashboardRepository,
 
-    @Inject(PRIORITY_REPO)
-    private readonly priorityRepository: IPriorityRepository,
-
-    @Inject(STATUS_REPO)
-    private readonly statusRepository: IStatusRepository,
-
     @Inject(PARTICIPANT_TYPE_REPO)
     private readonly participantTypeRepository: IParticipantTypeRepository,
 
     @Inject(ROL_DASHBOARD_REPO)
     private readonly rolDashboardRepository: IRolDashboardRepository,
-
-    @Inject('GATEWAY_CLIENT')
-    private readonly gatewayClient: ClientProxy,
 
     private readonly authorizationService: AuthorizationService,
   ) { }
@@ -164,73 +152,6 @@ export class DashboardService {
     }
 
     return this.rolDashboardRepository.findUsersInDashboard(dashboard.id);
-  }
-
-  async processDashboardInvitation(data: DashboardInvitationDto) {
-    const { to, invitedBy, dashboardId } = data;
-    await this.authorizationService.canManageMembers(invitedBy, dashboardId);
-
-    // 1. Verificar que el dashboard exista
-    const dashboard = await this.dashboardRepository.findOne(dashboardId);
-    if (!dashboard) {
-      throw new RpcException({ message: 'Dashboard not found', status: 404 });
-    }
-
-    // 2. Verificar que quien invita pertenece al dashboard
-    const inviters = await this.rolDashboardRepository.findUsersInDashboard(dashboard.id);
-
-    const invitedUser: number = await lastValueFrom(
-      this.gatewayClient.send(
-        { cmd: 'get_user_by_email' },
-        { email: to }
-      )
-    );
-
-    if (!invitedUser) {
-      throw new RpcException({
-        message: 'User to invite does not exist',
-        status: 404
-      });
-    }
-    if (inviters.includes(invitedUser)) {
-      throw new RpcException({
-        message: 'User is already in the dashboard',
-        status: 409
-      })
-    }
-
-    const inviterUsername = await lastValueFrom(
-      this.gatewayClient.send(
-        { cmd: 'get_user_by_id' },
-        { id: invitedBy }
-      )
-    );
-
-    const userRol = await this.participantTypeRepository.findOneByName('Editor');
-    if (!userRol) {
-      throw new NotFoundException(`User Rol with name: Owner not found`);
-    }
-
-
-    // 3. Crear/añadir al nuevo usuario al dashboard
-    await this.rolDashboardRepository.updateUserInDashboard({
-      userId: invitedUser,
-      dashboard: dashboard,
-      participantType: userRol
-    });
-
-    // 4. Generar link "no sensible"
-    const inviteLink = `http://localhost:4200/dashboard/${dashboardId}`;
-    // 5. Retornar datos para que el gateway mande el mail
-
-    return {
-      ok: true,
-      to: data.to,
-      invitedBy: inviterUsername,
-      dashboardName: dashboard.name,
-      inviteLink
-    };
-
   }
 
 }

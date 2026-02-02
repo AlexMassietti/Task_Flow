@@ -1,4 +1,4 @@
-import { DASHBOARD_REPO, LEADERBOARD_REPO, PARTICIPANT_TYPE_REPO, PRIORITY_REPO, ROL_DASHBOARD_REPO, STATUS_REPO, TASK_REPO, TASK_IMAGE_REPO } from '@microservice-tasks/core/ports/tokens';
+import { DASHBOARD_REPO, LEADERBOARD_REPO, PARTICIPANT_TYPE_REPO, PRIORITY_REPO, ROL_DASHBOARD_REPO, STATUS_REPO, TASK_REPO, TASK_IMAGE_REPO, DASHBOARD_INVITATION_REPO } from '@microservice-tasks/core/ports/tokens';
 import { Dashboard } from '@microservice-tasks/dashboard/entities/dashboard.entity';
 import { ParticipantType } from '@microservice-tasks/participant-type/entities/participant-type.entity';
 import { Priority } from '@microservice-tasks/priority/entities/priority.entity';
@@ -17,9 +17,11 @@ import { LeaderboardRepository } from './typeorm/leaderboard.repository';
 import { Leaderboard } from '@microservice-tasks/leaderboard/entities/leaderboard.entity';
 import { TaskImage } from '@microservice-tasks/task/entities/task-image.entity';
 import { TaskImageRepository } from './typeorm/task-image.repository';
+import { DashboardInvitationRepository } from './typeorm/dashboard-invitation.repository';
+import { DashboardInvitation } from '@microservice-tasks/dashboard-invitation/entities/dashboard-invitation.entity';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Dashboard, ParticipantType, Priority, RolDashboard, Status, Task, Leaderboard, TaskImage])],
+    imports: [TypeOrmModule.forFeature([Dashboard, ParticipantType, Priority, RolDashboard, Status, Task, Leaderboard, TaskImage, DashboardInvitation])],
     providers: [
         { provide: DASHBOARD_REPO, useClass: DashboardRepository },
         { provide: PARTICIPANT_TYPE_REPO, useClass: ParticipantTypeRepository },
@@ -29,8 +31,9 @@ import { TaskImageRepository } from './typeorm/task-image.repository';
         { provide: TASK_REPO, useClass: TaskRepository },
         { provide: LEADERBOARD_REPO, useClass: LeaderboardRepository },
         { provide: TASK_IMAGE_REPO, useClass: TaskImageRepository },
+        { provide: DASHBOARD_INVITATION_REPO, useClass: DashboardInvitationRepository}
     ],
-    exports: [DASHBOARD_REPO, PARTICIPANT_TYPE_REPO, PRIORITY_REPO, ROL_DASHBOARD_REPO, STATUS_REPO, TASK_REPO, LEADERBOARD_REPO, TASK_IMAGE_REPO],
+    exports: [DASHBOARD_REPO, PARTICIPANT_TYPE_REPO, PRIORITY_REPO, ROL_DASHBOARD_REPO, STATUS_REPO, TASK_REPO, LEADERBOARD_REPO, TASK_IMAGE_REPO, DASHBOARD_INVITATION_REPO],
 })
 export class InfraModule { }
 

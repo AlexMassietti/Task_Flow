@@ -4,8 +4,9 @@ import { NotificationService } from './notification.service';
 import { Get, Param, Patch, Post } from '@nestjs/common/decorators/http';
 import { ParseIntPipe } from '@nestjs/common/pipes/parse-int.pipe';
 import { AppNotification } from './entities/notification.entity';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
 import { CreateNotificationDto } from './dto/create-notification.dto';
+import { DashboardInvitationDto } from './dto/dashboard-invitation.dto';
 
 @ApiTags('Notifications')
 @Controller('notifications')
@@ -19,9 +20,15 @@ export class NotificationController {
     return this.service.create(createNotificationDto);
   }
 
-  @MessagePattern({cmd : 'create_new_notification'})
-  createNotification(@Payload() data: CreateNotificationDto){
-    return this.service.create(data);
+  @EventPattern('dashboard_invitation_created') // Escucha directa
+  handleDashboardInvitation(data: DashboardInvitationDto) {
+      this.service.create({
+          userId: data.userId,
+          title: 'Nueva invitación',
+          message: `${data.invitedBy} te invitó al dashboard ${data.dashboardName}`,
+          type: 'invite',
+          relatedResourceId: data.relatedResourceId,
+      });
   }
 
 

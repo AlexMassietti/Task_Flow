@@ -15,6 +15,7 @@ import { configuration } from '../config/configuration';
 import { LeaderboardModule } from './leaderboard/leaderboard.module';
 import { FilesModule } from './files/files.module';
 import { AuthorizationModule } from './authorization/authorization.module';
+import { DashboardInvitationModule } from './dashboard-invitation/dashboard-invitation.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { AuthorizationModule } from './authorization/authorization.module';
     LeaderboardModule,
     FilesModule,
     AuthorizationModule,
+    DashboardInvitationModule,
   ],
   controllers: [],
   providers: [],

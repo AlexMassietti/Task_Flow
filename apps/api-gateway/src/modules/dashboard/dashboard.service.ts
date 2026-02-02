@@ -7,6 +7,7 @@ import { UserDto } from './interfaces/user.dto';
 import { normalizeRemoteError } from '../auth/error/normalize-remote-error';
 import { DashboardInvitationDto } from './dto/dashboard-invitation.dto';
 import { CreateDashboardDto, UpdateDashboardDto } from '@shared/dtos';
+import { DashboardNotificationDto } from './dto/dashboard-notification.dto';
 
 @Injectable()
 export class DashboardService {
@@ -14,6 +15,7 @@ export class DashboardService {
     @Inject('USERS_SERVICE') private readonly usersClient: ClientProxy,
     @Inject('DASHBOARD_SERVICE') private readonly dashboardClient: ClientProxy,
     @Inject('MAIL_SERVICE') private readonly mailClient: ClientProxy,
+    @Inject('NOTIFICATIONS_SERVICE') private readonly notificationClient: ClientProxy,
   ) { }
 
   async create(createDashboardDto: CreateDashboardDto, userId: number): Promise<DashboardDto> {
@@ -102,12 +104,44 @@ export class DashboardService {
       );
     }
   }
-  async sendDashboardInvitationMail(mailData: DashboardInvitationDto) {
+
+  async acceptInvitation(invitationId: string, userId: number){
     try {
-      const response: { status: string } = await firstValueFrom(
-        this.mailClient.send({ cmd: 'mail-dashboard-invitation' }, mailData),
+      const response: { success: boolean; message: string } = await firstValueFrom(
+        this.dashboardClient.send({ cmd: 'accept_dashboard_invitation' }, { invitationId, userId }),
       );
-      return { success: true, data: response };
+      return response;
+    }catch (err: unknown) {
+      const payload = normalizeRemoteError(err);
+      throw new HttpException(
+        { success: false, error: payload },
+        payload.status ?? 500,
+      );
+    }
+  }
+
+  async notifyInvitation(data: DashboardNotificationDto){
+    this.sendDashboardInvitationMail(data);
+    this.sendDashboardInvitationNotification(data);
+  }
+
+  async sendDashboardInvitationNotification(notiData: DashboardNotificationDto) {
+    try {
+      this.notificationClient.emit('dashboard_invitation_created', notiData);
+      return { success: true };
+    } catch (err: unknown) {
+      const payload = normalizeRemoteError(err);
+      throw new HttpException(
+        { success: false, error: payload },
+        payload.status ?? 500,
+      );
+    }
+  }
+
+  async sendDashboardInvitationMail(mailData: DashboardNotificationDto) {
+    try {
+      this.mailClient.emit('dashboard_invitation_created', mailData);
+      return { success: true };
     } catch (err: unknown) {
       const payload = normalizeRemoteError(err);
       throw new HttpException(

@@ -1,7 +1,7 @@
 import { IsEmail, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class DashboardInvitationDto {
+export class DashboardNotificationDto {
   @ApiProperty({
     example: 'poné_tumail@gmail.com',
     description: 'Email del usuario invitado al dashboard',

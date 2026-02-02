@@ -59,7 +59,7 @@ export class UsersService {
 
   async getIdbyEmail(email: string): Promise<number> {
     const userFound = await this.userRepository.findByEmail(email);
-    if (!userFound) {
+    if (userFound == null) {
       throw new NotFoundException('No matching user found');
     }
     return userFound.id;

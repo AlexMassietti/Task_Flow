@@ -82,8 +82,4 @@ export class DashboardController {
     return this.dashboardService.findUsersInDashboard(data.id);
   }
 
-  @MessagePattern({ cmd: 'dashboard_invite' })
-  handleDashboardInvite(data: DashboardInvitationDto, userId: number) {
-    return this.dashboardService.processDashboardInvitation(data);
-  }
 }

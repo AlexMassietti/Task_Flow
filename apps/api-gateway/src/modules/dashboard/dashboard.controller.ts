@@ -13,14 +13,16 @@ import { UpdateDashboardDoc } from './docs/update-dashboard.doc';
 import { DeleteDashboardDoc } from './docs/delete-dashboard.doc';
 import { TaskResponseDto } from '@shared/dtos';
 import { User } from '@api-gateway/common/decorators/user.decorator';
+import { EventPattern, Payload } from '@nestjs/microservices';
+import { DashboardNotificationDto } from './dto/dashboard-notification.dto';
 
 @Controller('dashboard')
 @ApiBearerAuth('access-token')
-@UseGuards(JwtRs256Guard, PermissionsGuard)
 export class DashboardController {
   constructor(private readonly dashboardService: DashboardService) { }
 
   @Post()
+  @UseGuards(JwtRs256Guard, PermissionsGuard)
   @Permissions('dashboard.create')
   @CreateDashboardDoc()
   create(
@@ -31,6 +33,7 @@ export class DashboardController {
   }
 
   @Patch(':id')
+  @UseGuards(JwtRs256Guard, PermissionsGuard)
   @Permissions('dashboard.update')
   @UpdateDashboardDoc()
   update(
@@ -40,6 +43,7 @@ export class DashboardController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtRs256Guard, PermissionsGuard)
   @Permissions('dashboard.delete')
   @HttpCode(204)
   @DeleteDashboardDoc()
@@ -51,6 +55,7 @@ export class DashboardController {
 
   @ApiOkResponse({ type: DashboardDto, isArray: true })
   @Get('owned')
+  @UseGuards(JwtRs256Guard, PermissionsGuard)
   @Permissions('dashboard.read')
   @ApiOperation({ summary: 'Obtener dashboards propios del usuario autenticado' })
   async getOwnedDashboards(@User('sub') userId: number) {
@@ -59,6 +64,7 @@ export class DashboardController {
 
   @ApiOkResponse({ type: DashboardDto, isArray: true })
   @Get('shared')
+  @UseGuards(JwtRs256Guard, PermissionsGuard)
   @Permissions('dashboard.read')
   @ApiOperation({ summary: 'Obtener dashboards compartidos con el usuario autenticado' })
   async getSharedDashboards(@User('sub') userId: number) {
@@ -67,6 +73,7 @@ export class DashboardController {
 
   @ApiOkResponse({ type: TaskResponseDto, isArray: true })
   @Get(':id/tasks')
+  @UseGuards(JwtRs256Guard, PermissionsGuard)
   @Permissions('task.read')
   async getDashboardTasks(@Param('id') id: number) {
     return this.dashboardService.getDashboardTasks(id);
@@ -74,14 +81,15 @@ export class DashboardController {
 
   @ApiOkResponse({ type: UserDto, isArray: true })
   @Get(':id/users')
+  @UseGuards(JwtRs256Guard, PermissionsGuard)
   @Permissions('dashboard.members.read')
   async getDashboardUsers(@Param('id') id: number) {
     return this.dashboardService.getDashboardUsers(id);
   }
 
-
   @ApiOkResponse({ type: DashboardInvitationDto })
   @Post('dashboard-invite')
+  @UseGuards(JwtRs256Guard, PermissionsGuard)
   @Permissions('dashboard.members.update')
   @ApiOperation({ summary: 'Invitar un usuario a un dashboard' })
   @ApiBody({ type: DashboardInvitationDto })
@@ -90,7 +98,20 @@ export class DashboardController {
     @Body() dto: DashboardInvitationDto
   ) {
     dto.invitedBy = userId; 
-    const mailData = await this.dashboardService.processDashboardInvitation(dto);
-    return this.dashboardService.sendDashboardInvitationMail(mailData);
+    return await this.dashboardService.processDashboardInvitation(dto);
+  }
+
+  @Post('accept-invite/:id')
+  @UseGuards(JwtRs256Guard)
+  async acceptInvite(
+    @Param('id') invitationId: string, 
+    @User('sub') userId: number
+  ) {
+    return await this.dashboardService.acceptInvitation(invitationId, userId);
+  }
+
+  @EventPattern('dashboard_invitation_created')
+  async notifyDashboardInvitation(@Payload() data: DashboardNotificationDto) {
+    return await this.dashboardService.notifyInvitation(data);
   }
 }

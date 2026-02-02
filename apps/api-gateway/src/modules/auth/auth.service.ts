@@ -95,19 +95,19 @@ export class AuthService {
     }
   } 
 
-  async getUserByEmail(email: string) {
+  async getUserByEmail(email: string) : Promise<number> {
     try {
-      const user = await lastValueFrom(
+      const userId : number = await lastValueFrom(
         this.usersClient.send({ cmd: 'get_user_by_email' }, { email })
       );
-      if (!user) {
+      if (!userId) {
         throw new HttpException(
           { message: 'User not found' },
           404,
         );
       }
 
-      return user;
+      return userId;
     } catch (err) {
       const payload = normalizeRemoteError(err);
       throw new HttpException({ error: payload }, payload.status ?? 500);
