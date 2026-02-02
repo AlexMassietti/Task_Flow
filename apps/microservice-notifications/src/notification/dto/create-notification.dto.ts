@@ -24,5 +24,5 @@ export class CreateNotificationDto {
   @ApiProperty({ required: false })
   @IsInt()
   @IsOptional()
-  relatedResourceId?: number;
+  relatedResourceId?: string;
 }

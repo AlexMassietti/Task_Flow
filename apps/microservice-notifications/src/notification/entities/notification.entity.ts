@@ -29,7 +29,7 @@ export class AppNotification {
 
   @ApiProperty({ example: 10, required: false })
   @Column({ nullable: true })
-  relatedResourceId: number;
+  relatedResourceId: string;
 
   @ApiProperty({ example: '2024-05-20T10:00:00Z' })
   @CreateDateColumn()

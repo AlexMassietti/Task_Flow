@@ -8,6 +8,7 @@ import { normalizeRemoteError } from '../auth/error/normalize-remote-error';
 import { DashboardInvitationDto } from './dto/dashboard-invitation.dto';
 import { CreateDashboardDto, UpdateDashboardDto } from '@shared/dtos';
 import { DashboardNotificationDto } from './dto/dashboard-notification.dto';
+import { DashboardMailDto } from './dto/dashboard-mail.dto';
 
 @Injectable()
 export class DashboardService {
@@ -120,9 +121,22 @@ export class DashboardService {
     }
   }
 
-  async notifyInvitation(data: DashboardNotificationDto){
-    this.sendDashboardInvitationMail(data);
-    this.sendDashboardInvitationNotification(data);
+  async notifyInvitation(rawData: any){
+  const mailPayload: DashboardMailDto = {
+    to: rawData.email,
+    invitedBy: rawData.invitedBy,
+    dashboardName: rawData.dashboardName,
+    inviteLink: rawData.inviteLink,
+  };
+  const notificationPayload: DashboardNotificationDto = {
+    userId: rawData.targetUserId,
+    invitedBy: rawData.invitedBy,
+    dashboardName: rawData.dashboardName,
+    relatedResourceId: rawData.relatedResourceId || rawData.invitationId,
+  };
+
+  this.mailClient.emit('dashboard_invitation_created', mailPayload);
+  this.notificationClient.emit('dashboard_invitation_created', notificationPayload);
   }
 
   async sendDashboardInvitationNotification(notiData: DashboardNotificationDto) {

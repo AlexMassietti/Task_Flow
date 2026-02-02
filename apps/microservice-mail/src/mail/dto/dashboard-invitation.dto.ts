@@ -8,7 +8,7 @@ export class DashboardInvitationDto {
   })
   @IsEmail()
   @IsNotEmpty()
-  to: string;
+  email: string;
 
   @ApiProperty({
     example: 'Juan Pérez',
