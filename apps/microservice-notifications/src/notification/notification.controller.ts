@@ -54,4 +54,10 @@ export class NotificationController {
   checkAsRead(@Payload() data: number){
     return this.service.readNotification(data);
   }
+
+
+  @MessagePattern({cmd : 'read_all_notification'})
+  checkAllAsRead(@Payload() data: number){
+    return this.service.readAllNotification(data);
+  }
 }

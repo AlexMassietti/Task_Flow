@@ -39,7 +39,23 @@ export class NotificationService {
 
   async readNotification(id: number) {
     try{ const noti = await firstValueFrom(this.notificationClient.send({
+
       cmd : 'read_notification'}, id));
+      return noti;
+
+    }catch(error){
+      const payload = normalizeRemoteError(error);
+      throw new HttpException(
+          { error: payload },
+          typeof payload.status === 'number' ? payload.status : 500,
+      )
+    }
+  }
+
+  async readAllNotifications(id : number){
+    try{ const noti = await firstValueFrom(this.notificationClient.send({
+
+      cmd : 'read_all_notification'}, id));
       return noti;
 
     }catch(error){

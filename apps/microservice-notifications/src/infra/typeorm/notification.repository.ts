@@ -36,8 +36,17 @@ export class AppNotificationRepository implements INotificationRepository {
     return await this.repo.save(notif);
   }
 
-  async markAllAsRead(userId: number): Promise<void> {
-    await this.repo.update({ userId: userId, isRead: false }, { isRead: true });
+  async markAllAsRead(userId: number): Promise<{ success: boolean; count?: number }> {
+      const result = await this.repo.update(
+      { userId: userId, isRead: false }, 
+      { isRead: true }
+    );
+    
+    // Devolvemos un objeto para que el Gateway reciba una respuesta clara
+    return { 
+      success: true, 
+      count: result.affected 
+    };
   }
 
   async delete(id: number): Promise<void> {

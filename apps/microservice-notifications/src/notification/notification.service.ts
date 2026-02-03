@@ -20,4 +20,8 @@ export class NotificationService {
   async readNotification(id: number) {
     return await this.notificationRepository.markAsRead(id);
   }
+
+  async readAllNotification(ids: number) {
+    return await this.notificationRepository.markAllAsRead(ids);
+  }
 }

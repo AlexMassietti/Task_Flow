@@ -35,4 +35,10 @@ export class NotificationController {
     return this.notificationService.readNotification(id);
   }
 
+  @Patch('read-all')
+  readAllNotification(@User('sub') id : number){
+    console.log(id);
+    return this.notificationService.readAllNotifications(id);
+  }
+
 }

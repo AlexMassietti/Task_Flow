@@ -7,7 +7,7 @@ export interface AppNotification {
   title: string;
   message: string;
   createdAt: Date; // Ajustado a lo que suele devolver TypeORM
-  read: boolean;
+  isRead: boolean;
   type?: string;
 }
 
@@ -37,29 +37,38 @@ export class NotificationService {
 
   get unreadCount$(): Observable<number> {
     return this.notifications$.pipe(
-      map(notifs => notifs.filter(n => !n.read).length)
+      map(notifs => notifs.filter(n => !n.isRead).length)
     );
   }
 
   // PATCH: Marcar como leída en el servidor y actualizar estado local
-  markAsRead(id: number): void {
-    this.http.patch(`${this.baseUrl}/${id}/notification/read`, {})
-      .pipe(
-        tap(() => {
-          // Actualizamos el estado local sin necesidad de recargar todo del server
-          const currentNotifs = this.notificationsSubject.getValue();
-          const updated = currentNotifs.map(n => n.id === id ? { ...n, read: true } : n);
-          this.notificationsSubject.next(updated);
-        })
-      ).subscribe();
-  }
-
-  // Si decides implementar el "marcar todas" en el backend:
-  markAllAsRead(): void {
-    // Ejemplo de cómo podrías manejarlo si creas el endpoint en NestJS
-    this.http.patch(`${this.baseUrl}/notification/read-all`, {}).subscribe(() => {
-        const updated = this.notificationsSubject.getValue().map(n => ({ ...n, read: true }));
+  markAsRead(id: number) {
+    return this.http.patch(`${this.baseUrl}/notification/${id}/read`, {}).pipe(
+      tap(() => {
+        // Actualizamos el estado local para que el badge y la lista cambien al instante
+        const currentNotifs = this.notificationsSubject.getValue();
+        const updated = currentNotifs.map(n => 
+          n.id === id ? { ...n, isRead: true } : n
+        );
         this.notificationsSubject.next(updated);
+      })
+    ).subscribe({
+      error: (err) => console.error('Error al marcar notificación:', err)
     });
   }
+
+  markAllAsRead() {
+  // We update locally BEFORE the HTTP call completes to ensure instant UI
+  const currentNotifs = this.notificationsSubject.getValue();
+  const updated = currentNotifs.map(n => ({ ...n, isRead: true }));
+  this.notificationsSubject.next(updated);
+
+  return this.http.patch(`${this.baseUrl}/notification/read-all`, {}).subscribe({
+    next: () => console.log('Backend sync successful'),
+    error: (err) => {
+      console.error('Backend failed, reverting UI', err);
+      this.loadNotifications(); // Revert if the server actually failed
+    }
+  });
+}
 }

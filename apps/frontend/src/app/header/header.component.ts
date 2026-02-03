@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
 import { NavigationEnd, Router, Event as RouterEvent} from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { isPlatformBrowser } from '@angular/common';
@@ -30,6 +30,7 @@ export class HeaderComponent implements OnInit {
     private sidebarService: SidebarService,
     private dashBoardService: DashBoardService,
     private notificationService: NotificationService,
+    private cd: ChangeDetectorRef,
   ) {
     this.router.events.pipe(
       filter((event): event is NavigationEnd => event instanceof NavigationEnd)
@@ -57,8 +58,10 @@ export class HeaderComponent implements OnInit {
     });
 
     this.notificationService.unreadCount$.subscribe(count => {
-      this.unreadCount = count;
-    });
+    this.unreadCount = count;
+    this.cd.detectChanges();
+    console.log('Unread count updated to:', count);
+  });
   }
 
   checkRoute(url: string): void {

@@ -6,7 +6,7 @@ export interface INotificationRepository {
   findAllByUserId(userId: number): Promise<AppNotification[]>;
   findOne(id: number): Promise<AppNotification | null>;
   markAsRead(id: number): Promise<AppNotification>;
-  markAllAsRead(userId: number): Promise<void>;
+  markAllAsRead(userId: number): Promise<{ success: boolean; count?: number }>;
   delete(id: number): Promise<void>;
 }
 

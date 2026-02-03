@@ -29,37 +29,43 @@
         </button>
 
         <ul class="dropdown-menu dropdown-menu-end notification-menu" aria-labelledby="notifDropdown">
-          <li class="px-3 py-2 d-flex justify-content-between align-items-center bg-light">
-            <span class="fw-bold small">Notificaciones</span>
-            <button class="btn btn-link btn-sm p-0 text-decoration-none small" (click)="markAllRead($event)">
-              Limpiar todo
-            </button>
-          </li>
-          <li><hr class="dropdown-divider m-0"></li>
-          
-          <div class="notification-list">
-            <li *ngIf="notifications.length === 0" class="px-3 py-4 text-center text-muted small">
-              No hay notificaciones nuevas
+            <li class="px-3 py-2 d-flex justify-content-between align-items-center bg-light">
+              <span class="fw-bold small text-dark">Notifications</span>
+              <button class="btn btn-link btn-sm p-0 text-decoration-none small" (click)="markAllRead($event)">
+                Mark all as read
+              </button>
             </li>
-            <li *ngFor="let note of notifications" 
-                class="dropdown-item notification-item" 
-                [class.unread]="!note.read"
-                (click)="markAsRead(note.id, $event)">
-              <div class="d-flex flex-column">
-                <span class="fw-bold small">{{ note.title }}</span>
-                <span class="text-wrap small text-muted">{{ note.message }}</span>
-                <span class="sx-date text-primary mt-1">{{ note.createdAt | date:'shortTime' }}</span>
-              </div>
-            </li>
-          </div>
-        </ul>
+            <li><hr class="dropdown-divider m-0"></li>
+            
+            <div class="notification-list">
+              <li *ngIf="notifications.length === 0" class="px-3 py-4 text-center text-muted small">
+                No new notifications
+              </li>
+              
+              <li *ngFor="let note of notifications" 
+                  class="dropdown-item notification-item" 
+                  [class.unread]="note.isRead === false"
+                  (click)="markAsRead(note.id, $event)">
+                <div class="d-flex align-items-start">
+                  <div class="flex-grow-1 d-flex flex-column">
+                    <span class="fw-bold small notif-title">{{ note.title }}</span>
+                    <span class="text-wrap small text-muted">{{ note.message }}</span>
+                    <span class="sx-date text-primary mt-1">{{ note.createdAt | date:'shortTime' }}</span>
+                  </div>
+                  <div *ngIf="note.isRead === false" class="ms-2 mt-1">
+                    <i class="bi bi-circle-fill text-primary" style="font-size: 8px;"></i>
+                  </div>
+                </div>
+              </li>
+            </div>
+          </ul>
       </div>
 
       <button 
         *ngIf="showInviteButton" 
         class="btn invite-btn" 
         (click)="invitePeople()"
-        title="Invitar personas">
+        title="Invite people">
         <i class="bi bi-person-plus-fill"></i>
         <span class="d-none d-md-inline ms-1">Invite</span>
       </button>
@@ -71,12 +77,12 @@
           id="profileDropdown"
           data-bs-toggle="dropdown"
           aria-expanded="false">
-          <img [src]="profileImage" class="user-avatar" alt="Imagen del usuario" />
+          <img [src]="profileImage" class="user-avatar" alt="User avatar" />
         </button>
         <ul class="dropdown-menu dropdown-menu-end profile-menu" aria-labelledby="profileDropdown">
-          <li><a class="dropdown-item" (click)="goToProfile()"><i class="bi bi-person me-2"></i>Perfil</a></li>
+          <li><a class="dropdown-item" (click)="goToProfile()"><i class="bi bi-person me-2"></i>Profile</a></li>
           <li><hr class="dropdown-divider"></li>
-          <li><a class="dropdown-item text-danger" (click)="logout()"><i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión</a></li>
+          <li><a class="dropdown-item text-danger" (click)="logout()"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
         </ul>
       </div>
 

@@ -1,6 +1,6 @@
 /* --- BASE TOPBAR --- */
 .topbar {
-  background-color: lightblue;
+  background-color: lightblue; 
   height: 60px;
   display: flex;
   align-items: center;
@@ -22,7 +22,7 @@
   align-items: center;
 }
 
-/* --- ESTILOS VISUALES COMPARTIDOS (Iconos y Hamburguesa) --- */
+/* --- BOTONES E ICONOS --- */
 .header-icon-btn, .menu-btn {
   background: transparent !important;
   border: none !important;
@@ -33,22 +33,21 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.2s ease, left 0.3s ease-in-out; /* Sincronizado con sidebar */
+  transition: background-color 0.2s ease, left 0.3s ease-in-out;
   border-radius: 50% !important;
   width: 42px;
   height: 42px;
   padding: 0;
 }
 
-/* EFECTO HOVER PARA TODOS */
 .header-icon-btn:hover, .menu-btn:hover {
   background-color: rgba(0, 0, 0, 0.1) !important;
 }
 
-/* --- CONFIGURACIÓN ORIGINAL DEL MENÚ HAMBURGUESA --- */
+/* --- HAMBURGUESA RESTAURADA --- */
 .menu-btn {
   position: absolute;
-  left: -10px;
+  left: -10px; 
   top: 50%;
   transform: translateY(-50%);
   font-size: 1.5rem;
@@ -56,7 +55,7 @@
 }
 
 .menu-btn.shift {
-  left: 215px; /* Tu valor de sincronización original */
+  left: 215px; 
 }
 
 /* --- SECCIÓN DERECHA --- */
@@ -65,10 +64,6 @@
   align-items: center;
   gap: 10px;
   margin-left: auto;
-}
-
-.header-icon-btn {
-  position: relative;
 }
 
 .user-avatar {
@@ -88,21 +83,16 @@
   font-size: 0.9rem;
 }
 
-.invite-btn:hover {
-  background-color: #43a047;
-  color: white;
-}
-
-/* --- DROPDOWNS --- */
-.notification-menu, .profile-menu {
+/* --- NOTIFICACIONES --- */
+.notification-menu {
+  width: 300px;
   border: none;
   box-shadow: 0 10px 25px rgba(0,0,0,0.15);
   border-radius: 10px;
   margin-top: 8px !important;
+  padding: 0;
   overflow: hidden;
 }
-
-.notification-menu { width: 300px; }
 
 .notification-list {
   max-height: 350px;
@@ -113,10 +103,24 @@
   padding: 12px 15px;
   border-bottom: 1px solid #f0f0f0;
   white-space: normal;
+  transition: background-color 0.2s;
+  background-color: white;
+}
+
+/* Evitar que el texto cambie a blanco al hacer foco/click */
+.notification-item:focus, 
+.notification-item:active, 
+.notification-item:hover {
+  background-color: #f8f9fa !important;
+  color: inherit !important;
+}
+
+.notif-title {
+  color: #212529 !important; /* Forzar color oscuro siempre */
 }
 
 .notification-item.unread {
-  background-color: #f4f9ff;
+  background-color: #f4f9ff !important;
 }
 
 .sx-date {
@@ -124,7 +128,6 @@
   font-weight: 600;
 }
 
-/* Badge del contador */
 .badge {
   font-size: 0.6rem;
   padding: 3px 5px;
