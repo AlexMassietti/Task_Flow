@@ -98,13 +98,14 @@ export class HeaderComponent implements OnInit {
     this.router.navigate(['/auth/login']);
   }
 
-  viewNotifications(): void {
-    console.log('Abriendo notificaciones');
-  }
-
-  markAsRead(id: number, event: Event): void {
+  markAsRead(note: AppNotification, event: Event): void {
     event.stopPropagation(); 
-    this.notificationService.markAsRead(id);
+    this.notificationService.markAsRead(note.id);
+    if (note.type === 'invite' && note.relatedResourceId) {
+    this.router.navigate([`/invitation/accept`, note.relatedResourceId]);
+  } else {
+    console.log('Notification clicked, no specific route for type:', note.type);
+  }
   }
   
   markAllRead(event: Event): void {

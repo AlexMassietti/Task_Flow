@@ -4,7 +4,7 @@ import { CreateRolDashboardDto } from './dto/create-rol-dashboard.dto';
 import { UpdateRolDashboardDto } from './dto/update-rol-dashboard.dto';
 import { ApiTags } from '@nestjs/swagger'; // Importación de Swagger
 
-@ApiTags('RolDashboard') // Etiqueta para agrupar endpoints en Swagger
+@ApiTags('RolDashboard') 
 @Controller('rol-dashboard')
 export class RolDashboardController {
   constructor(private readonly rolDashboardService: RolDashboardService) {}
@@ -20,17 +20,17 @@ export class RolDashboardController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.rolDashboardService.findOne(+id);
+  findOne(@Param('id') id: number) {
+    return this.rolDashboardService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateRolDashboardDto: UpdateRolDashboardDto) {
-    return this.rolDashboardService.update(+id, updateRolDashboardDto);
+  update(@Param('id') id: number, @Body() updateRolDashboardDto: UpdateRolDashboardDto) {
+    return this.rolDashboardService.update(id, updateRolDashboardDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.rolDashboardService.remove(+id);
+  remove(@Param('id') id: number) {
+    return this.rolDashboardService.remove(id);
   }
 }

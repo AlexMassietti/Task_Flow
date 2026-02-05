@@ -45,7 +45,7 @@
               <li *ngFor="let note of notifications" 
                   class="dropdown-item notification-item" 
                   [class.unread]="note.isRead === false"
-                  (click)="markAsRead(note.id, $event)">
+                  (click)="markAsRead(note, $event)">
                 <div class="d-flex align-items-start">
                   <div class="flex-grow-1 d-flex flex-column">
                     <span class="fw-bold small notif-title">{{ note.title }}</span>

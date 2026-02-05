@@ -6,9 +6,10 @@ export interface AppNotification {
   id: number;
   title: string;
   message: string;
-  createdAt: Date; // Ajustado a lo que suele devolver TypeORM
+  createdAt: Date;
   isRead: boolean;
   type?: string;
+  relatedResourceId: string;
 }
 
 @Injectable({
@@ -58,7 +59,6 @@ export class NotificationService {
   }
 
   markAllAsRead() {
-  // We update locally BEFORE the HTTP call completes to ensure instant UI
   const currentNotifs = this.notificationsSubject.getValue();
   const updated = currentNotifs.map(n => ({ ...n, isRead: true }));
   this.notificationsSubject.next(updated);
@@ -67,7 +67,7 @@ export class NotificationService {
     next: () => console.log('Backend sync successful'),
     error: (err) => {
       console.error('Backend failed, reverting UI', err);
-      this.loadNotifications(); // Revert if the server actually failed
+      this.loadNotifications();
     }
   });
 }
