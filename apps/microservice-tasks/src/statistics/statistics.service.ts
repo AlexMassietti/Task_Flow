@@ -6,6 +6,7 @@ import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { DashboardStatsResponseDto } from './dto/dashboard-stats-response.dto';
 import { DashboardInfoDto } from './dto/dashboard-info.dto';
+import { CreateNotificationDto } from './dto/notification.dto';
 
 @Injectable()
 export class StatisticsService {
@@ -40,13 +41,18 @@ export class StatisticsService {
 
         const stats = this.calculateStatsLogic(tasks);
 
-        const payload = { user, stats, month, year };
+        const mailPayload = { user, stats, month, year };
 
-        console.log('El payload qeu se envía: ', payload)
+        const notiPayload: CreateNotificationDto = {
+          userId: user.id,
+          type: 'MONTHLY_REPORT',
+          title: 'Monthly Report Available',
+          message: `Your performance report for ${month}/${year} is ready. Completion rate: ${stats.completionRate}.`,
+        };
 
         await Promise.all([
-          firstValueFrom(this.gatewayClient.send({ cmd: 'send_user_monthly_stats' }, payload)),
-          //firstValueFrom(this.gatewayClient.send({ cmd: 'notify_user_monthly_stats' }, payload))
+          firstValueFrom(this.gatewayClient.send({ cmd: 'send_user_monthly_stats' }, mailPayload)),
+          firstValueFrom(this.gatewayClient.send({ cmd: 'create_notification' }, notiPayload))
         ]).catch(err => this.logger.error(`Error enviando comunicaciones a user ${user.id}: ${err.message}`));
 
       } catch (error) {
@@ -84,7 +90,7 @@ export class StatisticsService {
     };
   }
 
-  private calculateStatsLogic(tasks: any[]): Promise<DashboardStatsResponseDto>  {
+  private calculateStatsLogic(tasks: any[]): DashboardStatsResponseDto  {
     const stats = tasks.reduce((acc, task) => {
       const status = task.status?.name;
       if (status === 'Completed') acc.completed++;
