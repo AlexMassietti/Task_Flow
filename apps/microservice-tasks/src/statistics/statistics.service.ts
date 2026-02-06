@@ -4,9 +4,11 @@ import { DashboardService } from '../dashboard/dashboard.service';
 import { ConfigService } from '@nestjs/config';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { DashboardStatsResponseDto } from './dto/dashboard-stats-response.dto';
 import { DashboardInfoDto } from './dto/dashboard-info.dto';
 import { CreateNotificationDto } from './dto/notification.dto';
+import { LeaderboardService } from '@microservice-tasks/leaderboard/leaderboard.service';
+import { Task } from '@microservice-tasks/task/entities/task.entity';
+import { DashboardStatsResponseDto } from './dto/dashboard-stats-response.dto';
 
 @Injectable()
 export class StatisticsService {
@@ -19,6 +21,7 @@ export class StatisticsService {
     @Inject('GATEWAY_CLIENT')
     private readonly gatewayClient: ClientProxy,
     private readonly configService: ConfigService,
+    private readonly leaderboardService: LeaderboardService,
   ) {}
 
 
@@ -65,53 +68,136 @@ export class StatisticsService {
    * REPORTE POR DASHBOARD (On Demand para la UI)
    */
   async getDashboardStats(dto: DashboardInfoDto) {
-    const dashboard = await this.dashboardService.findOne(dto.dashboardId);
-    if (!dashboard) throw new NotFoundException('Dashboard not found');
+  const dashboard = await this.dashboardService.findOne(dto.dashboardId);
+  if (!dashboard) throw new NotFoundException('Dashboard not found');
 
-    const startDate = new Date(dto.year, dto.month - 1, 1);
-    const endDate = new Date(dto.year, dto.month, 0, 23, 59, 59);
+  const startDate = new Date(dto.year, dto.month - 1, 1);
+  const endDate = new Date(dto.year, dto.month, 0, 23, 59, 59);
 
-    const tasks = await this.taskRepository.findTasksStartingBetweenDatesInDashboard(
-      startDate, endDate, dto.dashboardId
-    );
+  const tasks = await this.taskRepository.findDashboardActivity(startDate, endDate, dto.dashboardId);
+  if (tasks.length === 0) return null;
 
-    if (tasks.length === 0) return null;
+  const stats = this.calculateDashboardStatsLogic(tasks, startDate, endDate);
 
-    const stats = this.calculateStatsLogic(tasks);
-    const baseUrl = 'http://localhost:3002'
+  // 1. Obtener el ranking (IDs y puntos)
+  const rawLeaderboard = await this.leaderboardService.getTopRankings(dashboard.id, dto.dashboardTop);
 
-    console.log(stats)
+  // 2. Extraer solo los IDs únicos para la consulta batch
+  const userIds = [...new Set(rawLeaderboard.map(entry => entry.userId))];
+
+  console.log(userIds) 
+
+  let hydratedLeaderboard = rawLeaderboard;
+
+  if (userIds.length > 0) {
+    try {
+      // 3. Llamada única al microservicio de Auth pasándole el array
+      const users: any[] = await firstValueFrom(
+        this.gatewayClient.send({ cmd: 'get_users_by_id' }, userIds)
+      );
+
+      // 4. Mapear los nombres a los resultados del leaderboard
+      hydratedLeaderboard = rawLeaderboard.map(entry => {
+        const userData = users.find(u => u.id === entry.userId);
+        return {
+          ...entry,
+          userName: userData?.name || 'Usuario desconocido',
+          userEmail: userData?.email || '',
+        };
+      });
+    } catch (error) {
+      console.error('Error hydrating leaderboard:', error);
+    }
+  }
+    console.log(stats, hydratedLeaderboard)
+    const baseUrl = 'http://localhost:3002';
 
     return {
       ...stats,
+      leaderboard: hydratedLeaderboard,
       dashboardName: dashboard.name,
       dashboardLink: `${baseUrl}/dashboard/${dto.dashboardId}`,
-      month : startDate, 
-      year : endDate
+      month: startDate,
+      year: endDate
     };
   }
 
-  private calculateStatsLogic(tasks: any[]): DashboardStatsResponseDto  {
+    private calculateStatsLogic(tasks: Task[]): DashboardStatsResponseDto  {
+
     const stats = tasks.reduce((acc, task) => {
+
       const status = task.status?.name;
+
       if (status === 'Completed') acc.completed++;
+
       else if (status === 'Pending') acc.pending++;
+
       else if (status === 'In Progress') acc.inProgress++;
+
       else if (status === 'In Review') acc.inReview++;
+
       else if (status === 'Archived') acc.archived++;
+
       return acc;
+
     }, { completed: 0, pending: 0, inProgress: 0, inReview: 0, archived: 0 });
 
     const total = tasks.length;
+
     const effectiveTotal = total - stats.archived;
-    const completionRate = effectiveTotal > 0 
-      ? `${Math.round(((stats.completed - stats.archived) / effectiveTotal) * 100)}%` 
+
+    const completionRate = effectiveTotal > 0
+      ? `${Math.round(((stats.completed - stats.archived) / effectiveTotal) * 100)}%`
       : '0%';
 
     return {
       totalTasks: total,
       ...stats,
       completionRate
+    };
+  }
+    private calculateDashboardStatsLogic(tasks: Task[], rangeStart: Date, rangeEnd: Date) {
+    const stats = {
+      createdThisMonth: 0,
+      finishedThisMonth: 0,
+      dueThisMonth: 0,
+      completedOnTime: 0,
+      overdue: 0,
+      priorityBreakdown: { high: 0, medium: 0, low: 0 }
+    };
+
+    tasks.forEach(task => {
+      // 1. ¿Fue creada este mes?
+      if (task.startDate >= rangeStart && task.startDate <= rangeEnd) stats.createdThisMonth++;
+
+      // 2. ¿Se terminó este mes?
+      if (task.finishDate && task.finishDate >= rangeStart && task.finishDate <= rangeEnd) {
+        stats.finishedThisMonth++;
+      }
+
+      // 3. ¿Debía terminarse este mes? (Deadline)
+      if (task.endDate && task.endDate >= rangeStart && task.endDate <= rangeEnd) {
+        stats.dueThisMonth++;
+        // ¿Se terminó a tiempo?
+        if (task.finishDate && task.finishDate <= task.endDate) {
+          stats.completedOnTime++;
+        }
+      }
+
+      // 4. ¿Está vencida? (Hoy es después del endDate y no está terminada)
+      const today = new Date();
+      if (task.endDate && task.endDate < today && task.status?.name !== 'Completed') {
+        stats.overdue++;
+      }
+    });
+
+    const efficiency = stats.dueThisMonth > 0 
+      ? Math.round((stats.completedOnTime / stats.dueThisMonth) * 100) 
+      : 0;
+
+    return {
+      ...stats,
+      efficiency: `${efficiency}%`
     };
   }
 }

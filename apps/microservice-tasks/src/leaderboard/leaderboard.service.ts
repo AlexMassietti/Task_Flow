@@ -74,7 +74,6 @@ export class LeaderboardService {
   }
 
  async getRankingByDashboard(dashboardId: number): Promise<Leaderboard[]> {
-  // Ahora ranking ya es un Leaderboard[] gracias a la interfaz corregida
   const ranking = await this.leaderboardRepository.findByDashboard(dashboardId);
   return ranking; 
   }

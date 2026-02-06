@@ -34,6 +34,8 @@ export interface ITaskRepository {
 
   count(): Promise<number>;
 
+  findDashboardActivity(startDate: Date, endDate: Date, dashboardId: number):Promise<Task[]>
+
   saveArray(
     task: {
       name: string;

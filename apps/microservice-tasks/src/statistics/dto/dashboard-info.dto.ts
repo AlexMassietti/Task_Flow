@@ -28,4 +28,10 @@ export class DashboardInfoDto {
   @IsString()
   @IsOptional()
   dashboardLink?: string;
+
+  @ApiProperty({ example: '5', description: 'Cantidad de personas a mostrar en el leaderboard' })
+  @IsString()
+  @IsOptional()
+  dashboardTop?: number;
+
 }

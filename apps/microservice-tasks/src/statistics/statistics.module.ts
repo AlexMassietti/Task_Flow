@@ -9,6 +9,7 @@ import { RolDashboardModule } from '../rol-dashboard/rol-dashboard.module';
 import { StatisticsController } from './statistics.controller';
 import { TaskModule } from '@microservice-tasks/task/task.module';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { LeaderboardModule } from '@microservice-tasks/leaderboard/leaderboard.module';
 
 
 @Module({
@@ -26,6 +27,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
     forwardRef(()=> TaskModule),
     forwardRef(() => DashboardModule),
     RolDashboardModule,
+    LeaderboardModule,
   ],
   providers: [StatisticsService, MonthlyStatisticsCron],
   controllers: [StatisticsController],

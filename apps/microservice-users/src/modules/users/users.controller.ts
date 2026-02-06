@@ -56,12 +56,11 @@ export class UsersController {
   }
 
   @MessagePattern({ cmd: 'get_users_by_id' })
-  @ApiOperation({ summary: 'Obtener un array de usuarios por sus IDs' })
   async getUsersById(
-  
-  @Payload('idUsersInDashboard') ids: number[]
+    @Payload() ids: number[] // Quitamos 'idUsersInDashboard' para recibir el array directo
   ): Promise<GetUserDto[]> {
-  return this.usersService.getUsersById(ids);
+    console.log('Ids recibidos en Auth:', ids); 
+    return this.usersService.getUsersById(ids);
   }
 
   @MessagePattern({ cmd: 'get_all_users'})

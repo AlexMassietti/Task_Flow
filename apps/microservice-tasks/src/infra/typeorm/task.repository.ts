@@ -106,14 +106,15 @@ export class TaskRepository implements ITaskRepository {
   findAllWithPriorityId(id: number): Promise<Task[]> {
     return this.taskRepository.find({ where: { priorityId: id } });
   }
-  findTasksStartingBetweenDatesInDashboard(startDate: Date, endDate: Date, dashboardId: number): Promise<Task[]>{
+  async findDashboardActivity(startDate: Date, endDate: Date, dashboardId: number): Promise<Task[]> {
     return this.taskRepository.find({
-      where:{
-        startDate: Between(startDate,endDate),
-        dashboard:{id:dashboardId}
-      },
-      relations: ['status']
-    })
+      where: [
+        { dashboard: { id: dashboardId }, startDate: Between(startDate, endDate) },
+        { dashboard: { id: dashboardId }, endDate: Between(startDate, endDate) },
+        { dashboard: { id: dashboardId }, finishDate: Between(startDate, endDate) }
+      ],
+      relations: ['status', 'priority']
+    });
   }
   findTasksStartingBetweenDatesByUser(startDate: Date, endDate: Date, userId: number): Promise<Task[]>{
     return this.taskRepository.find({
