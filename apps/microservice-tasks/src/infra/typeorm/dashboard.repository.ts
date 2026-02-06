@@ -69,4 +69,15 @@ export class DashboardRepository implements IDashboardRepository {
   async remove(id: number): Promise<void> {
     await this.dashboardRepository.delete(id);
   }
+
+  // En tu repositorio o servicio que implementa la interfaz
+  async requiresReview(dashboardId: number): Promise<boolean> {
+    const dashboard = await this.dashboardRepository.findOne({
+      where: { id: dashboardId },
+      select: ['requiresReview'],
+    });
+
+  return dashboard?.requiresReview ?? false;
+  }
 }
+

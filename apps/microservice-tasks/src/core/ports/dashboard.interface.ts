@@ -21,4 +21,6 @@ export interface IDashboardRepository {
   count(): Promise<number>;
 
   saveArray(dashboard: { name: string; description: string }[]): Promise<Dashboard[]>;
+
+  requiresReview(dashboardId: number): Promise<boolean>;
 }

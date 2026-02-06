@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { DashboardService } from './dashboard.service';
 import { ApiBearerAuth, ApiBody, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 import { DashboardDto } from './interfaces/dashboard.dto';
@@ -15,6 +15,7 @@ import { TaskResponseDto } from '@shared/dtos';
 import { User } from '@api-gateway/common/decorators/user.decorator';
 import { EventPattern, Payload } from '@nestjs/microservices';
 import { DashboardNotificationDto } from './dto/dashboard-notification.dto';
+import { DashboardInfoDto } from './dto/dashboard-info.dto';
 
 @Controller('dashboard')
 @ApiBearerAuth('access-token')
@@ -110,8 +111,28 @@ export class DashboardController {
     return await this.dashboardService.acceptInvitation(invitationId, userId);
   }
 
+  @Get('revision/:id')
+  @UseGuards(JwtRs256Guard)
+  async isRevisable(
+    @Param('id') dashboardId: number, 
+  ) {
+    return await this.dashboardService.isRevisable(dashboardId);
+  }
+
+
   @EventPattern('dashboard_invitation_created')
   async notifyDashboardInvitation(@Payload() data: DashboardNotificationDto) {
     return await this.dashboardService.notifyInvitation(data);
+  }
+
+  @Get('statistics/:id')
+  @UseGuards(JwtRs256Guard)
+  async getDashboardStats(
+    @Param('id', ParseIntPipe) dashboardId: number,
+    @Query('month', ParseIntPipe) month: number,
+    @Query('year', ParseIntPipe) year: number,
+  ) {
+    const payload: DashboardInfoDto = { dashboardId, month, year };
+    return await this.dashboardService.getDashboardStats(payload)
   }
 }

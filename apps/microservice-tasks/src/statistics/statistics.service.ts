@@ -64,13 +64,12 @@ export class StatisticsService {
   /**
    * REPORTE POR DASHBOARD (On Demand para la UI)
    */
-  async getDashboardStats(dto: DashboardInfoDto, month: number, year: number) {
+  async getDashboardStats(dto: DashboardInfoDto) {
     const dashboard = await this.dashboardService.findOne(dto.dashboardId);
     if (!dashboard) throw new NotFoundException('Dashboard not found');
 
-    // Corregido: Usamos las variables que entran por parámetro
-    const startDate = new Date(year, month - 1, 1);
-    const endDate = new Date(year, month, 0, 23, 59, 59);
+    const startDate = new Date(dto.year, dto.month - 1, 1);
+    const endDate = new Date(dto.year, dto.month, 0, 23, 59, 59);
 
     const tasks = await this.taskRepository.findTasksStartingBetweenDatesInDashboard(
       startDate, endDate, dto.dashboardId
@@ -79,14 +78,16 @@ export class StatisticsService {
     if (tasks.length === 0) return null;
 
     const stats = this.calculateStatsLogic(tasks);
-    const baseUrl = this.configService.get<string>('FRONTEND_URL');
+    const baseUrl = 'http://localhost:3002'
+
+    console.log(stats)
 
     return {
       ...stats,
       dashboardName: dashboard.name,
       dashboardLink: `${baseUrl}/dashboard/${dto.dashboardId}`,
-      month,
-      year
+      month : startDate, 
+      year : endDate
     };
   }
 

@@ -10,7 +10,7 @@ import {
 import { DashboardService } from './dashboard.service';
 import { AssignTaskDto } from './dto/assign-task.dto';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { MessagePattern } from '@nestjs/microservices';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 import { Dashboard } from './entities/dashboard.entity';
 import { DashboardInvitationDto } from './dto/dashboard-invitation.dto';
 import { CreateDashboardDto} from '@shared/dtos';
@@ -66,6 +66,10 @@ export class DashboardController {
     return taskResult;
   }
 
+@MessagePattern({ cmd: 'is_revisable' })
+async isRevisable(@Payload() data: { dashboardId: number }): Promise<boolean> {
+  return await this.dashboardService.isRevisable(data.dashboardId);
+}
 
   @MessagePattern({ cmd: 'get_owned_dashboards' })
   findOwned(data: { userId: number }): Promise<Dashboard[]> {

@@ -154,4 +154,8 @@ export class DashboardService {
     return this.rolDashboardRepository.findUsersInDashboard(dashboard.id);
   }
 
+  async isRevisable(dashbordId: number) {
+    return await this.dashboardRepository.requiresReview(dashbordId)
+  }
+
 }

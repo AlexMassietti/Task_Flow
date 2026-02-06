@@ -9,6 +9,7 @@ import { DashboardInvitationDto } from './dto/dashboard-invitation.dto';
 import { CreateDashboardDto, UpdateDashboardDto } from '@shared/dtos';
 import { DashboardNotificationDto } from './dto/dashboard-notification.dto';
 import { DashboardMailDto } from './dto/dashboard-mail.dto';
+import { DashboardInfoDto } from './dto/dashboard-info.dto';
 
 @Injectable()
 export class DashboardService {
@@ -164,5 +165,30 @@ export class DashboardService {
       );
     }
   }
-
+  async getDashboardStats(payload : DashboardInfoDto){
+    try {
+      const stats = await this.dashboardClient.send({cmd : 'get_dashboard_stats'}, payload)
+      return stats
+    }catch (err: unknown) {
+      const payload = normalizeRemoteError(err);
+      throw new HttpException(
+        { success: false, error: payload },
+        payload.status ?? 500,
+      );
+    }
+  }
+  async isRevisable(dashboardId: number): Promise<boolean> {
+  try {
+    const isRevisable: boolean = await firstValueFrom(
+      this.dashboardClient.send({ cmd: 'is_revisable' }, { dashboardId })
+    );
+    return isRevisable;
+  } catch (err: unknown) {
+    const payload = normalizeRemoteError(err);
+    throw new HttpException(
+      { success: false, error: payload },
+      payload.status ?? 500,
+    );
+  }
+}
 }
