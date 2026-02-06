@@ -21,6 +21,11 @@ export class TaskEditModalComponent implements OnChanges {
   @Output() cancel = new EventEmitter<void>();
 
   editedTask!: TaskModel;
+  minDate: string = '';
+
+  ngOnInit() {
+    this.minDate = new Date().toISOString().split('T')[0];
+  }
 
   ngOnChanges() {
     this.editedTask = new TaskModel({ ...this.task });

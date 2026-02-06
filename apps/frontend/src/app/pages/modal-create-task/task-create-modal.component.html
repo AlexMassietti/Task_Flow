@@ -17,9 +17,13 @@
 
       <!-- Dates -->
       <label>
-        Due Date:
-        <input type="date" [(ngModel)]="createdTask.endDate" name="endDate" />
-      </label>
+      Due Date:
+      <input 
+        type="date" 
+        [min]="minDate" 
+        [(ngModel)]="createdTask.endDate" 
+        name="endDate" />
+    </label>
 
       <!-- User assignment -->
       <label>

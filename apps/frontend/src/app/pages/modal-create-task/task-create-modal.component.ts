@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, OnChanges } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnChanges, OnInit } from '@angular/core'; // Added OnInit
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TaskModel } from '../../Models/Task/task.model';
@@ -12,7 +12,7 @@ import { PriorityModel } from '../../Models/Priority/priority.model';
   templateUrl: './task-create-modal.component.html',
   styleUrls: ['./task-create-modal.component.css'],
 })
-export class TaskCreateModalComponent implements OnChanges {
+export class TaskCreateModalComponent implements OnInit, OnChanges { // Added OnInit here
   
   @Input() statusId: number;
   @Input() dashboardId: number;
@@ -23,9 +23,16 @@ export class TaskCreateModalComponent implements OnChanges {
   @Output() cancel = new EventEmitter<void>();
 
   createdTask!: TaskModel;
+  minDate: string = '';
 
   ngOnInit() {
-     this.createdTask = new TaskModel({name: 'new task', dashboardId : this.dashboardId, statusId : this.statusId});
+    this.minDate = new Date().toISOString().split('T')[0];
+
+    this.createdTask = new TaskModel({
+      name: 'new task', 
+      dashboardId : this.dashboardId, 
+      statusId : this.statusId
+    });
   }
 
   ngOnChanges() {
