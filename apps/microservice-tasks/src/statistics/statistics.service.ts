@@ -1,118 +1,110 @@
-import { forwardRef, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { DashboardService } from '../dashboard/dashboard.service';
-import { RolDashboardService } from '../rol-dashboard/rol-dashboard.service';
-import { DashboardStatsDto } from './dto/monthly-stats.dto';
+import { Injectable, Logger, NotFoundException, Inject, forwardRef } from '@nestjs/common';
 import { TaskRepository } from '@microservice-tasks/infra/typeorm/task.repository';
-import { ClientProxy } from '@nestjs/microservices';
-import { DashboardStatsResponseDto } from './dto/dashboard-stats-response.dto';
-import { firstValueFrom } from 'rxjs';
-import { UserDataResponseDto } from './dto/user-data.dto';
+import { DashboardService } from '../dashboard/dashboard.service';
 import { ConfigService } from '@nestjs/config';
-
+import { ClientProxy } from '@nestjs/microservices';
+import { firstValueFrom } from 'rxjs';
+import { DashboardStatsResponseDto } from './dto/dashboard-stats-response.dto';
+import { DashboardInfoDto } from './dto/dashboard-info.dto';
 
 @Injectable()
 export class StatisticsService {
   private readonly logger = new Logger(StatisticsService.name);
+
   constructor(
     @Inject(forwardRef(() => TaskRepository))
     private readonly taskRepository: TaskRepository,
-    @Inject(forwardRef(() => DashboardService))
-    private dashboardService: DashboardService,
-    private readonly rolDashboardService: RolDashboardService,
+    private readonly dashboardService: DashboardService,
     @Inject('GATEWAY_CLIENT')
     private readonly gatewayClient: ClientProxy,
     private readonly configService: ConfigService,
   ) {}
 
-  async generateAndNotify(month: number, year: number) {
-    const dashboards = await this.dashboardService.findAll();
-    for (const dashboard of dashboards) {
+
+  async generateUserMonthlyReport(month: number, year: number) {
+    const startDate = new Date(year, month - 1, 1);
+    const endDate = new Date(year, month, 0, 23, 59, 59);
+    const users = await firstValueFrom(
+      this.gatewayClient.send({ cmd: 'get_all_users' }, {})
+    );
+
+    for (const user of users) {
       try {
-        const dto: DashboardStatsDto = {
-          dashboardId: dashboard.id,
-          year: year,
-          month: month
-        };
+        const tasks = await this.taskRepository.findTasksStartingBetweenDatesByUser(
+          startDate, 
+          endDate, 
+          user.id 
+        );
 
-        const stats: DashboardStatsResponseDto = await this.generateMonthlyStats(dto);
+        if (tasks.length === 0) continue;
 
-        // Si no hay tareas o el dashboard no existe (null), saltamos
-        if (!stats || stats.totalTasks === 0) continue;
+        const stats = this.calculateStatsLogic(tasks);
 
-        const usersIds : number[] = await this.rolDashboardService.findUsersInDashboard(dashboard.id);
+        const payload = { user, stats, month, year };
 
-        // Solo enviamos si hay usuarios y hay estadísticas
-        if (usersIds.length > 0) {
-          const usersData : UserDataResponseDto = await firstValueFrom( this.gatewayClient.send(
-          { cmd: 'get_users_by_id'},
-          usersIds )
-          );
-          try {
-            await firstValueFrom(
-              this.gatewayClient.send(
-                { cmd: 'gateway_send_stats' },
-                { stats, users: usersData }
-              )
-            );
-          } catch (error) 
-          {this.logger.error(`Error enviando el mail: ${error.message}`);
-          }
-        }
+        console.log('El payload qeu se envía: ', payload)
+
+        await Promise.all([
+          firstValueFrom(this.gatewayClient.send({ cmd: 'send_user_monthly_stats' }, payload)),
+          //firstValueFrom(this.gatewayClient.send({ cmd: 'notify_user_monthly_stats' }, payload))
+        ]).catch(err => this.logger.error(`Error enviando comunicaciones a user ${user.id}: ${err.message}`));
+
       } catch (error) {
-        // Si un dashboard falla (ej. 404), logueamos y seguimos con el siguiente
-        this.logger.error(`Error procesando dashboard ${dashboard.id}: ${error.message}`);
-        continue; 
+        this.logger.error(`Error procesando reporte para usuario ${user.id}: ${error.message}`);
       }
     }
   }
 
-  async generateMonthlyStats(dto: DashboardStatsDto) : Promise<DashboardStatsResponseDto | null>{
-    // 1. Desestructuración para limpieza
-    const { dashboardId, year, month } = dto;
-
-    // 2. Validación de existencia del dashboard
-    const dashboard = await this.dashboardService.findOne(dashboardId);
+  /**
+   * REPORTE POR DASHBOARD (On Demand para la UI)
+   */
+  async getDashboardStats(dto: DashboardInfoDto, month: number, year: number) {
+    const dashboard = await this.dashboardService.findOne(dto.dashboardId);
     if (!dashboard) throw new NotFoundException('Dashboard not found');
-    // 3. Cálculo de fechas
+
+    // Corregido: Usamos las variables que entran por parámetro
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(year, month, 0, 23, 59, 59);
 
-    // 4. Delegación al repositorio personalizado
     const tasks = await this.taskRepository.findTasksStartingBetweenDatesInDashboard(
-      startDate,
-      endDate,
-      dashboardId
+      startDate, endDate, dto.dashboardId
     );
 
-    // 5. Procesamiento de estadísticas
-    const total = tasks.length;
-    if(total === 0){
-      return null
-    }
-    const completed = tasks.filter(t => t.status.name === 'Completed').length;
-    const pending = tasks.filter(t => t.status.name === 'Pending').length;
-    const inProgress = tasks.filter(t => t.status.name === 'In Progress').length;
-    const inReview = tasks.filter(t => t.status.name === 'In Review').length;
-    const Archived = tasks.filter(t => t.status.name === 'Archived').length;
+    if (tasks.length === 0) return null;
 
-    const completionRate = total === 0 ? '0%' : `${Math.round(((completed - Archived) / (total - Archived)) * 100)}%`;
-
+    const stats = this.calculateStatsLogic(tasks);
     const baseUrl = this.configService.get<string>('FRONTEND_URL');
 
-    const dashboardLink = `${baseUrl}/dashboard/${dashboardId}`;
+    return {
+      ...stats,
+      dashboardName: dashboard.name,
+      dashboardLink: `${baseUrl}/dashboard/${dto.dashboardId}`,
+      month,
+      year
+    };
+  }
+
+  private calculateStatsLogic(tasks: any[]): Promise<DashboardStatsResponseDto>  {
+    const stats = tasks.reduce((acc, task) => {
+      const status = task.status?.name;
+      if (status === 'Completed') acc.completed++;
+      else if (status === 'Pending') acc.pending++;
+      else if (status === 'In Progress') acc.inProgress++;
+      else if (status === 'In Review') acc.inReview++;
+      else if (status === 'Archived') acc.archived++;
+      return acc;
+    }, { completed: 0, pending: 0, inProgress: 0, inReview: 0, archived: 0 });
+
+    const total = tasks.length;
+    const effectiveTotal = total - stats.archived;
+    const completionRate = effectiveTotal > 0 
+      ? `${Math.round(((stats.completed - stats.archived) / effectiveTotal) * 100)}%` 
+      : '0%';
 
     return {
-      dashboardLink,
-      dashboardName: dashboard.name,
-      year,
-      month,
       totalTasks: total,
-      completedTasks: completed,
-      pendingTasks: pending,
-      inProgressTasks: inProgress,
-      inReviewTasks: inReview,
-      archivedTasks: Archived,
-      completionRate,
+      ...stats,
+      completionRate
     };
   }
 }

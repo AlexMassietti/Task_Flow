@@ -61,5 +61,10 @@ export class AuthController {
     async getUsersByIdMicroservice(payload : number[]){
       return this.authService.getUsersById(payload);
     }
+    
+  @MessagePattern({ cmd: 'get_all_users' })
+  async getAllUsers(){
+    return this.authService.getAllUsers();
+  }
 
 }

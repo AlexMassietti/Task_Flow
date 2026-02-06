@@ -3,7 +3,7 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { PasswordResetDto } from './dto/password-reset.dto';
 import { DashboardInvitationDto } from './dto/dashboard-invitation.dto';
-import { SendStatsEmailDto } from './dto/send-stats.dto';
+import { SendStatsEmailDto } from './dto/send-user-stats.dto';
 
 @Injectable()
 export class MailService {
@@ -36,20 +36,19 @@ export class MailService {
   }
 
   async sendStatsEmail(data: SendStatsEmailDto) {
-    const { stats, users } = data;
-    const jobs = users.map((user) => ({
-      name: 'send-individual-stats',
-      data: { user, stats },
-      opts: {
-        priority: 10, // Prioridad BAJA. Solo se envían si no hay passwords/invitaciones
+    const { stats, user, month, year } = data;
+
+    await this.mailQueue.add('send-individual-stats', 
+      { user, stats, month, year }, 
+      {
+        priority: 10,
         attempts: 3,
         backoff: { type: 'exponential', delay: 5000 },
         removeOnComplete: true,
-      },
-    }));
+      }
+    );
 
-    await this.mailQueue.addBulk(jobs);
-
-    return { success: true, message: 'Envío masivo iniciado en segundo plano' };
+    return { success: true };
   }
+  
 }
