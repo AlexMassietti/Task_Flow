@@ -10,8 +10,7 @@ import { MailGatewayService } from './mail.service';
 import { PasswordResetDto } from './dto/password-reset.dto';
 import { DashboardInvitationDto } from './dto/dashboard-invitation.dto';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { DashboardStatsDto } from './dto/dashboard-stats-response.dto';
-import { SendStatsEmailDto } from './dto/send-stats.dto';
+import { SendStatsEmailDto } from './dto/send-user-stats.dto';
 
 @ApiTags('Mail')
 @Controller('mail')
@@ -56,13 +55,24 @@ import { SendStatsEmailDto } from './dto/send-stats.dto';
       return this.mailService.sendDashboardInvitation(body);
     }
 
-    @MessagePattern({ cmd: 'gateway_send_stats' })
-    async handleSendStatsEmail(@Payload() data: SendStatsEmailDto) {
-    const { stats, users } = data;
+    // @MessagePattern({ cmd: 'gateway_send_stats' })
+    // async handleSendDashboardStatsEmail(@Payload() data: DashboardStatsResponseDto ) {
+    // const { totalTasks} = data;
+    //   return await this.mailService.sendStatsEmail({
+    //     data.totalTasks
+    //   })
+    // }
+
+
+    @MessagePattern({ cmd: 'send_user_monthly_stats' })
+    async handleSendUserStatsEmail(@Payload() data: SendStatsEmailDto) {
+    const { stats, user, month, year } = data;
       return await this.mailService.sendStatsEmail({
         stats,
-        users,
+        user,
+        month,
+        year
       })
-  }
+    }
 }
 

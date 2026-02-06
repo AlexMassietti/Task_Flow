@@ -1,67 +1,38 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { 
-  IsNumber, 
-  IsString, 
-  IsNotEmpty, 
-  Min, 
-  Max, 
-  Matches, 
-  IsUrl
-} from 'class-validator';
+import { IsNumber, IsString, Min } from 'class-validator';
 
-export class DashboardStatsDto {
-  
-  @ApiProperty({ 
-    example: 'http://localhost:4200/dashboard/123', 
-    description: 'Enlace directo al dashboard' 
-  })
-  @IsString()
-  @IsUrl() // Valida que sea una URL real
-  @IsNotEmpty()
-  dashboardLink: string;
-
-  @ApiProperty({ example: 'Principal Dashboard', description: 'Nombre descriptivo del dashboard' })
-  @IsString()
-  @IsNotEmpty()
-  dashboardName: string;
-
-  @ApiProperty({ example: 2025, description: 'Año del informe' })
-  @IsNumber()
-  @Min(2000)
-  @Max(2100)
-  year: number;
-
-  @ApiProperty({ example: 12, description: 'Mes del informe (1-12)' })
-  @IsNumber()
-  @Min(1)
-  @Max(12)
-  month: number;
-
-  @ApiProperty({ example: 10, description: 'Cantidad total de tareas en el mes' })
+export class DashboardStatsResponseDto {
+  @ApiProperty({ example: 25, description: 'Total de tareas asignadas en el mes' })
   @IsNumber()
   @Min(0)
   totalTasks: number;
 
-  @ApiProperty({ example: 5, description: 'Tareas con estado "Realizada"' })
+  @ApiProperty({ example: 15, description: 'Tareas con estado Completed' })
   @IsNumber()
   @Min(0)
-  completedTasks: number;
+  completed: number;
 
-  @ApiProperty({ example: 3, description: 'Tareas con estado "Pendiente"' })
+  @ApiProperty({ example: 5, description: 'Tareas con estado Pending' })
   @IsNumber()
   @Min(0)
-  pendingTasks: number;
+  pending: number;
 
-  @ApiProperty({ example: 2, description: 'Tareas con estado "En progreso"' })
+  @ApiProperty({ example: 3, description: 'Tareas con estado In Progress' })
   @IsNumber()
   @Min(0)
-  inProgressTasks: number;
+  inProgress: number;
 
-  @ApiProperty({ 
-    example: '50%', 
-    description: 'Porcentaje de finalización formateado como string' 
-  })
+  @ApiProperty({ example: 2, description: 'Tareas con estado In Review' })
+  @IsNumber()
+  @Min(0)
+  inReview: number;
+
+  @ApiProperty({ example: 0, description: 'Tareas enviadas al archivo' })
+  @IsNumber()
+  @Min(0)
+  archived: number;
+
+  @ApiProperty({ example: '80%', description: 'Porcentaje de éxito (excluyendo archivadas)' })
   @IsString()
-  @Matches(/^\d+%$/, { message: 'completionRate debe ser un número seguido del símbolo %' })
   completionRate: string;
 }

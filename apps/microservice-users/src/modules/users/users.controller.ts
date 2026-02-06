@@ -56,11 +56,16 @@ export class UsersController {
   }
 
   @MessagePattern({ cmd: 'get_users_by_id' })
-    @ApiOperation({ summary: 'Obtener un array de usuarios por sus IDs' })
-    async getUsersById(
-    
-    @Payload('idUsersInDashboard') ids: number[]
-    ): Promise<GetUserDto[]> {
-    return this.usersService.getUsersById(ids);
-    }
+  @ApiOperation({ summary: 'Obtener un array de usuarios por sus IDs' })
+  async getUsersById(
+  
+  @Payload('idUsersInDashboard') ids: number[]
+  ): Promise<GetUserDto[]> {
+  return this.usersService.getUsersById(ids);
+  }
+
+  @MessagePattern({ cmd: 'get_all_users'})
+  async getAllUsers(){
+  return this.usersService.findAll()
+}
 }

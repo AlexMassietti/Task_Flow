@@ -2,9 +2,10 @@
 import { Job } from 'bullmq';
 import { Inject, Logger } from '@nestjs/common';
 import { NodemailerAdapter } from '../../infraestructure/adapters/nodemailer.adapter';
-import { statsReportTemplate } from '../../templates/send-stats.template';
+import { statsReportTemplate } from '../../templates/send-user-stats.template';
 import { passwordResetTemplate } from '../../templates/password-reset.template';
 import { dashboardInvitationTemplate } from '../../templates/dashboard-invitation.template';
+import { SendStatsEmailDto } from '../dto/send-user-stats.dto';
 
 @Processor('mail-queue') // Asegúrate que coincida con el nombre en el Service
 export class MailProcessor extends WorkerHost {
@@ -66,13 +67,17 @@ export class MailProcessor extends WorkerHost {
     });
   }
 
-  private async handleStatsEmail(data: any) {
-    const { user, stats } = data;
-    const html = statsReportTemplate(user.name, stats);
-    await this.mailAdapter.sendMail({
-      to: user.email,
-      subject: `📊 Reporte de ${stats.dashboardName}`,
-      html,
-    });
-  }
+  private async handleStatsEmail(data: SendStatsEmailDto) {
+  const { user, stats, month, year } = data;
+
+  const html = statsReportTemplate(data);
+
+  const subject = `📊 Reporte Mensual de Actividad - ${month}/${year}`;
+
+  await this.mailAdapter.sendMail({
+    to: user.email,
+    subject: subject,
+    html,
+  });
+}
 }

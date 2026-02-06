@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Post, UseGuards, Param } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '@shared/dtos';
 import { LoginUserDto } from './dto/login-user.dto';
@@ -8,6 +8,9 @@ import { ApiTags } from '@nestjs/swagger';
 import { PasswordResetDto } from './dto/password-reset.dto';
 import { MessagePattern } from '@nestjs/microservices';
 import { PasswordRestoreDto } from './dto/password-restore.dto';
+// Importamos los Guards
+import { JwtRs256Guard } from '../auth/jwt-auth.guard';
+import { PermissionsGuard } from '../authorization/permission.guard';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -31,13 +34,14 @@ export class AuthController {
   @HttpCode(200)
   async forgotPassword(@Body('email') email: string) {
     const mailData: PasswordResetDto = await this.authService.forgotPassword(email);
-
     await this.authService.sendPasswordResetMail(mailData);
-
     return { message: 'Password reset email sent' };
   }
+
+  // PROTEGEMOS este endpoint porque no queremos que cualquiera consulte emails
+  @UseGuards(JwtRs256Guard, PermissionsGuard)
   @Get('user-by-email/:email')
-  async getUserByEmail(@Body('email') email: string) {
+  async getUserByEmail(@Param('email') email: string) { // Cambiado a @Param ya que está en la URL
     return this.authService.getUserByEmail(email);
   }
 
@@ -48,18 +52,23 @@ export class AuthController {
   }
 
   @MessagePattern({ cmd: 'get_user_by_email' })
-    async getUserByEmailMicroservice(payload: { email: string }) {
-      const { email } = payload;
-      return this.authService.getUserByEmail(email);
-    }
+  async getUserByEmailMicroservice(payload: { email: string }) {
+    const { email } = payload;
+    return this.authService.getUserByEmail(email);
+  }
 
   @MessagePattern({ cmd: 'get_user_by_id' })
-    async getUserByIdMicroservice(payload: { id: number}){
-      return this.authService.getUserById(payload.id);
-    }
-  @MessagePattern({ cmd: 'get_users_by_id' })
-    async getUsersByIdMicroservice(payload : number[]){
-      return this.authService.getUsersById(payload);
-    }
+  async getUserByIdMicroservice(payload: { id: number}){
+    return this.authService.getUserById(payload.id);
+  }
 
+  @MessagePattern({ cmd: 'get_users_by_id' })
+  async getUsersByIdMicroservice(payload : number[]){
+    return this.authService.getUsersById(payload);
+  }
+    
+  @MessagePattern({ cmd: 'get_all_users' })
+  async getAllUsers(){
+    return this.authService.getAllUsers();
+  }
 }

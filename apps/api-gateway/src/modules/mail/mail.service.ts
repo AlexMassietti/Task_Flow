@@ -3,8 +3,7 @@ import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { PasswordResetDto } from './dto/password-reset.dto';
 import { DashboardInvitationDto } from './dto/dashboard-invitation.dto';
-import { DashboardStatsDto } from './dto/dashboard-stats-response.dto';
-import { SendStatsEmailDto } from './dto/send-stats.dto';
+import { SendStatsEmailDto } from './dto/send-user-stats.dto';
 
 @Injectable()
 export class MailGatewayService {

@@ -49,6 +49,11 @@ export class UsersService {
 
     await this.userRepository.save(user);
   }
+  async findAll(){
+    return this.userRepository.findAll();
+  }
+
+
   async findByEmail(email: string, relations?: string[]) {
     return this.userRepository.findByEmail(email, relations);
   }

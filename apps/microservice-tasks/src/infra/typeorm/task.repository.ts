@@ -115,6 +115,15 @@ export class TaskRepository implements ITaskRepository {
       relations: ['status']
     })
   }
+  findTasksStartingBetweenDatesByUser(startDate: Date, endDate: Date, userId: number): Promise<Task[]>{
+    return this.taskRepository.find({
+      where:{
+        startDate: Between(startDate,endDate),
+        assignedToUserId: userId
+      },
+      relations: ['status']
+    })
+  }
   // task.repository.ts
   async findOneForRanking(id: number): Promise<IRankableTask> {
     return await this.taskRepository.findOne({

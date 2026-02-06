@@ -20,7 +20,7 @@ export class NotificationController {
     return this.service.create(createNotificationDto);
   }
 
-  @EventPattern('dashboard_invitation_created')
+  @EventPattern({cmd : 'dashboard_invitation_created'})
   async handleDashboardInvitation(@Payload() data: DashboardNotificationDto) {
     return await this.service.create({
     userId: data.userId,
@@ -29,7 +29,13 @@ export class NotificationController {
     type: 'invite',
     relatedResourceId: data.relatedResourceId,
   });
-}
+  }
+
+  @MessagePattern({ cmd: 'create_new_notification' }) 
+  async newNotification(@Payload() data: CreateNotificationDto) {
+    return await this.service.create(data);
+  }
+
 
 
   @Get(':userId')

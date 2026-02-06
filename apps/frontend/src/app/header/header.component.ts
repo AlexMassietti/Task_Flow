@@ -101,7 +101,7 @@ export class HeaderComponent implements OnInit {
   markAsRead(note: AppNotification, event: Event): void {
     event.stopPropagation(); 
     this.notificationService.markAsRead(note.id);
-    if (note.type === 'invite' && note.relatedResourceId) {
+    if (note.type === 'INVITE' && note.relatedResourceId) {
     this.router.navigate([`/invitation/accept`, note.relatedResourceId]);
   } else {
     console.log('Notification clicked, no specific route for type:', note.type);
