@@ -119,4 +119,12 @@ export class RolDashboardRepository implements IRolDashboardRepository {
         relations: ['participantType']
       })
   }
+
+  async removeUser(dashboardId: number, userId: number): Promise<void> {
+    console.log(dashboardId, userId)
+    await this.rolDashboardRepository.delete({
+        userId: userId,
+        dashboard: { id: dashboardId } // Asegúrate que el nombre de la relación sea 'dashboard' (o el que tengas en tu entidad)
+    });
+  }
 }

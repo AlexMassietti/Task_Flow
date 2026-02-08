@@ -31,6 +31,8 @@ export interface IRolDashboardRepository {
 
   count(): Promise<number>;
 
+  removeUser(dashboardId : number, userId: number): Promise<void>;
+
   saveArray(
     rolDashboard: {
       dashboard: Dashboard;

@@ -3,6 +3,7 @@ import { RolDashboardService } from './rol-dashboard.service';
 import { CreateRolDashboardDto } from './dto/create-rol-dashboard.dto';
 import { UpdateRolDashboardDto } from './dto/update-rol-dashboard.dto';
 import { ApiTags } from '@nestjs/swagger'; // Importación de Swagger
+import { MessagePattern } from '@nestjs/microservices';
 
 @ApiTags('RolDashboard') 
 @Controller('rol-dashboard')
@@ -32,5 +33,11 @@ export class RolDashboardController {
   @Delete(':id')
   remove(@Param('id') id: number) {
     return this.rolDashboardService.remove(id);
+  }
+
+  @MessagePattern({cmd : 'delete_User'})
+  removeUser(data: { dashboardId: number, userId:number }) {
+  console.log(data.userId, data.dashboardId)
+  return this.rolDashboardService.removeUser(data.dashboardId, data.userId);
   }
 }
