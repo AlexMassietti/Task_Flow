@@ -126,7 +126,7 @@ export class DashboardController {
     return await this.dashboardService.notifyInvitation(data);
   }
 
-  @Patch(':dbid/delete-user/:id')
+  @Delete(':dbid/delete-user/:id')
   @UseGuards(JwtRs256Guard)
   async deleteUser(
     @Param('dbid') dashboardId : number,
