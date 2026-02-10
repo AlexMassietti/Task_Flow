@@ -107,15 +107,31 @@ export class DashboardService {
     return await firstValueFrom(this.dashboardClient.send({ cmd: 'get_dashboard_tasks' }, { id }));
   }
 
-  async getDashboardUsers(id: number): Promise<UserDto[]> {
-    const idUsersInDashboard: number[] = await firstValueFrom(
-      this.dashboardClient.send({ cmd: 'get_users_dashboard' }, { id }),
-    );
+  async getDashboardUsers(id: number): Promise<any[]> {
+  // 1. Recibimos el array de objetos [{ userId, role }, ...]
+  const dashboardData: any[] = await firstValueFrom(
+    this.dashboardClient.send({ cmd: 'get_users_dashboard_with_roles' }, { id }),
+  );
 
-    const usersInDashboard: UserDto[] = await firstValueFrom(
-      this.usersClient.send({ cmd: 'get_users_by_id' }, idUsersInDashboard ),
-    );
-    return usersInDashboard;
+  if (!dashboardData || dashboardData.length === 0) return [];
+
+  // 2. Extraemos SOLO los ids para consultar al microservicio de Usuarios
+  const userIds = dashboardData.map(item => item.userId);
+
+  // 3. Obtenemos la información básica de esos usuarios
+  const usersBasicInfo: UserDto[] = await firstValueFrom(
+    this.usersClient.send({ cmd: 'get_users_by_id' }, userIds),
+  );
+
+  // 4. Cruzamos la info: a cada usuario le pegamos su rol correspondiente
+  return usersBasicInfo.map(user => {
+    const dashboardRelation = dashboardData.find(d => d.userId === user.id);
+    
+    return {
+      ...user,
+      role: dashboardRelation?.role || null
+    };
+  });
   }
   async processDashboardInvitation(data: DashboardInvitationDto) {
     try {

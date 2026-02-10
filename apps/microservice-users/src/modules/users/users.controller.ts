@@ -59,7 +59,6 @@ export class UsersController {
   async getUsersById(
     @Payload() ids: number[] // Quitamos 'idUsersInDashboard' para recibir el array directo
   ): Promise<GetUserDto[]> {
-    console.log('Ids recibidos en Auth:', ids); 
     return this.usersService.getUsersById(ids);
   }
 

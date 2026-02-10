@@ -5,6 +5,7 @@ import { UpdateRolDashboardDto } from './dto/update-rol-dashboard.dto';
 import { DeleteRolDashboardDto } from './dto/delete-rol-dashboard.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { MessagePattern, Payload } from '@nestjs/microservices';
+import { DashboardUserRelation } from '@microservice-tasks/core/ports/rol-dashboard.interface';
 
 @ApiTags('RolDashboard')
 @Controller('rol-dashboard')
@@ -62,5 +63,15 @@ export class RolDashboardController {
   @MessagePattern({ cmd: 'update_user_role' })
   updateUserRole(@Payload() data: { dashboardId: number, userId: number, updaterId: number, newUserRole: number }) {
     return this.rolDashboardService.updateUserRole(data.dashboardId, data.userId, data.updaterId, data.newUserRole);
+  }
+
+  @MessagePattern({ cmd: 'get_users_dashboard' })
+  findUsersInDashboard(data: { id: number }): Promise<number[]> {
+  return this.rolDashboardService.findUsersInDashboard(data.id);
+  }
+
+  @MessagePattern({ cmd: 'get_users_dashboard_with_roles' })
+  findUsersInDashboardWithRoles(data: { id: number }): Promise<DashboardUserRelation[]> {
+  return this.rolDashboardService.findUsersInDashboardWithRoles(data.id);
   }
 }

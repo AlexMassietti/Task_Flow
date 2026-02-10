@@ -144,16 +144,6 @@ export class DashboardService {
     return this.dashboardRepository.findDashboardByRolDashboard(idDashboardsShared);
   }
 
-  async findUsersInDashboard(id: number): Promise<number[]> {
-    const dashboard = await this.dashboardRepository.findOne(id);
-
-    if (!dashboard) {
-      throw new NotFoundException(`Dashboard with ID: ${id} not found`);
-    }
-
-    return this.rolDashboardRepository.findUsersInDashboard(dashboard.id);
-  }
-
   async isRevisable(dashbordId: number) {
     return await this.dashboardRepository.requiresReview(dashbordId)
   }

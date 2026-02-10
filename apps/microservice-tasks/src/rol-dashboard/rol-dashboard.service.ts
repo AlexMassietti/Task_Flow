@@ -3,7 +3,7 @@ import { RolDashboard } from './entities/rol-dashboard.entity';
 import { CreateRolDashboardDto } from './dto/create-rol-dashboard.dto';
 import { UpdateRolDashboardDto } from './dto/update-rol-dashboard.dto';
 import { DASHBOARD_REPO, PARTICIPANT_TYPE_REPO, ROL_DASHBOARD_REPO } from '@microservice-tasks/core/ports/tokens';
-import { IRolDashboardRepository } from '@microservice-tasks/core/ports/rol-dashboard.interface';
+import { DashboardUserRelation, IRolDashboardRepository } from '@microservice-tasks/core/ports/rol-dashboard.interface';
 import { IDashboardRepository } from '@microservice-tasks/core/ports/dashboard.interface';
 import { IParticipantTypeRepository } from '@microservice-tasks/core/ports/participant-type.interface';
 import { AuthorizationService } from '@microservice-tasks/authorization/authorization.service';
@@ -130,11 +130,24 @@ export class RolDashboardService {
 
 
   async findUsersInDashboard(dashboardId: number): Promise<number[]>{
-  const dashboard = await this.dashboardRepository.findOne(dashboardId);
-  if (!dashboard){
-    throw new NotFoundException('Dashboard not found');
+    const dashboard = await this.dashboardRepository.findOne(dashboardId);
+    if (!dashboard){
+      throw new NotFoundException('Dashboard not found');
+    }
+    const userIds= await this.rolDashboardRepository.findUsersInDashboard(dashboardId)
+    return userIds;
   }
-  const userIds= await this.rolDashboardRepository.findUsersInDashboard(dashboardId)
-  return userIds;
+
+  async findUsersInDashboardWithRoles(dashboardId: number): Promise<DashboardUserRelation[]> {
+  
+    const dashboard = await this.dashboardRepository.findOne(dashboardId); 
+    
+    if (!dashboard) {
+      throw new NotFoundException('Dashboard not found');
+    }
+
+    const usersWithRoles = await this.rolDashboardRepository.findUsersInDashboardWithRoles(dashboardId);
+    
+    return usersWithRoles;
   }
 }

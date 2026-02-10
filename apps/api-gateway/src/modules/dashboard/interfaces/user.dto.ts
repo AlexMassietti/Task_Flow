@@ -10,4 +10,7 @@ export class UserDto {
 
   @ApiProperty({ example: 'admin@sistema.com' })
   email: string;
+
+  @ApiProperty({ example: 'admin'})
+  participantTypeId?: number;
 }

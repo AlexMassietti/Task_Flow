@@ -29,6 +29,8 @@ export interface IRolDashboardRepository {
 
   findUsersInDashboard(dahsboardId: number): Promise<number[]>;
 
+  findUsersInDashboardWithRoles(dashboardId: number): Promise<DashboardUserRelation[]>;
+
   count(): Promise<number>;
 
   removeUser(dashboardId : number, userId: number): Promise<void>;
@@ -42,4 +44,17 @@ export interface IRolDashboardRepository {
       userId: number;
     }[],
   ): Promise<RolDashboard[]>;
+}
+export interface DashboardUserRelation {
+
+  userId: number;
+
+  role: {
+
+    id: number;
+
+    name: string;
+
+  };
+
 }

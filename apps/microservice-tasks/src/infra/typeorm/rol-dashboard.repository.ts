@@ -4,7 +4,7 @@ import { In, Repository } from 'typeorm';
 import { Dashboard } from '@microservice-tasks/dashboard/entities/dashboard.entity';
 import { ParticipantType } from '@microservice-tasks/participant-type/entities/participant-type.entity';
 import { UpdateDashboardDto } from '@shared/dtos';
-import { IRolDashboardRepository } from '@microservice-tasks/core/ports/rol-dashboard.interface';
+import { DashboardUserRelation, IRolDashboardRepository } from '@microservice-tasks/core/ports/rol-dashboard.interface';
 import { RolDashboard } from '@microservice-tasks/rol-dashboard/entities/rol-dashboard.entity';
 import { CreateRolDashboardDto } from '@microservice-tasks/rol-dashboard/dto/create-rol-dashboard.dto';
 
@@ -110,6 +110,19 @@ export class RolDashboardRepository implements IRolDashboardRepository {
     return usersInDashboard.map((u) => u.userId);
   }
 
+  async findUsersInDashboardWithRoles(dashboardId: number): Promise<DashboardUserRelation[]> {
+    const usersInDashboard = await this.rolDashboardRepository.find({
+      where: { dashboard: { id: dashboardId } },
+      relations: ['participantType'], // Crucial para obtener el nombre del rol
+    });
+    return usersInDashboard.map((u) => ({
+      userId: u.userId,
+      role: {
+        id: u.participantType.id,
+        name: u.participantType.name,
+      },
+    }));
+}
   async findUserRole(userId: number, dashboardId: number): Promise<RolDashboard | null> {
       return this.rolDashboardRepository.findOne({
         where: { userId : userId, 
