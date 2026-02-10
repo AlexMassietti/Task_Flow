@@ -130,9 +130,9 @@ export class DashboardController {
   async deleteUser(
     @Param('dbid') dashboardId : number,
     @Param('id') userId: number,
+    @User('deleterId') deleterId: number,
   ){
-    console.log(userId, dashboardId)
-    return await this.dashboardService.deleteUser(dashboardId, userId)
+    return await this.dashboardService.deleteUser(dashboardId, userId, deleterId)
   }
 
 

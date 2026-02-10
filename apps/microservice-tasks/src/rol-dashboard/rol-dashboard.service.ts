@@ -6,6 +6,7 @@ import { DASHBOARD_REPO, PARTICIPANT_TYPE_REPO, ROL_DASHBOARD_REPO } from '@micr
 import { IRolDashboardRepository } from '@microservice-tasks/core/ports/rol-dashboard.interface';
 import { IDashboardRepository } from '@microservice-tasks/core/ports/dashboard.interface';
 import { IParticipantTypeRepository } from '@microservice-tasks/core/ports/participant-type.interface';
+import { AuthorizationService } from '@microservice-tasks/authorization/authorization.service';
 
 @Injectable()
 export class RolDashboardService {
@@ -18,6 +19,8 @@ export class RolDashboardService {
 
     @Inject(PARTICIPANT_TYPE_REPO)
     private readonly participantTypeRepository: IParticipantTypeRepository,
+
+    private readonly authorizationService: AuthorizationService,
   ) { }
 
   async create(createRolDashboardDto: CreateRolDashboardDto): Promise<RolDashboard> {
@@ -113,8 +116,8 @@ export class RolDashboardService {
     };
   }
 
-  async removeUser(dashboardId: number, userId : number): Promise<{success : boolean}>{
-    console.log(dashboardId, userId)
+  async removeUser(dashboardId: number, userId : number, deleterId:number): Promise<{success : boolean}>{
+    await this.authorizationService.canManageMembers(deleterId, dashboardId)
     await this.rolDashboardRepository.removeUser(dashboardId, userId)
     return { success: true }
   }

@@ -36,8 +36,7 @@ export class RolDashboardController {
   }
 
   @MessagePattern({cmd : 'delete_User'})
-  removeUser(data: { dashboardId: number, userId:number }) {
-  console.log(data.userId, data.dashboardId)
-  return this.rolDashboardService.removeUser(data.dashboardId, data.userId);
+  removeUser(data: { dashboardId: number, userId:number, deleterId: number },) {
+  return this.rolDashboardService.removeUser(data.dashboardId, data.userId, data.deleterId);
   }
 }

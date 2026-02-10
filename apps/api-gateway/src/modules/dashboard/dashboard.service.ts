@@ -62,10 +62,9 @@ export class DashboardService {
       );
     }
   }
-    async deleteUser(dashboardId: number, userId:number): Promise<{ success: boolean }> {
+    async deleteUser(dashboardId: number, userId:number, deleterId: number): Promise<{ success: boolean }> {
     try {
-      console.log(userId, dashboardId)
-      await firstValueFrom(this.dashboardClient.send({ cmd: 'delete_User' }, { dashboardId, userId }));
+      await firstValueFrom(this.dashboardClient.send({ cmd: 'delete_User' }, { dashboardId, userId, deleterId }));
       return { success: true };
     } catch (err: unknown) {
       const payload = normalizeRemoteError(err);
