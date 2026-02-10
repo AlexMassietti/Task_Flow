@@ -9,8 +9,9 @@ import { StatusModule } from './modules/status/status.module';
 import { PriorityModule } from './modules/priority/priority.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { FriendshipModule } from './modules/friendship/friendship.module';
+import { ParticipantTypeModule } from './modules/participant-type/participant-type.module';
 @Module({
-  imports: [AuthModule, DashboardModule, TaskModule, MailModule, LeaderboardModule, FilesModule, StatusModule, PriorityModule, NotificationModule, FriendshipModule],
+  imports: [AuthModule, DashboardModule, TaskModule, MailModule, LeaderboardModule, FilesModule, StatusModule, PriorityModule, NotificationModule, FriendshipModule, ParticipantTypeModule],
   controllers: [],
   providers: [],
 })

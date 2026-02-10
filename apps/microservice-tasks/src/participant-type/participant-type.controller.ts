@@ -3,6 +3,7 @@ import { ParticipantTypeService } from './participant-type.service';
 import { CreateParticipantTypeDto } from './dto/create-participant-type.dto';
 import { UpdateParticipantTypeDto } from './dto/update-participant-type.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { MessagePattern } from '@nestjs/microservices';
 @ApiTags('ParticipantType')
 @Controller('participant-type')
 export class ParticipantTypeController {
@@ -15,6 +16,11 @@ export class ParticipantTypeController {
 
   @Get()
   findAll() {
+    return this.participantTypeService.findAll();
+  }
+
+  @MessagePattern({ cmd: 'get_participant_types' }) 
+  getPrioritiesMS() {
     return this.participantTypeService.findAll();
   }
 
