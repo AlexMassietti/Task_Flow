@@ -1,5 +1,4 @@
-// dashboard-invitation.entity.ts
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, JoinColumn } from 'typeorm';
 import { Dashboard } from '../../dashboard/entities/dashboard.entity';
 
 export enum InvitationStatus {
@@ -22,7 +21,11 @@ export class DashboardInvitation {
   @Column()
   invitedByUserId: number;
 
-  @ManyToOne(() => Dashboard)
+  @ManyToOne(() => Dashboard, { 
+    onDelete: 'CASCADE', // Esto crea la regla en la base de datos
+    nullable: false      // Opcional: asegura que no haya invitaciones sin dashboard
+  })
+  @JoinColumn({ name: 'dashboardId' }) // Especificamos el nombre de la columna FK
   dashboard: Dashboard;
 
   @Column({ type: 'enum', enum: InvitationStatus, default: InvitationStatus.PENDING })

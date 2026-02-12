@@ -51,6 +51,7 @@ export class DashboardService {
   }
 
   async delete(dashboardId: number, userId:number): Promise<{ success: boolean }> {
+    console.log(dashboardId, userId)
     try {
       await firstValueFrom(this.dashboardClient.send({ cmd: 'delete_dashboard' }, { dashboardId, userId }), { defaultValue: null });
       return { success: true }

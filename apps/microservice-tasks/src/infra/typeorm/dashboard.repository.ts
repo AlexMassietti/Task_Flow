@@ -67,7 +67,17 @@ export class DashboardRepository implements IDashboardRepository {
   }
 
   async remove(id: number): Promise<void> {
-    await this.dashboardRepository.delete(id);
+
+    console.log(id)
+
+    const result = await this.dashboardRepository.delete(id);
+
+    console.log(result)
+    
+    // result.affected indicará cuántas filas se eliminaron
+    if (result.affected === 0) {
+      throw new NotFoundException(`No se encontró el dashboard con ID #${id}`);
+    }
   }
 
   // En tu repositorio o servicio que implementa la interfaz

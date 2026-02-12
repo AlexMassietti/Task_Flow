@@ -90,19 +90,42 @@ export class DashboardService {
     }
   }
 
-  async remove(id: number, userId:number): Promise<void> {
-    await this.authorizationService.canManageDashboard(userId, id);
-    try {
-      await this.dashboardRepository.findOne(id);
+  async remove(id: number, userId: number): Promise<void> {
+    console.log(id, userId)
+    if (id === null || id === undefined) {
+      throw new RpcException({
+        status: HttpStatus.BAD_REQUEST,
+        message: 'El ID del dashboard es nulo o indefinido.'
+      });
+    }
 
-      await this.dashboardRepository.remove(id);
+    if (userId === null || userId === undefined) {
+      throw new RpcException({
+        status: HttpStatus.BAD_REQUEST,
+        message: 'El ID de usuario es nulo o indefinido.'
+      });
+    }
+
+    // 2. Validación de autorización
+    await this.authorizationService.canManageDashboard(userId, id);
+
+    try {
+      await this.dashboardRepository.remove(id); 
 
       return;
     } catch (error) {
+      console.error('ERROR REAL EN REPO:', error);
+      // Manejo de errores para Microservicios
+      if (error instanceof NotFoundException) {
+        throw new RpcException({
+          status: HttpStatus.NOT_FOUND,
+          message: error.message
+        });
+      }
+
       throw new RpcException({
-        error: error.response.error,
-        message: error.response.message,
-        status: HttpStatus.NOT_FOUND
+        status: error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+        message: error.message || 'Error interno al eliminar el dashboard'
       });
     }
   }
