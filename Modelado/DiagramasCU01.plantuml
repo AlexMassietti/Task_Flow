@@ -20,7 +20,6 @@ else Mientras existan prioridades
     GRT -> PR : getNombre()
 end
 GRT -> GRT: buscarUsuariosProyecto()
-entity "__Log:Usuario__" as LU
 entity "__:Proyectos__" as P #LightCoral
 loop Verificar nombres de Proyectos
 else Mientras existan proyectos
@@ -59,8 +58,7 @@ else Mientras existan estados
 end
 
 GRT -> GRT : crearTarea()
-GRT -> LU: crearTarea()
-LU -> SP : crearTarea()
+GRT -> SP : crearTarea()
 create entity "__Nueva:Tarea__" as T
 SP --> T : registrar()
 GRT -> GRT : finCU()
@@ -76,15 +74,16 @@ class Usuario<<Entity>>{
     - email
     - nombreUsuario
     - contraseña
+    + 14. getNombre()
     + 17. buscarProyectosUsuario()
-    + 27. crearTarea()
 }
 
 class Proyecto<<Entity>>{
     - nombre
     - descripcion
-    + 18. getNombre()
-    + 28. crearTarea()
+    + 11. esTuNombre()
+    + 12. getUsuariosProyecto()
+    + 27. crearTarea()
 }
 
 class Tarea<<Entity>>{
@@ -93,7 +92,7 @@ class Tarea<<Entity>>{
     - fechaInicio
     - fechaFin
     - fechaEntrega
-    + 29. registrar()
+    + 28. registrar()
     + archivar()
     + finalizar()
     + eliminar()
@@ -102,6 +101,10 @@ class Tarea<<Entity>>{
     + hacer()
 }
 
+class RolProyecto<<Entity>>{
+    - nombreUsuario
+    + 13.getNombreUsuario()
+}
 class EstadoTarea<<Entity>>{
     - nombre
     - descripción
@@ -121,13 +124,13 @@ class GestorRegistrarTarea <<Control>> {
     - descripcionTarea
     - fechaHoraFinTarea
     - prioridadTarea
+    - nombreProyecto
     + 3. newRegistrarTarea()
     + 7. tomarIngresoDatos()
     + 8. buscarPrioridades()
-    + 13. tomarSeleccionDatos()
-    + 14. buscarUsuarioLogueado()
-    + 16. buscarProyectosUsuario()
-    + 21. tomarSelecciónProyecto()
+    + 10. buscarUsuariosProyectos()
+    + 19. tomarSeleccionDatos()
+    + 20. buscarUsuarioLogueado()
     + 22. verificarDatosMinimos()
     + 23. getFechaHoraActual()
     + 24. buscarEstadoPendiente()
@@ -145,27 +148,27 @@ class PantallaRegistrarTarea <<Boundary>> {
     + 4. solicitarIngresoDatos()
     + 5. tomarIngresoNombre()
     + 6. tomarIngresoDescripcion()
-    + 8. mostrarDatosParaSeleccion()
-    + 11. tomarSelecciónFechaHoraFin()
-    + 12. tomarSelecciónPrioridad()
-    + 19. solicitarSelecciónProyecto()
-    + 20. tomarSelecciónProyecto()
+    + 15. mostrarDatosParaSeleccion()
+    + 16. tomarSelecciónFechaHoraFin()
+    + 17. tomarSelecciónUsuarioAsignado()
+    + 18. tomarSelecciónPrioridad()
 }
 
 class Sesión<<Entity>>{
     - fechaHoraInicio
     - fechaHoraFin
-    + 13. getUsuarioLogueado()
+    + 21. getUsuarioLogueado()
 }
 
 PantallaRegistrarTarea ..> GestorRegistrarTarea
 PantallaRegistrarTarea <.. GestorRegistrarTarea
 GestorRegistrarTarea ..> PrioridadTarea
 GestorRegistrarTarea ..> Sesión
-GestorRegistrarTarea ..> Usuario
 GestorRegistrarTarea ..> EstadoTarea
+GestorRegistrarTarea ..> Proyecto
 Sesión --> "1" Usuario : usuario
-Usuario --> "0..*" Proyecto : proyectos
 Proyecto --> "1..*" Tarea : tareas
+Proyecto -->"0..*" RolProyecto: rolProyecto
+RolProyecto -->"1" Usuario: usuario
 
 @enduml
