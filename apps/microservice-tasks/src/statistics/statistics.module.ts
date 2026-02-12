@@ -20,7 +20,7 @@ import { LeaderboardModule } from '@microservice-tasks/leaderboard/leaderboard.m
             transport: Transport.TCP,
             options: {
               host: process.env.GATEWAY_HOST || '0.0.0.0',
-              port: parseInt(process.env.GATEWAY_PORT) || 4002,
+              port: 4002,
             },
           },
         ]),

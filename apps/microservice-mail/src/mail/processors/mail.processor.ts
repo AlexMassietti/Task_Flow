@@ -1,4 +1,4 @@
-    import { Processor, WorkerHost } from '@nestjs/bullmq';
+import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import { Inject, Logger } from '@nestjs/common';
 import { NodemailerAdapter } from '../../infraestructure/adapters/nodemailer.adapter';

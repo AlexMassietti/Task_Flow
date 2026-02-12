@@ -1,47 +1,62 @@
-import { BadRequestException, ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { IFriendshipRepository } from '@microservice-users/modules/core/ports/friendship.port';
 import { Friendship, FriendshipStatus } from './entities/friendship.entity';
 import { User } from '../users/entities/user.entity';
 import { CreateFriendshipDto } from './dto/create-friendship.dto';
 import { FRIENDSHIP_REPO, USER_REPO } from '../core/ports/tokens';
 import { IUserRepository } from '../core/ports/users.port';
+import { firstValueFrom } from 'rxjs';
+import { ClientProxy } from '@nestjs/microservices';
+import { CreateNotificationDto } from './dto/create-notification.dto';
 
 @Injectable()
 export class FriendshipService {
+  private readonly logger = new Logger(FriendshipService.name);
   constructor(
     @Inject(FRIENDSHIP_REPO)
     private readonly friendshipRepository: IFriendshipRepository,
     @Inject(USER_REPO)
     private readonly userRepository: IUserRepository,
+    @Inject('GATEWAY_CLIENT')
+    private readonly gatewayClient: ClientProxy,
   ) {}
 
-  async create(createFriendshipDto: CreateFriendshipDto) { // Ajusta al DTO que uses en el MS
+  async create(createFriendshipDto: CreateFriendshipDto) {
     const { requesterId, email } = createFriendshipDto;
 
+    // 1. Validaciones de negocio (lo que ya tienes)
     const addressee = await this.userRepository.findByEmail(email);
-
-    if (!addressee) {
-      throw new NotFoundException(`User with email ${email} not found`);
-    }
-    if (requesterId === addressee.id) {
-      throw new BadRequestException('No puedes enviarte solicitud a ti mismo');
-    }
-
-    const existing = await this.friendshipRepository.findByUsers(requesterId, addressee.id);
+    if (!addressee) throw new NotFoundException(`User with email ${email} not found`);
     
-    if (existing) {
-      if (existing.status === FriendshipStatus.BLOCKED) {
-        throw new BadRequestException('No puedes enviar solicitud, el usuario está bloqueado o te bloqueó.');
-      }
-      throw new BadRequestException('Ya existe una solicitud o amistad con este usuario');
-    }
+    const existing = await this.friendshipRepository.findByUsers(requesterId, addressee.id);
+    if (existing) throw new BadRequestException('Ya existe una relación o bloqueo');
 
+    // 2. Persistencia
     const friendship = new Friendship();
     friendship.requester = { id: requesterId } as User;
     friendship.addressee = { id: addressee.id } as User;
     friendship.status = FriendshipStatus.PENDING;
 
-    return this.friendshipRepository.create(friendship);
+    const savedFriendship = await this.friendshipRepository.create(friendship);
+
+    // 3. Notificación Sincrónica (usando send para esperar respuesta)
+    try {
+      const notificationPayload: CreateNotificationDto = {
+        userId: addressee.id,
+        type: 'FRIEND_REQUEST',
+        title: 'Nueva solicitud de amistad',
+        message: `Has recibido una solicitud de amistad de ${requesterId}`,
+        relatedResourceId: savedFriendship.id
+      };
+
+      await firstValueFrom(
+        this.gatewayClient.send({ cmd: 'create_notification' }, notificationPayload)
+      );
+    } catch (error) {
+      this.logger.error(`No se pudo notificar al usuario ${addressee.id}: ${error.message}`);
+    }
+
+    return savedFriendship;
   }
 
   async accept(friendshipId: number, userId: number) {
