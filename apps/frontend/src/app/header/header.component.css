@@ -82,6 +82,21 @@
   font-weight: 500;
   font-size: 0.9rem;
 }
+/* --- ESTADISTICAS --- */
+
+.stats-btn {
+  color: #4f46e5 !important; /* Un color índigo/azul para diferenciarlo de la campana */
+  margin-right: 2px;
+}
+
+.stats-btn:hover {
+  background-color: rgba(79, 70, 229, 0.1) !important;
+}
+
+/* Opcional: Si quieres que el icono sea más grande */
+.stats-btn i {
+  font-size: 1.2rem;
+}
 
 /* --- NOTIFICACIONES --- */
 .notification-menu {

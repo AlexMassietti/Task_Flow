@@ -24,6 +24,8 @@ export class HeaderComponent implements OnInit {
   showInviteButton = false;
   notifications: AppNotification[] = [];
   unreadCount: number = 0;
+  showStatsButton = false; 
+  currentDashboardId: string | null = null;
 
   constructor(
     private router: Router,
@@ -67,11 +69,25 @@ export class HeaderComponent implements OnInit {
   }
 
   checkRoute(url: string): void {
-    this.showInviteButton = url.includes('/dashboard'); 
+    const isDashboard = url.includes('/dashboard/');
+    this.showInviteButton = isDashboard;
+    this.showStatsButton = isDashboard; // Se muestra si estamos en un dashboard
+
+    if (isDashboard) {
+      const parts = url.split('/');
+      // Asumimos que la URL es /dashboard/:id o /dashboard/stats/:id
+      this.currentDashboardId = parts[parts.length - 1];
+    }
   }
 
   invitePeople(): void{
     this.isInviteModalOpen = true;
+  }
+
+  goToStats(): void {
+    if (this.currentDashboardId) {
+      this.router.navigate([`/dashboard/stats/${this.currentDashboardId}`]);
+    }
   }
 
   handleInviteUser(email:string):void{
