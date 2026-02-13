@@ -13,7 +13,10 @@ export class Dashboard {
   description: string;
 
   @Column({ default: false})
-  requiresReview: boolean; 
+  requiresReview: boolean;
+
+  @Column({ nullable: true })
+  preset: string;
 
   @OneToMany(() => Task, (task) => task.dashboard, {
     cascade: true,
