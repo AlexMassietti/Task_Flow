@@ -75,7 +75,6 @@ class Usuario<<Entity>>{
     - nombreUsuario
     - contraseña
     + 14. getNombre()
-    + 17. buscarProyectosUsuario()
 }
 
 class Proyecto<<Entity>>{
@@ -83,7 +82,6 @@ class Proyecto<<Entity>>{
     - descripcion
     + 11. esTuNombre()
     + 12. getUsuariosProyecto()
-    + 27. crearTarea()
 }
 
 class Tarea<<Entity>>{
