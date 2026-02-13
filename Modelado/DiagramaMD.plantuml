@@ -245,5 +245,5 @@ Amistad --> "2" Usuario : usuarios
 Amistad --> "1" EstadoAmistad : estadoAmistad
 TablaClasificacion --> "1" Usuario : usuario
 Notificacion --> "1" TipoNotificacion : tipoNotificación
-Usuario --> "1..*" Notificacion : notificaciones
+Usuario --> "0..*" Notificacion : notificaciones
 @enduml
