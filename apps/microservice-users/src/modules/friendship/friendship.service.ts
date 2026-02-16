@@ -80,29 +80,32 @@ export class FriendshipService {
 }
 
   async findAllByUser(userId: number) {
-  // 1. Verificación de existencia (Regla de negocio)
+    // 1. Verificación de existencia
     const userExists = await this.userRepository.findOneBy(userId);
     if (!userExists) {
       throw new NotFoundException(`El usuario con ID #${userId} no existe.`);
     }
 
-    // 2. El repositorio ya devuelve solo lo que NO está bloqueado
+    // 2. Obtención de amistades
     const friendships = await this.friendshipRepository.findAllByUser(userId);
 
     if (!friendships || friendships.length === 0) {
-    return []; 
+      return []; 
     }
 
-    // 3. Mapeo simple
+    // 3. Mapeo con la nueva propiedad sentByMe
     return friendships.map((f) => {
-      // Determinamos quién es el "amigo"
-      const isRequester = f.requester.id === userId;
-      const otherUser = isRequester ? f.addressee : f.requester;
+      // Determinamos si el usuario actual fue quien envió la solicitud
+      const isSentByMe = f.requester.id === userId;
+      
+      // El "amigo" es el que NO soy yo
+      const otherUser = isSentByMe ? f.addressee : f.requester;
 
       return {
         friendshipId: f.id,
         status: f.status,
         friendshipDate: f.createdAt,
+        sentByMe: isSentByMe, // <--- Booleano clave para el frontend
         friend: {
           id: otherUser.id,
           name: otherUser.name,

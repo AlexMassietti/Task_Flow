@@ -79,10 +79,10 @@ export class StatisticsService {
   const tasks = await this.taskRepository.findDashboardActivity(startDate, endDate, dto.dashboardId);
   if (tasks.length === 0) {
     return {
-      dashboardName: "Dashboard " + dto.dashboardId,
+      dashboardName: dashboard.name,
       dashboardLink: `https://tu-url.com/${dto.dashboardId}`,
-      createdThisMonth: 0,
-      finishedThisMonth: 0,
+      createdInPeriod: 0,
+      finishedInPeriod: 0,
       overdue: 0,
       completedOnTime: 0,
       efficiency: "0%",
