@@ -94,9 +94,15 @@
       
       <div class="kpi-card big-stat" [ngClass]="getEfficiencyClass(data.efficiency)">
         <div class="efficiency-circle">
-            <strong *ngIf="data.createdInPeriod > 0 || data.finishedInPeriod > 0">{{ data.efficiency }}</strong>
-            <strong *ngIf="data.createdInPeriod === 0 && data.finishedInPeriod === 0">--</strong>
+          <ng-container *ngIf="data.finishedInPeriod > 0">
+            <strong>{{ data.efficiency }}</strong>
             <span>On-Time Efficiency</span>
+          </ng-container>
+
+          <ng-container *ngIf="data.finishedInPeriod === 0">
+            <strong>--</strong>
+            <span>No Data Available</span>
+          </ng-container>
         </div>
       </div>
     </section>
