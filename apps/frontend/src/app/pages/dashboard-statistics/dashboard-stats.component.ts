@@ -155,16 +155,18 @@ export class DashboardStatsComponent implements OnInit, OnDestroy {
   }
 
     getEfficiencyClass(efficiency: string | undefined): string {
-        // Si no hay tareas, usamos una clase neutra (gris/text-muted)
-        if (!this.data || (this.data.createdInPeriod === 0 && this.data.finishedInPeriod === 0)) {
-            return 'neutral-stat'; 
-        }
-        
-        const value = parseFloat(efficiency?.replace('%', '') || '0');
-        if (value <= 40) return 'red-stat';
-        if (value <= 70) return 'yellow-stat';
-        return 'green-stat';
-    }
+  // Si no hay datos o no se finalizaron tareas, devolvemos estado neutral
+  if (!this.data || this.data.finishedInPeriod === 0) {
+    return 'neutral-stat';
+  }
+  
+  // Lógica normal de colores
+  const value = parseFloat(efficiency?.replace('%', '') || '0');
+  
+  if (value <= 40) return 'red-stat';
+  if (value <= 70) return 'yellow-stat';
+  return 'green-stat';
+}
 
   ngOnDestroy() {
     this.destroy$.next();
