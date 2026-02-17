@@ -92,8 +92,11 @@ S --> (38. Consultar tabla de clasificación)
 @startuml CU_Administración_Amistades
 left to right direction
 actor :Usuario: as U
-U --> (39. Añadir amigo)
+U --> (39. Enviar solicitud de amistad)
 U --> (40. Eliminar amigo)
 U --> (41. Bloquear amigo)
 U --> (42. Consultar lista de amigos)
+U --> (43. Aceptar solicitud de amistad)
+U --> (44. Rechazar solicitud de amistad)
+U --> (45. Desbloquear amigo)
 @enduml
