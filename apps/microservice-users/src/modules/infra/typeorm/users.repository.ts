@@ -55,7 +55,7 @@ export class UserRepository implements IUserRepository {
   async findOneBy(id: number): Promise<User | null> {
     return this.userRepository.findOne({
       where: { id },
-      select: ['id', 'name', 'email']
+      select: ['id', 'name', 'email', 'description']
     });
   }
 
