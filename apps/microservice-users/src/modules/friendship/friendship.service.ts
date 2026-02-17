@@ -27,6 +27,9 @@ export class FriendshipService {
     // 1. Validaciones de negocio (lo que ya tienes)
     const addressee = await this.userRepository.findByEmail(email);
     if (!addressee) throw new NotFoundException(`User with email ${email} not found`);
+    const requester = await this.userRepository.findOneBy(requesterId);
+    if (!requester) throw new NotFoundException(`Requester with ID #${requesterId} not found`);
+    if (requesterId === addressee.id) throw new BadRequestException('No puedes enviarte una solicitud a ti mismo');
     
     const existing = await this.friendshipRepository.findByUsers(requesterId, addressee.id);
     if (existing) throw new BadRequestException('Ya existe una relación o bloqueo');
@@ -45,7 +48,7 @@ export class FriendshipService {
         userId: addressee.id,
         type: 'FRIEND_REQUEST',
         title: 'Nueva solicitud de amistad',
-        message: `Has recibido una solicitud de amistad de ${requesterId}`,
+        message: `Has recibido una solicitud de amistad de ${requester.name}`,
         relatedResourceId: savedFriendship.id
       };
 
