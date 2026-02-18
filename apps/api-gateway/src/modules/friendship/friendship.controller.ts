@@ -8,6 +8,7 @@ import { JwtRs256Guard } from '../auth/jwt-auth.guard';
 import { PermissionsGuard } from '../authorization/permission.guard';
 import { User } from '@api-gateway/common/decorators/user.decorator';
 import { FriendshipService } from './friendship.service';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 
 
 @ApiTags('Friendship')
@@ -74,6 +75,12 @@ export class FriendshipController {
     @User('sub') userId: number
   ) {
     return await this.friendshipService.remove(id, userId)
+  }
+
+  
+  @MessagePattern({ cmd: 'is_blocked' })
+  async idBlocked(@Payload() data: {senderId: number, receverId: number}) {
+    return await this.friendshipService.isBlocked(data.senderId, data.receverId)
   }
 }
   

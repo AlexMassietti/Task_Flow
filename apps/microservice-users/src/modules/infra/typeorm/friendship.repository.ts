@@ -64,4 +64,9 @@ export class FriendshipRepository implements IFriendshipRepository {
       order: { createdAt: 'DESC' }
     });
   }
+
+  async isBlocked(userId1: number, userId2: number): Promise<Boolean> {
+    return true;
+      
+  }
 }

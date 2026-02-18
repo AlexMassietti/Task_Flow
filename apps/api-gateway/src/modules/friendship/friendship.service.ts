@@ -76,6 +76,16 @@ export class FriendshipService {
     }
   }
 
+  async isBlocked(idUser: number, idBlocked : number){
+      try {
+      return await firstValueFrom(
+        this.usersClient.send({ cmd: 'is_blocked' },{idUser, idBlocked})
+      );
+    } catch (error) {
+      this.handleRemoteError(error);
+    }
+  }
+
 
   private handleRemoteError(error: any) {
     const payload = normalizeRemoteError(error);

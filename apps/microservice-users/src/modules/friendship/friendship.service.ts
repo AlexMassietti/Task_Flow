@@ -130,7 +130,7 @@ export class FriendshipService {
   return blockedFriendships.map(f => ({
     friendshipId: f.id,
     status: f.status,
-    blockedUser: {
+    friend: {
       id: f.addressee.id, // El bloqueado siempre será el addressee en este contexto
       name: f.addressee.name,
       email: f.addressee.email
@@ -144,6 +144,10 @@ export class FriendshipService {
     return friendship;
   }
 
+  async isBlocked(idUser:number, idBlocked:number){
+    
+    return await this.friendshipRepository.isBlocked(idUser, idBlocked)
+  }
 
   async remove(friendshipId: number, userId: number) {
     const friendship = await this.friendshipRepository.findById(friendshipId);
@@ -196,5 +200,5 @@ export class FriendshipService {
     blockRelation.status = FriendshipStatus.BLOCKED;
     return this.friendshipRepository.create(blockRelation);
   }
-}
+  }
 }
