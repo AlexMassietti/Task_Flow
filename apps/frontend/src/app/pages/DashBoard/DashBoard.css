@@ -225,6 +225,22 @@
   gap: 6px;
 }
 
+.attach-btn {
+  margin-left: auto; /* Pushes the button to the far right of the flex container */
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  color: #6c757d;
+  border-radius: 4px;
+  padding: 2px 8px;
+  transition: all 0.2s;
+}
+
+.attach-btn:hover {
+  background-color: #e9ecef;
+  color: #0d6efd;
+  border-color: #0d6efd;
+}
+
 .action-btn {
   padding: 4px 8px;
   border: none;
@@ -243,6 +259,40 @@
   background-color: #f7f0e8;
   color: #ca6680;
   border: 1px solid #ca6680;
+}
+
+.task-image-container {
+  position: relative;
+  width: calc(100% + 24px); /* Expands to card edges if card has 12px padding */
+  margin: 8px -12px;        /* Pulls it flush to the sides */
+  max-height: 150px;
+  overflow: hidden;
+  cursor: pointer;
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+}
+
+.task-preview-image {
+  width: 100%;
+  height: 150px;
+  object-fit: cover; /* Crops the image to fill the space without stretching */
+  transition: transform 0.3s ease;
+}
+
+.task-preview-image:hover {
+  transform: scale(1.05); /* Subtle zoom effect */
+}
+
+.image-count-badge {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: bold;
 }
 
 /* Empty State */
@@ -297,6 +347,123 @@
 .create-btn svg {
   width: 16px;
   height: 16px;
+}
+
+/* The Darkened Backdrop */
+.lightbox-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px); /* Modern blur effect */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* Close Button (Top Right) */
+.close-btn {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  color: white;
+  font-size: 48px;
+  font-weight: 200;
+  cursor: pointer;
+  line-height: 1;
+  transition: transform 0.2s, color 0.2s;
+  z-index: 3001;
+}
+
+.close-btn:hover {
+  transform: scale(1.1);
+  color: #ff4d4d;
+}
+
+/* The Image Container */
+.lightbox-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 90%;
+  max-height: 85%;
+}
+
+.lightbox-content {
+  width: 100%;
+  height: 100vh; /* Take the full height of the screen */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 0; /* Add a little breathing room top and bottom */
+  box-sizing: border-box;
+}
+
+/* Ensure the main image doesn't overlap the new thumbnails */
+.main-lightbox-image {
+  max-width: 90vw;
+  /* 100vh minus the height of the filmstrip, padding, and some margin */
+  max-height: calc(100vh - 160px); 
+  border-radius: 8px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  object-fit: contain;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+/* The horizontal scrollable container */
+.lightbox-thumbnails {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+  max-width: 90vw;
+  padding: 10px 15px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 12px;
+  overflow-x: auto;
+  scrollbar-width: none; 
+  flex-shrink: 0; /* NEW: Prevents the filmstrip from being squished or pushed off-screen */
+}
+.lightbox-thumbnails::-webkit-scrollbar {
+  display: none;
+}
+
+/* Individual Thumbnail Styling */
+.thumbnail {
+  width: 64px;
+  height: 64px;
+  object-fit: cover; /* Keeps them perfect squares without stretching */
+  border-radius: 6px;
+  cursor: pointer;
+  opacity: 0.4;
+  transition: all 0.2s ease-in-out;
+  border: 2px solid transparent;
+}
+
+/* Hover Effect */
+.thumbnail:hover {
+  opacity: 0.8;
+  transform: translateY(-2px);
+}
+
+/* The Currently Selected Image */
+.thumbnail.active {
+  opacity: 1;
+  border-color: #0d6efd; /* Highlight color (e.g., Bootstrap blue) */
+  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.4);
+  transform: scale(1.05);
+}
+
+/* Animation for the pop-up */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 /* Utility classes */

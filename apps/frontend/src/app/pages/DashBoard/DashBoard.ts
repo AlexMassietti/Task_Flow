@@ -25,6 +25,11 @@ import { MemberSidebarComponent } from './Member-sidebar/member-sidebar';
 import { participantTypeModel } from '../../Models/ParticipantType/participantType.model';
 import { archivedSidebarService } from '../../services/archived-sidebar.service';
 
+interface TaskImage {
+  id: number;
+  url: string;
+}
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -58,6 +63,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   readonly ARCHIVED_STATUS_ID = 5;
   readonly REVIEWED_STATUS_ID = 3;
   readonly DEFAULT_STATUS_ID = 4;
+  readonly API_BASE_URL = 'http://localhost:3000';
   requiresReview = false
   archivedTasks: TaskModel[] = [];
   isArchiveSideBarOpen = false;
@@ -65,6 +71,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
   isCreateModalOpen = false;
   newTaskStatusId = 1;
   isMemberSidebarOpen = false;
+  isLightboxOpen = false;
+  lightboxImages: TaskImage[] = []; 
+  currentImageIndex = 0;
+  
 
   constructor(
     private sidebarService: SidebarService,
@@ -137,8 +147,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.participantTypes = participantTypes;
         this.dashboardMeta = details;
         this.requiresReview = this.dashboardMeta.requiresReview;
-
         this.tasksByStatus = this.loadTaskByStatus();
+        console.log(this.tasks)
       },
       error: (err) => {
         console.error('Failed to load dashboard data', err);
@@ -394,4 +404,64 @@ export class DashboardComponent implements OnInit, OnDestroy {
       });
   }
 
+getTaskImageUrl(imagePath: string): string {
+  if (!imagePath) return '';
+
+  // 1. Handle Mock URLs (they already start with http)
+  if (imagePath.startsWith('http')) {
+    return imagePath;
+  }
+
+  // 2. Sanitize the path: Replace ALL backslashes with forward slashes
+  // The regex /\\/g looks for backslashes globally
+  const sanitizedPath = imagePath.replace(/\\/g, '/');
+
+  // 3. Construct the full URL
+  // Ensure there isn't a double slash if your API_BASE_URL already ends with /
+  const baseUrl = this.API_BASE_URL.endsWith('/') 
+    ? this.API_BASE_URL.slice(0, -1) 
+    : this.API_BASE_URL;
+
+  // If the path already starts with a slash, remove it to avoid //
+  const cleanPath = sanitizedPath.startsWith('/') 
+    ? sanitizedPath.substring(1) 
+    : sanitizedPath;
+
+  return `${baseUrl}/${cleanPath}`;
+}
+
+openImageLightbox(images: TaskImage[], index: number = 0) {
+  this.lightboxImages = images;
+  this.currentImageIndex = index;
+  this.isLightboxOpen = true;
+  
+  document.body.style.overflow = 'hidden';
+}
+
+closeLightbox() {
+  this.isLightboxOpen = false;
+  this.lightboxImages = []; // Clear the reference
+  document.body.style.overflow = 'auto';
+}
+
+  onFileSelected(event: any, task: TaskModel) {
+  const files: FileList = event.target.files;
+  if (files.length > 0) {
+    console.log(`Uploading ${files.length} files for task: ${task.name}`);
+    const formData = new FormData();
+    Array.from(files).forEach(file => {
+      formData.append('files', file);
+    });
+
+    this.dashBoardService.updateTask(task, Array.from(files)).subscribe({
+      next: () => {
+        console.log('Files uploaded successfully');
+        this.refreshData();
+      },
+      error: (err) => {
+        console.error('Failed to upload files', err);
+      }
+    });
+  }
+}
 }

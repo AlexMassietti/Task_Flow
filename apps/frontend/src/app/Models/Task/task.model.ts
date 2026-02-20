@@ -13,6 +13,7 @@ export interface TaskDTO {
   dashboardId: number;
   assignedToUserId?: number | null;
   reviewedByUserId?: number | null;
+  images: {id: number, url: string}[];
 }
 
 export interface TaskUpdateDTO {
@@ -24,6 +25,7 @@ export interface TaskUpdateDTO {
   priorityId: number;
   assignedToUserId?: number | null;
   reviewedByUserId?: number | null;
+  images?: {id: number, url: string}[];
 }
 
 export interface TaskCreateDTO {
@@ -35,6 +37,7 @@ export interface TaskCreateDTO {
   dashboardId: number;
   priorityId: number;
   assignedToUserId?: number | null;
+  images?: {id: number, url: string}[];
 }
 
 export class TaskModel {
@@ -49,10 +52,9 @@ export class TaskModel {
   dashboardId: number;
   assignedToUserId: number | null;
   reviewedByUserId: number | null;
-
-  // Optional: Keep rich objects for UI display/logic
   status?: StatusModel;
   priority?: PriorityModel;
+  images: {id: number, url: string}[] = [];
 
   constructor(params: Partial<TaskModel>) {
     this.id = params.id ?? 0;
@@ -68,6 +70,7 @@ export class TaskModel {
     this.reviewedByUserId = params.reviewedByUserId ?? null;
     this.status = params.status;
     this.priority = params.priority;
+    this.images = params.images ?? [];
   }
 
   static fromDTO(
@@ -95,9 +98,9 @@ export class TaskModel {
       dashboardId: dto.dashboardId,
       assignedToUserId: dto.assignedToUserId,
       reviewedByUserId: dto.reviewedByUserId,
-      // Hydrate objects if lookups are provided
       status: options?.statusLookup?.(dto.statusId),
       priority: options?.priorityLookup?.(dto.priorityId),
+      images: dto.images ?? [],
     });
   }
 
@@ -114,6 +117,7 @@ export class TaskModel {
       dashboardId: this.dashboardId,
       assignedToUserId: this.assignedToUserId,
       reviewedByUserId: this.reviewedByUserId,
+      images: this.images,
     };
   }
   
@@ -140,6 +144,7 @@ export class TaskModel {
       priorityId: this.priorityId,
       assignedToUserId: this.assignedToUserId,
       reviewedByUserId: this.reviewedByUserId,
+      images: this.images,
     };
   }
 }

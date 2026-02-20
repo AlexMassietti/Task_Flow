@@ -60,7 +60,11 @@ export class DashBoardService {
     priorityId: 3, // Assuming 3 = High
     dashboardId: 1,
     assignedToUserId: 2,
-    reviewedByUserId: 1
+    reviewedByUserId: 1,
+    images: [
+      { id: 1, url: 'https://example.com/image1.png' },
+      { id: 2, url: 'https://example.com/image2.png' }
+    ]
   },
   {
     id: 2,
@@ -73,7 +77,11 @@ export class DashBoardService {
     priorityId: 2, // Assuming 2 = Medium
     dashboardId: 1,
     assignedToUserId: 5,
-    reviewedByUserId: null
+    reviewedByUserId: null,
+    images: [
+      { id: 1, url: 'https://example.com/image1.png' },
+      { id: 2, url: 'https://example.com/image2.png' }
+    ]
   },
   {
     id: 3,
@@ -86,7 +94,11 @@ export class DashBoardService {
     priorityId: 3,
     dashboardId: 1,
     assignedToUserId: 5,
-    reviewedByUserId: 5
+    reviewedByUserId: 5,
+    images: [
+      { id: 1, url: 'https://example.com/image1.png' },
+      { id: 2, url: 'https://example.com/image2.png' }
+    ]
   },
   {
     id: 4,
@@ -99,7 +111,11 @@ export class DashBoardService {
     priorityId: 1, // Assuming 1 = Low
     dashboardId: 1,
     assignedToUserId: null,
-    reviewedByUserId: null
+    reviewedByUserId: null,
+    images: [
+      { id: 1, url: 'https://example.com/image1.png' },
+      { id: 2, url: 'https://example.com/image2.png' }
+    ]
   },
   {
     id: 5,
@@ -112,7 +128,11 @@ export class DashBoardService {
     priorityId: 2,
     dashboardId: 2,
     assignedToUserId: 3,
-    reviewedByUserId: null
+    reviewedByUserId: null,
+    images: [
+      { id: 1, url: 'https://example.com/image1.png' },
+      { id: 2, url: 'https://example.com/image2.png' }
+    ]
   }
 ];
 
@@ -187,16 +207,15 @@ export class DashBoardService {
     return of(undefined);
   }
 
-  updateTask(task: TaskModel): Observable<void> {
-    if (!this.useMock) {
-      return this.http.patch<void>(`${this.baseUrl}/task/${task.id}`, task.toUpdateDTO());
-    }
-    const index = this.mockTasks.findIndex((t) => t.id === task.id);
-    if (index !== -1) {
-      this.mockTasks[index] = task.toDTO();
-    }
-    return of(undefined);
-  }
+updateTask(task: TaskModel, files: File[] = []): Observable<void> {
+  // --- REAL API LOGIC ---
+    const formData = new FormData();
+    const dto = task.toUpdateDTO();
+    files.forEach((file) => {
+      formData.append('files', file, file.name);
+    });
+    return this.http.patch<void>(`${this.baseUrl}/task/${task.id}`, formData);
+}
 
   createTask(task: TaskModel): Observable<void> {
     if (!this.useMock) {
