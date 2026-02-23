@@ -18,11 +18,17 @@ import { TaskEditModalComponent } from '../modal-edit-task/task-edit-modal.compo
 import { TaskCreateModalComponent } from '../modal-create-task/task-create-modal.component';
 import { PriorityModel } from '../../Models/Priority/priority.model';
 import { HeaderComponent } from '../../header/header.component';
-import { ArchivedTasksModalComponent } from './Archived-task-modal/archived-tasks-modal';
+import { ArchivedTasksSidebarComponent } from './Archived-task-sidebar/archived-tasks-sidebar';
 import { ChangeDetectorRef } from '@angular/core';
 import { MemberSidebarService } from '../../services/member-sidebar.service';
 import { MemberSidebarComponent } from './Member-sidebar/member-sidebar';
 import { participantTypeModel } from '../../Models/ParticipantType/participantType.model';
+import { archivedSidebarService } from '../../services/archived-sidebar.service';
+
+interface TaskImage {
+  id: number;
+  url: string;
+}
 
 @Component({
   selector: 'app-dashboard',
@@ -34,7 +40,7 @@ import { participantTypeModel } from '../../Models/ParticipantType/participantTy
     TaskEditModalComponent,
     TaskCreateModalComponent,
     HeaderComponent,
-    ArchivedTasksModalComponent,
+    ArchivedTasksSidebarComponent,
     MemberSidebarComponent,
   ],
   templateUrl: './DashBoard.html',
@@ -56,13 +62,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
   isSideBarOpen = false;
   readonly ARCHIVED_STATUS_ID = 5;
   readonly REVIEWED_STATUS_ID = 3;
+  readonly DEFAULT_STATUS_ID = 4;
+  readonly API_BASE_URL = 'http://localhost:3000';
   requiresReview = false
   archivedTasks: TaskModel[] = [];
-  showArchived = false;
+  isArchiveSideBarOpen = false;
   archiveDropHover = false;
   isCreateModalOpen = false;
   newTaskStatusId = 1;
   isMemberSidebarOpen = false;
+  isLightboxOpen = false;
+  lightboxImages: TaskImage[] = []; 
+  currentImageIndex = 0;
+  
 
   constructor(
     private sidebarService: SidebarService,
@@ -70,9 +82,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private dashBoardService: DashBoardService,
     private cdr: ChangeDetectorRef,
     private memberSidebarService: MemberSidebarService,
+    private archivedSidebarService: archivedSidebarService,
   ) {}
 
   ngOnInit(): void {
+    this.archivedSidebarService.isOpen$
+    .pipe(takeUntil(this.destroy$))
+    .subscribe((state) => {
+      this.isArchiveSideBarOpen = state;
+      this.cdr.markForCheck();
+    });
     this.memberSidebarService.isOpen$
     .pipe(takeUntil(this.destroy$))
     .subscribe((state) => {
@@ -128,8 +147,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.participantTypes = participantTypes;
         this.dashboardMeta = details;
         this.requiresReview = this.dashboardMeta.requiresReview;
-
         this.tasksByStatus = this.loadTaskByStatus();
+        console.log(this.tasks)
       },
       error: (err) => {
         console.error('Failed to load dashboard data', err);
@@ -226,96 +245,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.updateTaskStatus(movedTask, targetStatus);
 
         console.log(`Task "${movedTask.name}" moved to status "${targetStatus.name}"`);
-      }
-    }
-  }
-
-  onArchiveDrop(event: CdkDragDrop<TaskModel[]>) {
-    const task = event.item.data as TaskModel;
-    if (!task) return;
-
-    if (event.previousContainer !== event.container) {
-      transferArrayItem(
-        event.previousContainer.data,
-        this.archivedTasks,
-        event.previousIndex,
-        event.currentIndex,
-      );
-
-      task.status =
-        this.statuses.find((s) => s.id === this.ARCHIVED_STATUS_ID) ||
-        ({ id: this.ARCHIVED_STATUS_ID, name: 'Archived' } as StatusModel);
-
-      this.removeTaskFromTasksByStatus(task);
-
-      this.dashBoardService
-        .updateTaskStatus(task.id, this.ARCHIVED_STATUS_ID)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: () => console.log(`Task ${task.id} archived`),
-          error: (err) => {
-            console.error('Failed to archive task', err);
-            this.loadDashboardData();
-          },
-        });
-    }
-
-    this.archiveDropHover = false;
-  }
-
-  onArchivedColumnDrop(event: CdkDragDrop<TaskModel[]>) {
-    if (event.previousContainer === event.container) {
-      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
-      return;
-    }
-
-    transferArrayItem(
-      event.previousContainer.data,
-      event.container.data,
-      event.previousIndex,
-      event.currentIndex,
-    );
-
-    const task = event.item.data as TaskModel;
-    if (!task) return;
-
-    task.status =
-      this.statuses.find((s) => s.id === this.ARCHIVED_STATUS_ID) ||
-      ({ id: this.ARCHIVED_STATUS_ID, name: 'Archived' } as StatusModel);
-    this.removeTaskFromTasksByStatus(task);
-
-    this.dashBoardService
-      .updateTaskStatus(task.id, this.ARCHIVED_STATUS_ID)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: () => console.log(`Task ${task.id} archived via column`),
-        error: (err) => {
-          console.error('Failed to archive task', err);
-          this.loadDashboardData();
-        },
-      });
-  }
-
-  onArchiveEnter(event: any) {
-    this.archiveDropHover = true;
-  }
-
-  onArchiveExit(event: any) {
-    this.archiveDropHover = false;
-  }
-
-  toggleArchivedColumn() {
-    this.showArchived = !this.showArchived;
-  }
-
-  private removeTaskFromTasksByStatus(task: TaskModel) {
-    if (!this.tasksByStatus) return;
-    for (const key of Object.keys(this.tasksByStatus)) {
-      const arr = this.tasksByStatus[Number(key)];
-      const idx = arr.findIndex((t) => t.id === task.id);
-      if (idx !== -1) {
-        arr.splice(idx, 1);
-        break;
       }
     }
   }
@@ -421,11 +350,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   onOpenMemberSidebar() {
   this.memberSidebarService.open();
-  console.log(this.users);
   }
 
   onCloseMemberSidebar() {
     this.memberSidebarService.close();
+  }
+
+  onOpenArchivedSidebar() {
+  this.archivedSidebarService.open();
+  }
+
+  onCloseArchivedSidebar() {
+    this.archivedSidebarService.close();
+    this.refreshData();
   }
 
   onRemoveMember(userId: number) {
@@ -452,4 +389,79 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
   }
 
+  archiveTask(task: TaskModel) {
+    if (!task) return;
+    this.dashBoardService
+      .updateTaskStatus(task.id, this.ARCHIVED_STATUS_ID)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.refreshData();
+        },
+        error: (err) => {
+          console.error('Failed to archive task', err);
+        },
+      });
+  }
+
+getTaskImageUrl(imagePath: string): string {
+  if (!imagePath) return '';
+
+  // 1. Handle Mock URLs (they already start with http)
+  if (imagePath.startsWith('http')) {
+    return imagePath;
+  }
+
+  // 2. Sanitize the path: Replace ALL backslashes with forward slashes
+  // The regex /\\/g looks for backslashes globally
+  const sanitizedPath = imagePath.replace(/\\/g, '/');
+
+  // 3. Construct the full URL
+  // Ensure there isn't a double slash if your API_BASE_URL already ends with /
+  const baseUrl = this.API_BASE_URL.endsWith('/') 
+    ? this.API_BASE_URL.slice(0, -1) 
+    : this.API_BASE_URL;
+
+  // If the path already starts with a slash, remove it to avoid //
+  const cleanPath = sanitizedPath.startsWith('/') 
+    ? sanitizedPath.substring(1) 
+    : sanitizedPath;
+
+  return `${baseUrl}/${cleanPath}`;
+}
+
+openImageLightbox(images: TaskImage[], index: number = 0) {
+  this.lightboxImages = images;
+  this.currentImageIndex = index;
+  this.isLightboxOpen = true;
+  
+  document.body.style.overflow = 'hidden';
+}
+
+closeLightbox() {
+  this.isLightboxOpen = false;
+  this.lightboxImages = []; // Clear the reference
+  document.body.style.overflow = 'auto';
+}
+
+  onFileSelected(event: any, task: TaskModel) {
+  const files: FileList = event.target.files;
+  if (files.length > 0) {
+    console.log(`Uploading ${files.length} files for task: ${task.name}`);
+    const formData = new FormData();
+    Array.from(files).forEach(file => {
+      formData.append('files', file);
+    });
+
+    this.dashBoardService.updateTask(task, Array.from(files)).subscribe({
+      next: () => {
+        console.log('Files uploaded successfully');
+        this.refreshData();
+      },
+      error: (err) => {
+        console.error('Failed to upload files', err);
+      }
+    });
+  }
+}
 }

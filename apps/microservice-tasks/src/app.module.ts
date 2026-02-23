@@ -16,9 +16,32 @@ import { LeaderboardModule } from './leaderboard/leaderboard.module';
 import { FilesModule } from './files/files.module';
 import { AuthorizationModule } from './authorization/authorization.module';
 import { DashboardInvitationModule } from './dashboard-invitation/dashboard-invitation.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join, resolve } from 'path';
+import * as fs from 'fs';
+
+const getStaticPath = () => {
+  // Try common locations relative to __dirname
+  const pathsToTry = [
+    join(__dirname, '..', '..', 'static'), // dist/src/ -> root/static
+    join(__dirname, '..', 'static'),      // dist/ -> root/static or src/ -> root/static
+    resolve(process.cwd(), 'static')      // Actual project root where you ran the command
+  ];
+
+  for (const p of pathsToTry) {
+    if (fs.existsSync(p)) return p;
+  }
+  return pathsToTry[2]; // Fallback to current working directory
+};
+
+const staticPath = getStaticPath();
 
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      rootPath: join(process.cwd(), 'static'), 
+      serveRoot: '/static',
+    }),
     DatabaseModule,
     CoreModule,
     InfraModule,
@@ -43,4 +66,5 @@ import { DashboardInvitationModule } from './dashboard-invitation/dashboard-invi
   controllers: [],
   providers: [],
 })
-export class AppModule { }
+export class AppModule {constructor() {
+  } }
