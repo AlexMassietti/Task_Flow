@@ -134,6 +134,19 @@ export class TaskModel {
     };
   }
 
+  toUpdateNoImageDTO(): TaskUpdateDTO {
+    return {
+      name: this.name,
+      description: this.description,
+      endDate: this.endDate ?? null,
+      finishDate: this.finishDate ?? null,
+      statusId: this.statusId,
+      priorityId: this.priorityId,
+      assignedToUserId: this.assignedToUserId,
+      reviewedByUserId: this.reviewedByUserId,
+    };
+  }
+
   toUpdateDTO(): TaskUpdateDTO {
     return {
       name: this.name,

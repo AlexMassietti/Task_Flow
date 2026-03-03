@@ -453,7 +453,7 @@ closeLightbox() {
       formData.append('files', file);
     });
 
-    this.dashBoardService.updateTask(task, Array.from(files)).subscribe({
+    this.dashBoardService.attachFile(task, Array.from(files)).subscribe({
       next: () => {
         console.log('Files uploaded successfully');
         this.refreshData();

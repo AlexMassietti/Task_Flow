@@ -207,8 +207,18 @@ export class DashBoardService {
     return of(undefined);
   }
 
-updateTask(task: TaskModel, files: File[] = []): Observable<void> {
-  // --- REAL API LOGIC ---
+updateTask(task: TaskModel): Observable<void> {
+    if (!this.useMock) {
+      return this.http.patch<void>(`${this.baseUrl}/task/${task.id}`, task.toUpdateNoImageDTO());
+    }
+    const index = this.mockTasks.findIndex((t) => t.id === task.id);
+    if (index !== -1) {
+      this.mockTasks[index] = task.toDTO();
+    }
+    return of(undefined);
+  }
+
+attachFile(task: TaskModel, files: File[] = []): Observable<void> {
     const formData = new FormData();
     const dto = task.toUpdateDTO();
     files.forEach((file) => {
