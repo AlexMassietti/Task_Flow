@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsNotEmpty, IsNumber, IsOptional, IsPositive } from 'class-validator';
 
-export class CreateBlockDto {
+export class CreateFriendshipGWDto {
 
     @ApiProperty({
         description: 'ID del usuario que envía la solicitud',

@@ -1,9 +1,8 @@
 import { HttpException, Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { CreateFriendshipDto } from '@shared/dtos';
 import { normalizeRemoteError } from '../auth/error/normalize-remote-error';
-import { CreateBlockDto } from './dto/create-block.dto';
+import { CreateFriendshipGWDto } from './dto/create-block.dto';
 
 
 @Injectable()
@@ -12,7 +11,7 @@ export class FriendshipService {
     @Inject('USERS_SERVICE') private readonly usersClient: ClientProxy,
   ) {}
 
-  async create(requesterId: number, dto: CreateFriendshipDto) {
+  async create(requesterId: number, dto: CreateFriendshipGWDto) {
     try {
       return await firstValueFrom(
         this.usersClient.send({ cmd: 'friendship_create' }, { requesterId, email: dto.email })
@@ -32,7 +31,7 @@ export class FriendshipService {
     }
   }
 
-  async block(blockerId: number, dto: CreateBlockDto) { // dto trae el email
+  async block(blockerId: number, dto: CreateFriendshipGWDto) { // dto trae el email
   try {
     return await firstValueFrom(
       this.usersClient.send(
